@@ -1,0 +1,46 @@
+
+
+body {
+  background: white;
+  color: black;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container override if needed */
+.container-custom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Optional: form button reset (no gradient, no hover) */
+button,
+input {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  background: #f0f0f0;
+  color: black;
+}
+
+/* Remove fancy buttons */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-destructive {
+  all: unset;
+  padding: 0.5rem 1rem;
+  background: #ddd;
+  border: 1px solid #999;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* Optional: unstyled links */
+a {
+  color: blue;
+  text-decoration: underline;
+}

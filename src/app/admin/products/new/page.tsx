@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import ProductForm from '@/components/admin/ProductForm';
+import styles from '@/styles/NewProduct.module.scss';
 
 async function getCategories() {
   const categories = await prisma.category.findMany();
@@ -8,27 +9,23 @@ async function getCategories() {
 
 export default async function NewProduct() {
   const categories = await getCategories();
-  
+
   return (
-    <div className="container-custom py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Add New Product</h1>
-        <p className="text-muted-foreground mt-2">
-          Create a new product in your catalog
-        </p>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>Add New Product</h1>
+        <p>Create a new product in your catalog</p>
       </div>
-      
+
       {categories.length === 0 ? (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4">
-          <p className="text-amber-700 dark:text-amber-400">
+        <div className={styles.warning}>
+          <p>
             You need to create at least one category before adding products.{' '}
-            <a href="/admin/categories/new" className="underline">
-              Create a category
-            </a>
+            <a href="/admin/categories/new">Create a category</a>
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className={styles.formWrapper}>
           <ProductForm categories={categories} />
         </div>
       )}

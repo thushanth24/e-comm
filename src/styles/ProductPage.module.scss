@@ -1,0 +1,182 @@
+/* ProductPage.module.scss */
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .breadcrumb {
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  
+    a {
+      color: #6b7280;
+      text-decoration: none;
+  
+      &:hover {
+        color: #1f2937;
+      }
+    }
+  
+    span {
+      font-weight: 500;
+    }
+  }
+  
+  .productGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 4rem;
+  
+    @media (min-width: 768px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .images {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .mainImage {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  
+  .thumbnailGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .thumbnail {
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    cursor: pointer;
+  
+    &:hover {
+      border-color: #3b82f6;
+    }
+  }
+  
+  .image {
+    object-fit: cover;
+  }
+  
+  .noImage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    height: 100%;
+    border-radius: 1rem;
+  }
+  
+  .details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .header {
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+  
+    .category {
+      display: inline-block;
+      font-size: 0.875rem;
+      padding: 0.25rem 0.5rem;
+      background: #f3f4f6;
+      border-radius: 0.375rem;
+      margin-top: 0.5rem;
+      text-decoration: none;
+      color: #374151;
+  
+      &:hover {
+        background-color: #e5e7eb;
+      }
+    }
+  }
+  
+  .price {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  
+  .description {
+    h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+  
+    p {
+      color: #6b7280;
+      white-space: pre-line;
+    }
+  }
+  
+  .availability {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  
+    span {
+      font-weight: 500;
+    }
+  
+    .inStock {
+      color: #16a34a;
+    }
+  
+    .outOfStock {
+      color: #dc2626;
+    }
+  }
+  
+  .action {
+    padding-top: 1rem;
+  
+    button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      border: none;
+      background-color: #3b82f6;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+  
+      &:hover:not(:disabled) {
+        background-color: #2563eb;
+      }
+  
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  .relatedSection {
+    margin-top: 4rem;
+  
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+  }
+  

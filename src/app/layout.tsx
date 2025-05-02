@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
-import '@/styles/globals.css';
+import '@/styles/globals.scss'; // use .scss instead of Tailwind CSS
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,9 +22,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex min-h-screen flex-col">
+          <div className="layout">
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="mainContent">{children}</main>
             <Footer />
           </div>
         </ThemeProvider>

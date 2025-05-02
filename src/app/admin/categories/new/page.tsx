@@ -1,16 +1,15 @@
 import CategoryForm from '@/components/admin/CategoryForm';
+import styles from '@/styles/NewCategory.module.scss';
 
 export default function NewCategory() {
   return (
-    <div className="container-custom py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Add New Category</h1>
-        <p className="text-muted-foreground mt-2">
-          Create a new product category
-        </p>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>Add New Category</h1>
+        <p>Create a new product category</p>
       </div>
-      
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+
+      <div className={styles.formWrapper}>
         <CategoryForm />
       </div>
     </div>

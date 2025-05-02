@@ -1,0 +1,53 @@
+/* ProductList.module.scss */
+
+.productList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #111827;
+  }
+  
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 1rem;
+    border: 2px dashed #d1d5db;
+    border-radius: 0.75rem;
+    background-color: #f9fafb;
+  }
+  
+  .emptyIcon {
+    width: 3rem;
+    height: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+  }
+  
+  .emptyTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .emptyMessage {
+    max-width: 28rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+  

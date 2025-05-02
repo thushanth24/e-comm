@@ -1,0 +1,104 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  
+    @media (max-width: 768px) {
+      padding: 1.5rem 1rem;
+    }
+  }
+  
+  .header {
+    margin-bottom: 2rem;
+  
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937; // text-gray-800
+  
+      @media (min-width: 768px) {
+        font-size: 2.25rem;
+      }
+    }
+  
+    p {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: #6b7280; // text-gray-500
+    }
+  }
+  
+  .formWrapper {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  
+    &:hover {
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    }
+  
+    @media (prefers-color-scheme: dark) {
+      background-color: #1f2937; // dark gray
+      color: #f9fafb;
+  
+      input,
+      textarea,
+      select {
+        background-color: #374151; // input gray
+        border-color: #4b5563;
+        color: #f9fafb;
+      }
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+  
+      label {
+        font-weight: 600;
+        color: #374151;
+      }
+  
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+  
+        &:focus {
+          outline: none;
+          border-color: #2563eb;
+          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+      }
+  
+      button {
+        align-self: flex-start;
+        padding: 0.75rem 1.5rem;
+        background-color: #2563eb;
+        color: #ffffff;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+  
+        &:hover {
+          background-color: #1d4ed8;
+        }
+  
+        &:disabled {
+          background-color: #9ca3af;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+  

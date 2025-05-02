@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import ProductList from '@/components/ui/ProductList';
+import styles from '@/styles/ProductPage.module.scss';
+
 
 interface PageProps {
   params: {
@@ -64,113 +66,96 @@ export default async function ProductPage({ params }: PageProps) {
   const relatedProducts = await getRelatedProducts(product.categoryId, product.id);
   
   return (
-    <div className="container-custom py-8">
-      <div className="mb-4">
-        <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
-          Home
-        </Link>
-        {' '}/{' '}
-        <Link href={`/categories/${product.category.slug}`} className="text-sm text-muted-foreground hover:text-primary">
-          {product.category.name}
-        </Link>
-        {' '}/{' '}
-        <span className="text-sm font-medium">{product.name}</span>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-        {/* Product Images */}
-        <div className="space-y-4">
-          {product.images.length > 0 ? (
-            <>
-              <div className="aspect-square relative rounded-lg overflow-hidden">
-                <Image
-                  src={product.images[0].url}
-                  alt={product.name}
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover"
-                />
-              </div>
-              
-              {product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {product.images.map((image, index) => (
-                    <div 
-                      key={image.id} 
-                      className="aspect-square relative rounded-md overflow-hidden cursor-pointer border hover:border-primary"
-                    >
-                      <Image
-                        src={image.url}
-                        alt={`${product.name} image ${index + 1}`}
-                        fill
-                        sizes="25vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="aspect-square relative rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-              <span className="text-muted-foreground">No image available</span>
+    <div className={styles.container}>
+    <div className={styles.breadcrumb}>
+      <Link href="/">Home</Link>
+      {' / '}
+      <Link href={`/categories/${product.category.slug}`}>
+        {product.category.name}
+      </Link>
+      {' / '}
+      <span>{product.name}</span>
+    </div>
+  
+    <div className={styles.productGrid}>
+      <div className={styles.images}>
+        {product.images.length > 0 ? (
+          <>
+            <div className={styles.mainImage}>
+              <Image
+                src={product.images[0].url}
+                alt={product.name}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className={styles.image}
+              />
             </div>
+  
+            {product.images.length > 1 && (
+              <div className={styles.thumbnailGrid}>
+                {product.images.map((image, index) => (
+                  <div key={image.id} className={styles.thumbnail}>
+                    <Image
+                      src={image.url}
+                      alt={`${product.name} image ${index + 1}`}
+                      fill
+                      sizes="25vw"
+                      className={styles.image}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className={styles.noImage}>
+            <span>No image available</span>
+          </div>
+        )}
+      </div>
+  
+      <div className={styles.details}>
+        <div className={styles.header}>
+          <h1>{product.name}</h1>
+          <Link href={`/categories/${product.category.slug}`} className={styles.category}>
+            {product.category.name}
+          </Link>
+        </div>
+  
+        <div className={styles.price}>{formatPrice(product.price)}</div>
+  
+        <div className={styles.description}>
+          <h3>Description</h3>
+          <p>{product.description}</p>
+        </div>
+  
+        <div className={styles.availability}>
+          <span>Availability:</span>
+          {product.inventory > 0 ? (
+            <span className={styles.inStock}>
+              In Stock ({product.inventory} {product.inventory === 1 ? 'item' : 'items'} left)
+            </span>
+          ) : (
+            <span className={styles.outOfStock}>Out of Stock</span>
           )}
         </div>
-        
-        {/* Product Info */}
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">{product.name}</h1>
-            <div className="flex items-center mt-2">
-              <Link 
-                href={`/categories/${product.category.slug}`}
-                className="text-sm font-medium px-2 py-1 bg-muted rounded-md hover:bg-muted/80"
-              >
-                {product.category.name}
-              </Link>
-            </div>
-          </div>
-          
-          <div className="text-2xl font-bold">{formatPrice(product.price)}</div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Description</h3>
-            <p className="text-muted-foreground whitespace-pre-line">{product.description}</p>
-          </div>
-          
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-medium">Availability:</span>
-              {product.inventory > 0 ? (
-                <span className="text-green-600 dark:text-green-400">
-                  In Stock ({product.inventory} {product.inventory === 1 ? 'item' : 'items'} left)
-                </span>
-              ) : (
-                <span className="text-red-600 dark:text-red-400">Out of Stock</span>
-              )}
-            </div>
-          </div>
-          
-          <div className="pt-6">
-            <button 
-              className="w-full py-3 px-4 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={product.inventory === 0}
-            >
-              {product.inventory === 0 ? 'Out of Stock' : 'Add to Cart'}
-            </button>
-          </div>
+  
+        <div className={styles.action}>
+          <button disabled={product.inventory === 0}>
+            {product.inventory === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </button>
         </div>
       </div>
-      
-      {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold mb-6">You may also like</h2>
-          <ProductList products={relatedProducts} />
-        </section>
-      )}
     </div>
+  
+    {relatedProducts.length > 0 && (
+      <section className={styles.relatedSection}>
+        <h2>You may also like</h2>
+        <ProductList products={relatedProducts} />
+      </section>
+    )}
+  </div>
+  
   );
 }

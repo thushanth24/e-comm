@@ -1,0 +1,79 @@
+/* PriceRangeFilter.module.scss */
+
+.filter {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .inputRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  
+    input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+  
+      &:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      }
+    }
+  }
+  
+  .symbol,
+  .to {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  
+    button {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+  }
+  
+  .apply {
+    background-color: #2563eb;
+    color: #fff;
+    border: none;
+  
+    &:hover {
+      background-color: #1e40af;
+    }
+  }
+  
+  .reset {
+    background-color: transparent;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+  
