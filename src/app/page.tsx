@@ -6,6 +6,8 @@ import ProductList from '@/components/ui/ProductList';
 import CategoryCard from '@/components/ui/CategoryCard';
 import { ShoppingBag, Package, Award, CreditCard, Tag, ChevronRight } from 'lucide-react';
 import styles from '@/styles/Home.module.scss';
+import CategorySection from '@/components/ui/CategorySection';
+
 
 async function getFeaturedProducts() {
   const products = await prisma.product.findMany({
@@ -110,31 +112,16 @@ export default async function Home() {
       </section>
 
       {/* Featured Categories */}
-      <section className={styles.featuredCategories}>
-        <div className={styles.container}>
-          <div className={styles.sectionHeader}>
-            <h2>Shop by Category</h2>
-            <Link href="/categories" className={styles.sectionLink}>
-              View all <ChevronRight className={styles.linkIcon} />
-            </Link>
-          </div>
-          <div className={styles.categoryGrid}>
-            {categories.length > 0
-              ? categories.map((category) => (
-                  <CategoryCard
-                    key={category.id}
-                    category={{ name: category.name, slug: category.slug }}
-                  />
-                ))
-              : ['Men', 'Women', 'Kids', 'Accessories'].map((name) => (
-                  <CategoryCard
-                    key={name}
-                    category={{ name, slug: name.toLowerCase() }}
-                  />
-                ))}
-          </div>
-        </div>
-      </section>
+      <CategorySection
+        categories={
+          categories.length > 0
+            ? categories
+            : ['Men', 'Women', 'Kids', 'Accessories'].map((name) => ({
+                name,
+                slug: name.toLowerCase(),
+              }))
+        }
+      />
 
       {/* Featured Products */}
       <section className={styles.featuredProducts}>

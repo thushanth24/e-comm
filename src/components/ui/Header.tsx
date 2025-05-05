@@ -81,9 +81,6 @@ export default function Header() {
             <div><MapPin /> Store Locator</div>
           </div>
           <div className={styles.topRight}>
-            <Link href="/track-order">Track Order</Link>
-            <Link href="/shipping">Shipping</Link>
-            <Link href="/faq">FAQ</Link>
           </div>
         </div>
       </div>
@@ -95,7 +92,6 @@ export default function Header() {
         </div>
 
         <div className={styles.actions}>
-          <Link href="/signin"><User /> Sign In</Link>
           <Link href="/favorites"><Heart /> Wishlist</Link>
           <Link href="/cart" className={styles.cart}><ShoppingBag /><span className={styles.badge}>0</span> Cart - $0.00</Link>
           <Link href="/admin" className={styles.admin}>Admin</Link>
