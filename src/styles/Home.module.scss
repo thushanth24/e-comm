@@ -1,260 +1,280 @@
-/* Home.module.scss */
+.page {
+  background: #fff;
+}
 
-.heroSection {
+/* Hero Section */
+.hero {
+  position: relative;
+  background-color: #f9fafb;
+
+  .heroImageWrapper {
     position: relative;
-    background-color: #f9fafb;
-  
-    .heroImageWrapper {
-      position: relative;
-      height: 500px;
-  
-      @media (min-width: 768px) {
-        height: 600px;
-      }
-  
-      img {
-        object-fit: cover;
-        object-position: center;
-      }
-  
-      .heroOverlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7), transparent);
-        display: flex;
-        align-items: center;
-  
-        .content {
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 0 1.5rem;
-  
-          .label {
-            display: inline-block;
-            background: #f3f4f6;
-            color: #374151;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            margin-bottom: 1rem;
-          }
-  
-          h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #111827;
-            margin-bottom: 1rem;
-  
-            @media (min-width: 768px) {
-              font-size: 3rem;
-            }
-  
-            span {
-              color: #dc2626;
-            }
-          }
-  
-          p {
-            color: #6b7280;
-            font-size: 1.125rem;
-            margin-bottom: 2rem;
-          }
-  
-          .ctaButtons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-  
-            a {
-              display: inline-flex;
-              align-items: center;
-              padding: 0.75rem 1.5rem;
-              border-radius: 0.375rem;
-              font-weight: 500;
-              font-size: 0.875rem;
-              transition: all 0.2s ease;
-  
-              &.primary {
-                background: #111827;
-                color: #fff;
-  
-                &:hover {
-                  background: #1f2937;
-                }
-              }
-  
-              &.secondary {
-                border: 1px solid #d1d5db;
-                color: #374151;
-  
-                &:hover {
-                  background: #f9fafb;
-                }
-              }
-  
-              svg {
-                margin-right: 0.5rem;
-              }
-            }
-          }
-        }
-      }
+    height: 500px;
+
+    @media (min-width: 768px) {
+      height: 600px;
     }
-  }
-  
-  .categoriesNav {
-    background: #fff;
-    border-bottom: 1px solid #f3f4f6;
-    padding: 1.5rem 0;
-  
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-  
-      .categoryLinks {
-        display: flex;
-        gap: 1rem;
-        overflow-x: auto;
-  
-        a {
-          flex-shrink: 0;
-          padding: 0.5rem 1rem;
-          border-radius: 0.375rem;
-          font-size: 0.875rem;
-          font-weight: 500;
+
+    .heroImage {
+      object-fit: cover;
+      object-position: center;
+      z-index: 0;
+    }
+
+    .heroContent {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7), transparent);
+      display: flex;
+      align-items: center;
+      z-index: 1;
+
+      .heroTextWrapper {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+
+        .heroBadge {
+          display: inline-block;
+          background: #f3f4f6;
           color: #374151;
-          white-space: nowrap;
-          transition: 0.2s;
-  
-          &:hover {
-            background: #f3f4f6;
+          padding: 0.25rem 0.75rem;
+          border-radius: 999px;
+          font-size: 0.75rem;
+          font-weight: 500;
+          margin-bottom: 1rem;
+        }
+
+        .heroTitle {
+          font-size: 2.5rem;
+          font-weight: bold;
+          color: #111827;
+          margin-bottom: 1rem;
+
+          @media (min-width: 768px) {
+            font-size: 3rem;
+          }
+
+          span {
             color: #dc2626;
           }
         }
-      }
-    }
-  }
-  
-  .valueProps {
-    background: #fff;
-    padding: 3rem 0;
-  
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-  
-      .grid {
-        display: grid;
-        gap: 1.5rem;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  
-        .item {
+
+        .heroSubtitle {
+          color: #6b7280;
+          font-size: 1.125rem;
+          margin-bottom: 2rem;
+        }
+
+        .heroActions {
           display: flex;
-          align-items: flex-start;
-          padding: 1rem;
-          border-radius: 0.5rem;
-  
-          .icon {
-            background: #f3f4f6;
-            padding: 0.75rem;
-            border-radius: 999px;
-            margin-right: 1rem;
+          flex-wrap: wrap;
+          gap: 1rem;
+
+          .primaryBtn,
+          .secondaryBtn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
           }
-  
-          .info {
-            h3 {
-              font-weight: 600;
-              margin-bottom: 0.25rem;
-              color: #111827;
+
+          .primaryBtn {
+            background: #111827;
+            color: #fff;
+
+            &:hover {
+              background: #1f2937;
             }
-  
-            p {
-              font-size: 0.875rem;
-              color: #6b7280;
+          }
+
+          .secondaryBtn {
+            border: 1px solid #d1d5db;
+            color: #374151;
+
+            &:hover {
+              background: #f9fafb;
             }
+          }
+
+          .btnIcon {
+            margin-right: 0.5rem;
           }
         }
       }
     }
   }
-  
-  .section {
-    padding: 3rem 0;
-  
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-  
-      .sectionHeader {
+}
+
+/* Category Navigation */
+.categoryNav {
+  background: #fff;
+  border-bottom: 1px solid #f3f4f6;
+  padding: 1.5rem 0;
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    .categoryList {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+
+      .categoryItem {
+        flex-shrink: 0;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        white-space: nowrap;
+        transition: 0.2s;
+
+        &:hover {
+          background: #f3f4f6;
+          color: #dc2626;
+        }
+      }
+    }
+  }
+}
+
+/* Value Props */
+.values {
+  background: #fff;
+  padding: 3rem 0;
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    .valueGrid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+
+      .valueCard {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-  
-        h2 {
-          font-size: 1.5rem;
-          font-weight: 700;
+        align-items: flex-start;
+        padding: 1rem;
+        border-radius: 0.5rem;
+
+        .icon {
+          background: #f3f4f6;
+          padding: 0.75rem;
+          border-radius: 999px;
+          margin-right: 1rem;
+        }
+
+        h3 {
+          font-weight: 600;
+          margin-bottom: 0.25rem;
           color: #111827;
         }
-  
-        a {
+
+        p {
           font-size: 0.875rem;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          color: #dc2626;
-  
-          &:hover {
-            color: #b91c1c;
-          }
-  
-          svg {
-            margin-left: 0.25rem;
-          }
+          color: #6b7280;
         }
-      }
-  
-      .grid {
-        display: grid;
-        gap: 1.5rem;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      }
-  
-      .fallback {
-        text-align: center;
-        color: #6b7280;
-        padding: 2rem 0;
       }
     }
   }
-  
-  .promotions {
-    background: #fff;
-  
-    .grid {
+}
+
+/* Featured Sections (Reusable) */
+.featuredCategories,
+.featuredProducts,
+.newArrivals {
+  padding: 3rem 0;
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    .sectionHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .sectionLink {
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        color: #dc2626;
+
+        &:hover {
+          color: #b91c1c;
+        }
+
+        .linkIcon {
+          margin-left: 0.25rem;
+        }
+      }
+    }
+
+    .categoryGrid,
+    .productGrid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .loading {
+      text-align: center;
+      color: #6b7280;
+      padding: 2rem 0;
+    }
+  }
+}
+
+/* Promotions Section */
+.banners {
+  background: #fff;
+  padding: 3rem 0;
+  position: relative;
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    .bannerGrid {
       display: grid;
       gap: 2rem;
       grid-template-columns: 1fr;
-  
+
       @media (min-width: 1024px) {
         grid-template-columns: repeat(2, 1fr);
       }
-  
-      .banner {
+
+      .bannerCard {
         position: relative;
         height: 16rem;
         overflow: hidden;
         border-radius: 0.75rem;
-  
-        img {
+
+        .bannerImage {
           object-fit: cover;
+          z-index: 0;
         }
-  
-        .overlay {
+
+        .bannerContent {
           position: absolute;
           inset: 0;
           background: linear-gradient(to right, rgba(17, 24, 39, 0.3), transparent);
@@ -262,8 +282,9 @@
           flex-direction: column;
           justify-content: center;
           padding: 2rem;
-  
-          .label {
+          z-index: 1;
+
+          .bannerBadge {
             display: inline-block;
             background: #fff;
             color: #111827;
@@ -273,21 +294,21 @@
             border-radius: 999px;
             margin-bottom: 0.75rem;
           }
-  
+
           h2 {
             font-size: 1.5rem;
             font-weight: 700;
             color: #fff;
             margin-bottom: 0.5rem;
           }
-  
+
           p {
             color: #fff;
             font-size: 0.875rem;
             margin-bottom: 1rem;
           }
-  
-          a {
+
+          .bannerBtn {
             background: #fff;
             color: #111827;
             font-size: 0.875rem;
@@ -295,7 +316,7 @@
             padding: 0.5rem 1rem;
             border-radius: 0.375rem;
             text-decoration: none;
-  
+
             &:hover {
               background: #f3f4f6;
             }
@@ -304,45 +325,49 @@
       }
     }
   }
-  
-  .brandShowcase {
-    background: #fff;
-    padding: 3rem 0;
-  
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-      text-align: center;
-  
+}
+
+/* Brand Showcase */
+.brands {
+  background: #fff;
+  padding: 3rem 0;
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    text-align: center;
+
+    .sectionHeaderCenter {
+      margin-bottom: 2rem;
+
       h2 {
         font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
         color: #111827;
       }
-  
+
       p {
         color: #6b7280;
-        margin-bottom: 2rem;
       }
-  
-      .grid {
-        display: grid;
-        gap: 2rem;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  
-        .brand {
-          background: #f9fafb;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          font-weight: 500;
-          color: #374151;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
+    }
+
+    .brandGrid {
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+
+      .brandCard {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
-  
+}

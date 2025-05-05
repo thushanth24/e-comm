@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
   Facebook,
   Instagram,
@@ -11,23 +14,27 @@ import {
 import styles from '@/styles/Footer.module.scss';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [year, setYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      alert(`Subscribed: ${email}`);
+      setEmail('');
+    }
+  };
+
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
-        {/* Top Section: Newsletter + Features */}
+        {/* Top Section */}
         <div className={styles.topSection}>
-          {/* Newsletter */}
-          <div className={styles.newsletter}>
-            <h3>Subscribe & Get 10% Off</h3>
-            <p>Join our newsletter for exclusive offers and new arrivals</p>
-            <div className={styles.inputGroup}>
-              <input type="email" placeholder="Your email address" />
-              <button>
-                <Send />
-                Join
-              </button>
-            </div>
-          </div>
+         
 
           {/* Features */}
           <div className={styles.features}>
@@ -54,7 +61,6 @@ export default function Footer() {
 
         {/* Footer Links */}
         <div className={styles.footerLinks}>
-          {/* Column 1 */}
           <div>
             <Link href="/" className={styles.logo}>
               StyleStore
@@ -65,91 +71,71 @@ export default function Footer() {
             </p>
             <div className={styles.socials}>
               <a href="#" aria-label="Facebook">
-                <Facebook />
+                <Facebook size={18} />
               </a>
               <a href="#" aria-label="Instagram">
-                <Instagram />
+                <Instagram size={18} />
               </a>
               <a href="#" aria-label="Twitter">
-                <Twitter />
+                <Twitter size={18} />
               </a>
             </div>
           </div>
 
-          {/* Column 2 */}
           <div>
             <h3>Shop</h3>
             <ul>
               <li>
                 <Link href="/categories/mens">
-                  <ArrowRight />
+                  <ArrowRight size={14} />
                   <span>Men's Clothing</span>
                 </Link>
               </li>
               <li>
                 <Link href="/categories/womens">
-                  <ArrowRight />
+                  <ArrowRight size={14} />
                   <span>Women's Clothing</span>
                 </Link>
               </li>
               <li>
                 <Link href="/categories/kids">
-                  <ArrowRight />
+                  <ArrowRight size={14} />
                   <span>Kids' Clothing</span>
                 </Link>
               </li>
               <li>
                 <Link href="/categories/accessories">
-                  <ArrowRight />
+                  <ArrowRight size={14} />
                   <span>Accessories</span>
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3 */}
           <div>
             <h3>Company</h3>
             <ul>
-              <li>
-                <Link href="#">About Us</Link>
-              </li>
-              <li>
-                <Link href="#">Contact</Link>
-              </li>
-              <li>
-                <Link href="#">Careers</Link>
-              </li>
-              <li>
-                <Link href="#">Terms & Conditions</Link>
-              </li>
+              <li><Link href="#">About Us</Link></li>
+              <li><Link href="#">Contact</Link></li>
+              <li><Link href="#">Careers</Link></li>
+              <li><Link href="#">Terms & Conditions</Link></li>
             </ul>
           </div>
 
-          {/* Column 4 */}
           <div>
             <h3>Help</h3>
             <ul>
-              <li>
-                <Link href="#">Customer Service</Link>
-              </li>
-              <li>
-                <Link href="#">My Account</Link>
-              </li>
-              <li>
-                <Link href="#">Shipping & Delivery</Link>
-              </li>
-              <li>
-                <Link href="#">Returns & Exchanges</Link>
-              </li>
+              <li><Link href="#">Customer Service</Link></li>
+              <li><Link href="#">My Account</Link></li>
+              <li><Link href="#">Shipping & Delivery</Link></li>
+              <li><Link href="#">Returns & Exchanges</Link></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className={styles.bottomBar}>
-          <p>© {new Date().getFullYear()} StyleStore. All rights reserved.</p>
-         
+          {year && <p>© {year} StyleStore. All rights reserved.</p>}
         </div>
       </div>
     </footer>

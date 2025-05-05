@@ -1,74 +1,80 @@
-/* CategoryCard.module.scss */
-
 .card {
-    display: block;
-  
-    &:hover .image {
-      transform: scale(1.05);
-    }
-  
-    &:hover .explore {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  
-    &:hover .imageContainer {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
+  display: block;
+  transition: transform 0.2s ease;
+
+  &:hover .image {
+    transform: scale(1.05);
   }
-  
-  .imageContainer {
-    position: relative;
-    height: 18rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    overflow: hidden;
-    transition: box-shadow 0.3s ease;
+
+  &:hover .explore {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .image {
-    object-fit: cover;
-    transition: transform 0.5s ease;
+
+  &:hover .imageContainer {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
   }
-  
-  .overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 1.5rem;
-    transition: opacity 0.3s ease;
+}
+
+.imageContainer {
+  position: relative;
+  height: 14rem; // ↓ reduced height for better visual flow
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  background-color: #f9fafb;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.55));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 1.25rem;
+  transition: opacity 0.3s ease;
+  text-align: center;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 1.25rem; // ↓ slightly smaller
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.explore {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
-  
-  .title {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    text-align: center;
-  }
-  
-  .explore {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.875rem;
-    color: white;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(4px);
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    opacity: 0;
-    transform: translateY(1rem);
-    transition: all 0.3s ease;
-  }
-  
-  .chevron {
-    width: 1rem;
-    height: 1rem;
-  }
-  
+}
+
+.chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+}
