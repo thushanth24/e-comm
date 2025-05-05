@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from '@/styles/ShopForWomen.module.scss';
+import styles from '@/styles/ShopForMen.module.scss';
 
 const images = [
   'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l1.avif',
@@ -68,7 +68,7 @@ export default function ShopForWomen() {
           Discover the latest in women's fashion with our exclusive collection. From chic dresses
           to stylish accessories, find everything you need to elevate your wardrobe.
         </p>
-        <Link href="/category/women" className={styles.primaryBtn}>
+        <Link href="/categories/women" className={styles.primaryBtn}>
           Shop Now
         </Link>
       </div>

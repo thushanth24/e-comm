@@ -15,6 +15,8 @@ interface Category {
   id: number;
   name: string;
   slug: string;
+  parentId?: number | null;
+  children?: Category[];
 }
 
 interface ProductFormProps {
@@ -34,7 +36,7 @@ export default function ProductForm({ initialData, categories }: ProductFormProp
     price: initialData?.price || 0,
     description: initialData?.description || '',
     inventory: initialData?.inventory || 1,
-    categoryId: initialData?.categoryId || (categories[0]?.id || 0),
+    categoryId: initialData?.categoryId ?? categories[0]?.id ?? 0,
     featured: initialData?.featured || false,
     images: initialData?.images || [],
   });
@@ -128,6 +130,16 @@ export default function ProductForm({ initialData, categories }: ProductFormProp
     }
   };
 
+  // Helper to render category hierarchy in dropdown
+  const renderCategoryOptions = (cats: Category[], level = 0): JSX.Element[] => {
+    return cats.flatMap(cat => [
+      <option key={cat.id} value={cat.id}>
+        {'— '.repeat(level) + cat.name}
+      </option>,
+      ...(cat.children ? renderCategoryOptions(cat.children, level + 1) : []),
+    ]);
+  };
+
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
       {error && <div className={styles.alertError}>{error}</div>}
@@ -161,9 +173,7 @@ export default function ProductForm({ initialData, categories }: ProductFormProp
         <div className={styles.field}>
           <label htmlFor="categoryId">Category</label>
           <select id="categoryId" name="categoryId" value={formData.categoryId} onChange={handleChange}>
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
+            {renderCategoryOptions(categories)}
           </select>
           {formErrors.categoryId && <p className={styles.error}>{formErrors.categoryId}</p>}
         </div>
@@ -187,8 +197,12 @@ export default function ProductForm({ initialData, categories }: ProductFormProp
       </div>
 
       <div className={styles.actions}>
-        <Button type="submit" isLoading={loading}>{initialData?.id ? 'Update Product' : 'Create Product'}</Button>
-        <Button type="button" variant="secondary" onClick={() => router.push('/admin/products')}>Cancel</Button>
+        <Button type="submit" isLoading={loading}>
+          {initialData?.id ? 'Update Product' : 'Create Product'}
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => router.push('/admin/products')}>
+          Cancel
+        </Button>
       </div>
     </form>
   );

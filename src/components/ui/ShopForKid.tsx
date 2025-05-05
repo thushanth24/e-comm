@@ -7,12 +7,12 @@ import Link from 'next/link';
 import styles from '@/styles/ShopForMen.module.scss';
 
 const images = [
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l1.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l2.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l3.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l5.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l6.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l4.webp',
+  "https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kr1.avif",
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kr2.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kr3.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kr5.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kr6.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kr4.avif',
 ];
 
 const visibleCount = 3;
@@ -68,7 +68,7 @@ export default function ShopForWomen() {
           Discover the latest in Kid's fashion with our exclusive collection. From chic dresses
           to stylish accessories, find everything you need to elevate your wardrobe.
         </p>
-        <Link href="/category/Men" className={styles.primaryBtn}>
+        <Link href="/categories/kid" className={styles.primaryBtn}>
           Shop Now
         </Link>
       </div>
@@ -76,7 +76,7 @@ export default function ShopForWomen() {
       <div className={styles.bottomSection}>
         <div className={styles.leftImage}>
           <Image
-            src="https://axzell-saas.s3.eu-north-1.amazonaws.com/home/r1.avif"
+            src="https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kl1.avif"
             alt="Women's Fashion"
             width={400}
             height={400}

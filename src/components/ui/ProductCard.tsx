@@ -67,7 +67,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             className={`${styles.cartButton} ${isOutOfStock ? styles.disabled : styles.active}`}
           >
             <ShoppingBag className={styles.cartIcon} />
-            {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
+            {isOutOfStock ? 'Sold Out' : 'Add to wishlist'}
           </button>
         </div>
       </div>

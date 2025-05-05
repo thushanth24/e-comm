@@ -2,20 +2,41 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import styles from '@/styles/AdminCategories.module.scss';
 
+// Step 1: Fetch categories as a tree
 async function getCategories() {
   const categories = await prisma.category.findMany({
+    where: { parentId: null },
     include: {
-      _count: {
-        select: { products: true },
+      _count: { select: { products: true } },
+      children: {
+        include: {
+          _count: { select: { products: true } },
+          children: {
+            include: {
+              _count: { select: { products: true } },
+              children: true, // add more levels as needed
+            },
+          },
+        },
       },
     },
   });
-  
+
   return categories;
 }
 
+// Step 2: Flatten categories into a displayable list with indentation
+function flattenCategories(categories: any[], level = 0): any[] {
+  return categories.flatMap((category) => {
+    const current = { ...category, level };
+    const children = category.children ? flattenCategories(category.children, level + 1) : [];
+    return [current, ...children];
+  });
+}
+
 export default async function AdminCategories() {
-  const categories = await getCategories();
+  const tree = await getCategories();
+  const categories = flattenCategories(tree);
 
   return (
     <div className={styles.container}>
@@ -51,9 +72,12 @@ export default async function AdminCategories() {
               ) : (
                 categories.map((category) => (
                   <tr key={category.id}>
-                    <td>{category.name}</td>
+                    <td>
+                      {'— '.repeat(category.level)}
+                      {category.name}
+                    </td>
                     <td>{category.slug}</td>
-                    <td>{category._count.products}</td>
+                    <td>{category._count?.products || 0}</td>
                     <td className={styles.actionsCell}>
                       <Link href={`/admin/categories/${category.id}/edit`} className={styles.edit}>
                         Edit
