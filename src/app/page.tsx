@@ -7,6 +7,11 @@ import CategoryCard from '@/components/ui/CategoryCard';
 import { ShoppingBag, Package, Award, CreditCard, Tag, ChevronRight } from 'lucide-react';
 import styles from '@/styles/Home.module.scss';
 import CategorySection from '@/components/ui/CategorySection';
+import ShopForWomen from '@/components/ui/ShopForWomen';
+import ShopForMen from '@/components/ui/ShopForMen';
+import ShopForKid from '@/components/ui/ShopForKid';
+
+
 
 
 async function getFeaturedProducts() {
@@ -17,6 +22,8 @@ async function getFeaturedProducts() {
   });
   return products;
 }
+
+
 
 async function getNewArrivals() {
   const products = await prisma.product.findMany({
@@ -72,22 +79,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Category Navigation */}
-      <section className={styles.categoryNav}>
-        <div className={styles.container}>
-          <div className={styles.categoryList}>
-            {["Men", "Women", "Kids", "Accessories", "New Arrivals", "Sale"].map((category) => (
-              <Link
-                key={category}
-                href={`/category/${category.toLowerCase().replace(' ', '-')}`}
-                className={styles.categoryItem}
-              >
-                {category}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Value Propositions */}
       <section className={styles.values}>
@@ -111,17 +102,17 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured Categories */}
-      <CategorySection
-        categories={
-          categories.length > 0
-            ? categories
-            : ['Men', 'Women', 'Kids', 'Accessories'].map((name) => ({
-                name,
-                slug: name.toLowerCase(),
-              }))
-        }
-      />
+              
+
+      <ShopForWomen />
+      <ShopForMen />
+      <ShopForKid />
+
+
+
+
+
+
 
       {/* Featured Products */}
       <section className={styles.featuredProducts}>

@@ -371,3 +371,68 @@
     }
   }
 }
+
+
+.shopForWomen {
+  margin: 5rem 0;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.shopLeft {
+  flex: 1;
+  max-width: 30%;
+}
+
+.shopLeft h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.shopLeft p {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.shopRight {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.carouselWrapper {
+  display: flex;
+  transition: transform 0.5s ease;
+  gap: 1rem;
+}
+
+.card {
+  min-width: calc(100% / 3 - 0.67rem);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.navBtn {
+  position: absolute;
+  top: 50%;
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  z-index: 10;
+  transform: translateY(-50%);
+  opacity: 0.8;
+}
+
+.leftBtn {
+  left: 0;
+}
+
+.rightBtn {
+  right: 0;
+}

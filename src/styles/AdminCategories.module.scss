@@ -54,7 +54,7 @@
         background-color: #f9fafb;
   
         @media (prefers-color-scheme: dark) {
-          background-color: #1f2937;
+          background-color: #ebeeef;
         }
   
         th {
@@ -62,7 +62,7 @@
           padding: 1rem;
           font-size: 0.75rem;
           font-weight: 600;
-          color: #6b7280;
+          color: #0052f6;
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
@@ -73,14 +73,14 @@
           border-top: 1px solid #e5e7eb;
   
           @media (prefers-color-scheme: dark) {
-            border-color: #374151;
+            border-color: #ffffff;
           }
   
           &:hover {
-            background-color: #f9fafb;
+            background-color: #0080ff;
   
             @media (prefers-color-scheme: dark) {
-              background-color: #1f2937;
+              background-color: #3691ca;
             }
           }
   
@@ -95,9 +95,12 @@
             a {
               text-decoration: none;
               font-weight: 500;
+              align-items: center;
   
               &.edit {
-                color: #1d4ed8;
+                color: hsl(180, 100%, 100%);
+                padding: 10px;
+                align-items: center;
   
                 &:hover {
                   color: #1e40af;
@@ -105,10 +108,10 @@
               }
   
               &.view {
-                color: #6b7280;
+                color: #fefeff;
   
                 &:hover {
-                  color: #111827;
+                  color: #1e40af;
                 }
               }
             }
@@ -121,7 +124,7 @@
           color: #6b7280;
   
           a {
-            color: #1d4ed8;
+            color: #ff0a0a;
   
             &:hover {
               text-decoration: underline;

@@ -5,6 +5,7 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**', // Required for Unsplash to allow all image paths
       },
       {
         protocol: 'https',
@@ -14,12 +15,17 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 's3.amazonaws.com',
+        pathname: '/**',
       },
     ],
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:5000', '*.replit.dev', '*.replit.app'],
+      allowedOrigins: [
+        'http://localhost:5000', // add protocol for consistency
+        'https://*.replit.dev',
+        'https://*.replit.app',
+      ],
     },
   },
 };
