@@ -1,9 +1,7 @@
 {
-  "/api/s3/upload/route": "app/api/s3/upload/route.js",
-  "/api/products/route": "app/api/products/route.js",
-  "/admin/page": "app/admin/page.js",
+  "/page": "app/page.js",
   "/admin/products/new/page": "app/admin/products/new/page.js",
+  "/admin/page": "app/admin/page.js",
   "/search/page": "app/search/page.js",
-  "/admin/products/page": "app/admin/products/page.js",
-  "/page": "app/page.js"
+  "/admin/products/page": "app/admin/products/page.js"
 }
