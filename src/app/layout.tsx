@@ -8,7 +8,7 @@ import '@/styles/globals.scss'; // use .scss instead of Tailwind CSS
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'StyleStore - Trendy Clothing & Accessories',
+  title: 'SRI RAAM SELECTION',
   description: 'Discover trendy clothing and accessories for men, women, and kids at StyleStore.',
   keywords: 'fashion, clothing, accessories, mens clothing, womens clothing, kids clothing',
 };

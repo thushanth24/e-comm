@@ -32,7 +32,6 @@ export default function Header() {
     { href: '/categories/women', label: 'WOMEN' },
     { href: '/categories/men', label: 'MEN' },
     { href: '/categories/kid', label: 'KIDS' },
-    { href: '/home-decor', label: 'HOME & DECOR' },
     { href: '/personal-care', label: 'PERSONAL CARE' },
     { href: '/travel-gear', label: 'TRAVEL GEAR' },
     { href: '/mother-babycare', label: 'MOTHER & BABYCARE' },

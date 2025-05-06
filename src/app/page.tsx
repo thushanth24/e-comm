@@ -3,10 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import ProductList from '@/components/ui/ProductList';
-import CategoryCard from '@/components/ui/CategoryCard';
 import { ShoppingBag, Package, Award, CreditCard, Tag, ChevronRight } from 'lucide-react';
 import styles from '@/styles/Home.module.scss';
-import CategorySection from '@/components/ui/CategorySection';
 import ShopForWomen from '@/components/ui/ShopForWomen';
 import ShopForMen from '@/components/ui/ShopForMen';
 import ShopForKid from '@/components/ui/ShopForKid';
@@ -59,7 +57,6 @@ export default async function Home() {
           />
           <div className={styles.heroContent}>
             <div className={styles.heroTextWrapper}>
-              <span className={styles.heroBadge}>New Collection</span>
               <h1 className={styles.heroTitle}>
                 Elevate Your Style <span>This Season</span>
               </h1>
@@ -88,7 +85,7 @@ export default async function Home() {
               { icon: <Package />, title: 'Free Shipping', description: 'On orders over $50' },
               { icon: <CreditCard />, title: 'Secure Payment', description: '100% protected' },
               { icon: <Award />, title: 'Quality Guarantee', description: 'Premium materials' },
-              { icon: <Tag />, title: 'Daily Offers', description: 'Discounts up to 70%' },
+              { icon: <Tag />, title: 'Daily Offers', description: 'Discounts up to 50%' },
             ].map((item, index) => (
               <div key={index} className={styles.valueCard}>
                 <div className={styles.icon}>{item.icon}</div>

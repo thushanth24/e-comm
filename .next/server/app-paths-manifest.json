@@ -1,3 +1,8 @@
 {
-  "/page": "app/page.js"
+  "/api/categories/route": "app/api/categories/route.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/categories/page": "app/admin/categories/page.js",
+  "/categories/[slug]/page": "app/categories/[slug]/page.js",
+  "/page": "app/page.js",
+  "/admin/categories/new/page": "app/admin/categories/new/page.js"
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import CategoryCard from '@/components/ui/CategoryCard';
 import styles from '@/styles/Home.module.scss';

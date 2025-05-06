@@ -3,49 +3,33 @@
   flex-direction: column;
   gap: 1.25rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 4px 20px rgba(30, 58, 138, 0.08);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 24px rgba(30, 58, 138, 0.12);
   }
 }
 
 .heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  position: relative;
-
-  .headingText {
-    position: relative;
-    z-index: 1;
-  }
 
   .activeIndicator {
     width: 8px;
     height: 8px;
-    background: #00ff88;
+    background: #3b82f6;
     border-radius: 50%;
-    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.3);
-    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
   }
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
-  70% { box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
 }
 
 .form {
@@ -63,20 +47,21 @@
 .inputGroup {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f8fafc;
   border-radius: 8px;
   padding: 0 0.75rem;
   transition: all 0.3s ease;
-  border: 1px solid transparent;
+  border: 1px solid #e2e8f0;
 
   &:focus-within {
-    border-color: rgba(0, 255, 136, 0.5);
-    background: rgba(255, 255, 255, 0.15);
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 }
 
 .symbol {
-  color: rgba(255, 255, 255, 0.7);
+  color: #64748b;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -86,12 +71,12 @@
   padding: 0.75rem 0.5rem;
   background: transparent;
   border: none;
-  color: #fff;
+  color: #1e293b;
   font-size: 0.95rem;
   min-width: 80px;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: #94a3b8;
   }
 
   &:focus {
@@ -102,7 +87,7 @@
 .divider {
   width: 12px;
   height: 2px;
-  background: rgba(255, 255, 255, 0.3);
+  background: #cbd5e1;
   position: relative;
 
   &::before {
@@ -110,7 +95,7 @@
     position: absolute;
     width: 4px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.6);
+    background: #94a3b8;
     border-radius: 50%;
     top: -1px;
     left: 4px;
@@ -119,7 +104,7 @@
 
 .rangeSlider {
   height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #e2e8f0;
   border-radius: 2px;
   position: relative;
   margin: 0.5rem 0;
@@ -130,7 +115,7 @@
   height: 100%;
   left: calc(var(--min) * 100%);
   right: calc(100% - (var(--max) * 100%));
-  background: linear-gradient(90deg, #00ff88, #00e0ff);
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
   border-radius: 2px;
 }
 
@@ -154,64 +139,31 @@
 }
 
 .apply {
-  background: linear-gradient(135deg, #00ff88, #00e0ff);
-  color: #000;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: white;
   flex: 1;
   position: relative;
   overflow: hidden;
 
   &:disabled {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.4);
+    background: #e2e8f0;
+    color: #94a3b8;
     cursor: not-allowed;
-
-    .arrow {
-      opacity: 0.4;
-    }
   }
 
   &:not(:disabled):hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
-
-    .arrow {
-      transform: translateX(3px);
-    }
-  }
-
-  .arrow {
-    width: 12px;
-    height: 2px;
-    background: #000;
-    position: relative;
-    transition: transform 0.3s ease;
-
-    &::before, &::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      width: 6px;
-      height: 2px;
-      background: inherit;
-    }
-
-    &::before {
-      transform: rotate(45deg) translate(-2px, -1px);
-    }
-
-    &::after {
-      transform: rotate(-45deg) translate(-2px, 1px);
-    }
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   }
 }
 
 .reset {
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #64748b;
+  border: 1px solid #cbd5e1;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.8);
+    background: #f1f5f9;
+    color: #475569;
   }
 }

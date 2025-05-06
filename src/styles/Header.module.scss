@@ -64,7 +64,7 @@
     
     .logoAccent {
       font-size: 1rem;
-      color: #262cde;
+      color: #6626de;
       letter-spacing: 3px;
       margin-top: -4px;
       align-self: flex-end;
@@ -117,7 +117,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, #ff4d4d, #f9cb28, #ff4d4d);
+    background: linear-gradient(90deg, #8b5cf6, #3b82f6, #8b5cf6);
     background-size: 200% 100%;
     animation: gradientFlow 3s linear infinite;
   }
@@ -152,7 +152,7 @@
     transition: color 0.3s;
 
     &:hover {
-      color: #ff4d4d;
+      color: #3b82f6;
     }
 
     &::after {
@@ -162,7 +162,7 @@
       left: 0;
       width: 0;
       height: 2px;
-      background-color: #ff4d4d;
+      background-color: #8b5cf6;
       transition: width 0.3s ease;
     }
 
@@ -172,7 +172,7 @@
   }
 
   .activeCategory {
-    color: #ff4d4d;
+    color: #8b5cf6;
 
     &::after {
       width: 100%;

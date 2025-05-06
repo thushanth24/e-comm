@@ -1,53 +1,122 @@
-/* ProductList.module.scss */
-
 .productList {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  position: relative;
+  padding: 1.5rem 0;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
   
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    border-radius: 2px;
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 1rem;
+  border: 2px dashed rgba(59, 130, 246, 0.3);
+  border-radius: 1rem;
+  background: rgba(248, 250, 252, 0.6);
+  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+    z-index: -1;
+  }
+}
+
+.emptyIcon {
+  width: 4rem;
+  height: 4rem;
+  color: #3b82f6;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(90deg, #1e40af, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.emptyMessage {
+  max-width: 32rem;
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  position: relative;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
   .title {
     font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #111827;
+    
+    &::after {
+      height: 3px;
+      width: 40px;
+    }
   }
   
   .emptyState {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 4rem 1rem;
-    border: 2px dashed #d1d5db;
-    border-radius: 0.75rem;
-    background-color: #f9fafb;
+    padding: 3rem 1rem;
   }
   
   .emptyIcon {
     width: 3rem;
     height: 3rem;
-    color: #9ca3af;
-    margin-bottom: 1rem;
   }
   
   .emptyTitle {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-  }
-  
-  .emptyMessage {
-    max-width: 28rem;
-    color: #6b7280;
-    font-size: 0.875rem;
+    font-size: 1.25rem;
   }
   
   .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 2.5rem 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
   }
-  
+}

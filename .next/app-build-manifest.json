@@ -24,17 +24,11 @@
       "static/css/app/admin/page.css",
       "static/chunks/app/admin/page.js"
     ],
-    "/admin/products/page": [
+    "/admin/categories/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/admin/products/page.css",
-      "static/chunks/app/admin/products/page.js"
-    ],
-    "/admin/products/new/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/admin/products/new/page.css",
-      "static/chunks/app/admin/products/new/page.js"
+      "static/css/app/admin/categories/page.css",
+      "static/chunks/app/admin/categories/page.js"
     ],
     "/admin/categories/new/page": [
       "static/chunks/webpack.js",
@@ -46,39 +40,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/categories/route.js"
-    ],
-    "/admin/categories/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/admin/categories/page.css",
-      "static/chunks/app/admin/categories/page.js"
-    ],
-    "/admin/categories/[id]/edit/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/admin/categories/[id]/edit/page.css",
-      "static/chunks/app/admin/categories/[id]/edit/page.js"
-    ],
-    "/api/categories/[id]/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/categories/[id]/route.js"
-    ],
-    "/search/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/search/page.css",
-      "static/chunks/app/search/page.js"
-    ],
-    "/api/s3/upload/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/s3/upload/route.js"
-    ],
-    "/api/products/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/products/route.js"
     ]
   }
 }
