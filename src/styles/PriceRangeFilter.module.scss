@@ -1,79 +1,169 @@
-/* PriceRangeFilter.module.scss */
-
 .filter {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 4px 20px rgba(30, 58, 138, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 24px rgba(30, 58, 138, 0.12);
   }
-  
-  .heading {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
+}
+
+.heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .activeIndicator {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
   }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+
+  &:focus-within {
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
-  
-  .inputRow {
+}
+
+.symbol {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.input {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  font-size: 0.95rem;
+  min-width: 80px;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.divider {
+  width: 12px;
+  height: 2px;
+  background: #cbd5e1;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #94a3b8;
+    border-radius: 50%;
+    top: -1px;
+    left: 4px;
+  }
+}
+
+.rangeSlider {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.track {
+  position: absolute;
+  height: 100%;
+  left: calc(var(--min) * 100%);
+  right: calc(100% - (var(--max) * 100%));
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+  border-radius: 2px;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+
+  button {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  
-    input {
-      flex: 1;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 0.375rem;
-      font-size: 0.875rem;
-  
-      &:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-      }
-    }
-  }
-  
-  .symbol,
-  .to {
-    font-size: 0.875rem;
-    color: #4b5563;
-  }
-  
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  
-    button {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.875rem;
-      border-radius: 0.375rem;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-  }
-  
-  .apply {
-    background-color: #2563eb;
-    color: #fff;
     border: none;
-  
-    &:hover {
-      background-color: #1e40af;
-    }
   }
-  
-  .reset {
-    background-color: transparent;
-    color: #374151;
-    border: 1px solid #d1d5db;
-  
-    &:hover {
-      background-color: #f3f4f6;
-    }
+}
+
+.apply {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: white;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+
+  &:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
   }
-  
+
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+}
+
+.reset {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+
+  &:hover {
+    background: #f1f5f9;
+    color: #475569;
+  }
+}

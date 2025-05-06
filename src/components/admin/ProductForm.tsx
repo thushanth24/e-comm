@@ -147,7 +147,7 @@ export default function ProductForm({ initialData, categories }: ProductFormProp
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="price">Price ($)</label>
+          <label htmlFor="price">Price (LKR)</label>
           <input id="price" name="price" type="number" min="0" step="0.01" value={formData.price} onChange={handleChange} />
           {formErrors.price && <p className={styles.error}>{formErrors.price}</p>}
         </div>

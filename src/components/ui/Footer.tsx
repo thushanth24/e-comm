@@ -43,8 +43,8 @@ export default function Footer() {
                 <Truck />
               </div>
               <div className={styles.text}>
-                <h4>Free Shipping</h4>
-                <p>On all orders over $50</p>
+                <h4>In store pick-up</h4>
+                <p>On all orders </p>
               </div>
             </div>
             <div className={styles.featureBox}>
@@ -63,7 +63,7 @@ export default function Footer() {
         <div className={styles.footerLinks}>
           <div>
             <Link href="/" className={styles.logo}>
-              StyleStore
+              SRI RAAM SELECTION
             </Link>
             <p>
               Providing quality clothing and accessories for men, women, and
@@ -135,7 +135,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className={styles.bottomBar}>
-          {year && <p>© {year} StyleStore. All rights reserved.</p>}
+          {year && <p>© {year} axzell innovations. All rights reserved.</p>}
         </div>
       </div>
     </footer>

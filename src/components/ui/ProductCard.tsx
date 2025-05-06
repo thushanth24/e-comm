@@ -16,7 +16,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const fallbackImage = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&auto=format&fit=crop';
+  const fallbackImage = 'https://images.unsplash.com/photo-1523387210434-271e8be1f52b?w=800&auto=format&fit=crop';
   const imageUrl = product.images?.length > 0 ? product.images[0].url : fallbackImage;
 
   const isLowInventory = product.inventory <= 5 && product.inventory > 0;

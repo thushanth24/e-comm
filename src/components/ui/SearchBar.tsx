@@ -1,12 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
 import styles from '@/styles/SearchBar.module.scss';
 
 export default function SearchBar() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -16,18 +18,53 @@ export default function SearchBar() {
     }
   };
 
+  const clearSearch = () => {
+    setSearchQuery('');
+    inputRef.current?.focus();
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      inputRef.current?.focus();
+    }
+  }, [isFocused]);
+
   return (
-    <form onSubmit={handleSearch} className={styles.searchForm}>
-      <input
-        type="text"
-        placeholder="Search for products, brands and more..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className={styles.searchInput}
-      />
-      <button type="submit" className={styles.searchButton} aria-label="Search">
-        <Search className={styles.searchIcon} />
-      </button>
-    </form>
+    <div className={styles.searchContainer}>
+      <form onSubmit={handleSearch} className={styles.searchForm}>
+        <div className={styles.searchInputContainer}>
+          <Search className={styles.searchIcon} />
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Search for futuristic fashion..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={styles.searchInput}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+          {searchQuery && (
+            <button 
+              type="button" 
+              onClick={clearSearch}
+              className={styles.clearButton}
+              aria-label="Clear search"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+        <button 
+          type="submit" 
+          className={styles.searchButton} 
+          aria-label="Search"
+          data-glow={isFocused}
+        >
+          <span>Search</span>
+          <div className={styles.searchArrow}></div>
+        </button>
+      </form>
+    </div>
   );
 }

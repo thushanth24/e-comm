@@ -1,11 +1,8 @@
-// Header.tsx (Category section added, others unchanged)
-
 'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import ThemeToggle from './ThemeToggle';
 import SearchBar from './SearchBar';
 import {
   ShoppingBag,
@@ -32,7 +29,6 @@ export default function Header() {
     { href: '/categories/womens', label: 'WOMEN' },
     { href: '/categories/mens', label: 'MEN' },
     { href: '/categories/kids', label: 'KIDS' },
-    { href: '/home-decor', label: 'HOME & DECOR' },
     { href: '/personal-care', label: 'PERSONAL CARE' },
     { href: '/travel-gear', label: 'TRAVEL GEAR' },
     { href: '/mother-babycare', label: 'MOTHER & BABYCARE' },
@@ -41,27 +37,48 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-   
+      {/* Top Announcement Bar */}
+      <div className={styles.announcementBar}>
+        <p>SPECIAL DISCOUNTS ON ALL ORDERS | USE CODE: FUTURE10</p>
+      </div>
 
       <div className={styles.mainHeader}>
-        <div className={styles.logoSearch}>
-          <Link href="/" className={styles.logo}>Fashion<span>Store</span></Link>
-          <div className={styles.search}><SearchBar /></div>
+        <button 
+          className={styles.mobileMenuButton}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <Link href="/" className={styles.logo}>
+          <span className={styles.logoMain}>SRI RAAM</span>
+          <span className={styles.logoAccent}>SELECTION</span>
+        </Link>
+
+        <div className={styles.search}>
+          <SearchBar />
         </div>
 
         <div className={styles.actions}>
-          <Link href="/favorites"><Heart /> Wishlist</Link>
+          <Link href="/favorites" className={styles.actionIcon}>
+            <Heart size={20} />
+            <span>Wishlist</span>
+          </Link>
         </div>
-
-        
       </div>
 
-      {/* 🆕 Category Navigation */}
+      {/* Category Navigation */}
       <nav className={styles.categoryNav}>
         <ul>
           {categories.map((cat) => (
-            <li key={cat.href} >
-              <Link href={cat.href}>{cat.label}</Link>
+            <li key={cat.href}>
+              <Link 
+                href={cat.href}
+                className={`${styles.categoryLink} ${isActive(cat.href) ? styles.activeCategory : ''}`}
+              >
+                {cat.label}
+                {cat.href.includes('categories') && <ChevronDown size={16} className={styles.categoryChevron} />}
+              </Link>
             </li>
           ))}
         </ul>
