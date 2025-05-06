@@ -26,9 +26,6 @@ export default function Header() {
   const categories = [
     { href: '/new-arrivals', label: 'NEW ARRIVALS' },
     { href: '/best-sellers', label: 'BEST SELLERS' },
-    { href: '/categories/womens', label: 'WOMEN' },
-    { href: '/categories/mens', label: 'MEN' },
-    { href: '/categories/kids', label: 'KIDS' },
     { href: '/categories/women', label: 'WOMEN' },
     { href: '/categories/men', label: 'MEN' },
     { href: '/categories/kid', label: 'KIDS' },

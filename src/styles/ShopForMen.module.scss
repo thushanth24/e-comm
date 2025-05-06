@@ -1,109 +1,173 @@
 .shopForWomen {
+  margin: 3rem 0;
+  padding: 0 1rem; // Added padding for mobile
+
+  @media (min-width: 768px) {
     margin: 5rem 0;
+    padding: 0;
   }
-  
-  .topText {
-    text-align: left;
-    max-width: 800px;
+}
+
+.topText {
+  text-align: left;
+  max-width: 800px;
+  margin: 0 auto 30px;
+  padding: 0 1rem; // Added padding for mobile
+
+  @media (min-width: 1024px) {
     margin-left: 100px;
-    margin-bottom: 30px;
-  
-    h2 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
-  
-    p {
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-      color: #555;
-    }
-  
-    a {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      background-color: #111;
-      color: #fff;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: background-color 0.3s ease;
-    
-      &:hover {
-        background-color: #e61a1a; // or any color you prefer
-      }
-    }
-    
+    padding: 0;
   }
+
+  h2 {
+    font-size: 1.8rem; // Smaller on mobile
+    margin-bottom: 1rem;
+
+    @media (min-width: 768px) {
+      font-size: 2.5rem;
+    }
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    color: #555;
+  }
+
+  a {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #111;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
   
-  .bottomSection {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+    &:hover {
+      background-color: #e61a1a;
+    }
+  }
+}
+
+.bottomSection {
+  display: flex;
+  flex-direction: column; // Stack on mobile
+  gap: 2rem;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1400px;
+
+  @media (min-width: 1024px) {
+    flex-direction: row; // Row on desktop
     margin-left: 60px;
   }
-  
-  .leftImage {
-    flex: 1;
-    max-width: 400px;
+}
+
+.leftImage {
+  width: 100%;
+  max-width: 400px;
+  padding: 0 1rem; // Added padding for mobile
+
+  @media (min-width: 1024px) {
+    padding: 0;
+    min-width: 400px;
   }
-  
-  .imageBox {
-    border-radius: 10px;
-    overflow: hidden;
+}
+
+.imageBox {
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%;
+  height: auto;
+}
+
+.shopRight {
+  position: relative;
+  width: 100%;
+  padding: 0 1rem; // Added padding for mobile
+
+  @media (min-width: 1024px) {
+    padding: 0;
+    min-width: calc(100% - 460px); // 400px + gap
   }
-  
-  
-  
-  .shopRight {
-    flex: 2;
-    position: relative;
-    max-width: 960px;
+}
+
+.carouselOuter {
+  overflow: hidden;
+  width: 100%;
+  padding: 0 2rem; // Space for arrows on mobile
+
+  @media (min-width: 768px) {
+    padding: 0 3rem;
   }
-  
-  .carouselOuter {
-    overflow: hidden;
-    width: 100%;
+}
+
+.carouselWrapper {
+  display: flex;
+  gap: 16px;
+  transition: transform 0.5s ease-in-out;
+  width: max-content;
+}
+
+.card {
+  flex: 0 0 calc(100vw - 4rem); // Full width minus padding on mobile
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f7f7f7;
+
+  @media (min-width: 640px) {
+    flex: 0 0 calc(50vw - 3rem); // Half width on tablet
   }
-  
-  .carouselWrapper {
-    display: flex;
-    gap: 16px;
-    transition: transform 0.5s ease-in-out;
-    width: max-content;
+
+  @media (min-width: 1024px) {
+    flex: 0 0 300px; // Fixed width on desktop
   }
-  
-  .card {
-    flex: 0 0 300px;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #f7f7f7;
+}
+
+.card img {
+  display: block;
+  object-fit: cover;
+  width: 100%;
+  height: auto;
+}
+
+.navBtn {
+  position: absolute;
+  top: 50%;
+  background: #000;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.8;
+  z-index: 1;
+  transform: translateY(-50%);
+  border: none;
+
+  @media (min-width: 768px) {
+    width: 50px;
+    height: 50px;
   }
-  
-  .card img {
-    display: block;
-    object-fit: cover;
-  }
-  
-  .navBtn {
-    position: absolute;
-    top: 50%;
-    background: #000;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    font-size: 1.2rem;
-    cursor: pointer;
-    opacity: 0.8;
-    z-index: 1;
-    transform: translateY(-50%);
-  }
-  
-  .leftBtn {
+}
+
+.leftBtn {
+  left: 0;
+
+  @media (min-width: 1024px) {
     left: -2rem;
   }
-  
-  .rightBtn {
+}
+
+.rightBtn {
+  right: 0;
+
+  @media (min-width: 1024px) {
     right: -2rem;
   }
-  
+}

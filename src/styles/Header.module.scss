@@ -152,7 +152,7 @@
     transition: color 0.3s;
 
     &:hover {
-      color: #3b82f6;
+      color: #8b5cf6;;
     }
 
     &::after {
@@ -162,7 +162,7 @@
       left: 0;
       width: 0;
       height: 2px;
-      background-color: #8b5cf6;
+      background-color: #ac9be9;
       transition: width 0.3s ease;
     }
 
@@ -172,7 +172,7 @@
   }
 
   .activeCategory {
-    color: #8b5cf6;
+    color: #3b82f6;
 
     &::after {
       width: 100%;
