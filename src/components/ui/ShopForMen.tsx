@@ -7,12 +7,12 @@ import Link from 'next/link';
 import styles from '@/styles/ShopForMen.module.scss';
 
 const images = [
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l1.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l2.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l3.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l5.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l6.avif',
-  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l4.webp',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/mr1.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/mr2.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/mr3.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/mr5.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/mr6.avif',
+  'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/mr4.avif',
 ];
 
 const visibleCount = 3;
@@ -65,10 +65,10 @@ export default function ShopForWomen() {
       <div className={styles.topText}>
         <h2>SHOP FOR MEN</h2>
         <p>
-          Discover the latest in Men's fashion with our exclusive collection. From chic dresses
-          to stylish accessories, find everything you need to elevate your wardrobe.
+        Explore our premium collection of men's fashion.
+         From classic essentials to the latest trends, find everything you need to elevate your style.
         </p>
-        <Link href="/category/Men" className={styles.primaryBtn}>
+        <Link href="/categories/men" className={styles.primaryBtn}>
           Shop Now
         </Link>
       </div>
@@ -76,7 +76,7 @@ export default function ShopForWomen() {
       <div className={styles.bottomSection}>
         <div className={styles.leftImage}>
           <Image
-            src="https://axzell-saas.s3.eu-north-1.amazonaws.com/home/r1.avif"
+            src="https://axzell-saas.s3.eu-north-1.amazonaws.com/home/ml1.avif"
             alt="Women's Fashion"
             width={400}
             height={400}

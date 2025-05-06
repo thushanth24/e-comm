@@ -143,7 +143,7 @@ export default async function ProductPage({ params }: PageProps) {
   
         <div className={styles.action}>
           <button disabled={product.inventory === 0}>
-            {product.inventory === 0 ? 'Out of Stock' : 'Add to Cart'}
+            {product.inventory === 0 ? 'Out of Stock' : 'Add to wishlist'}
           </button>
         </div>
       </div>
