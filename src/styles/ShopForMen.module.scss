@@ -65,8 +65,6 @@
 }
 
 .leftImage {
-  width: 100%;
-  max-width: 400px;
   padding: 0 1rem; // Added padding for mobile
 
   @media (min-width: 1024px) {
@@ -78,13 +76,11 @@
 .imageBox {
   border-radius: 10px;
   overflow: hidden;
-  width: 100%;
-  height: auto;
+ 
 }
 
 .shopRight {
   position: relative;
-  width: 100%;
   padding: 0 1rem; // Added padding for mobile
 
   @media (min-width: 1024px) {

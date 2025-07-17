@@ -8,6 +8,7 @@ import styles from '@/styles/SearchBar.module.scss';
 export default function SearchBar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -22,6 +23,10 @@ export default function SearchBar() {
     setSearchQuery('');
     inputRef.current?.focus();
   };
+
+  useEffect(() => {
+    setMounted(true); // hydration-safe flag
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
@@ -45,8 +50,8 @@ export default function SearchBar() {
             onBlur={() => setIsFocused(false)}
           />
           {searchQuery && (
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={clearSearch}
               className={styles.clearButton}
               aria-label="Clear search"
@@ -55,15 +60,18 @@ export default function SearchBar() {
             </button>
           )}
         </div>
-        <button 
-          type="submit" 
-          className={styles.searchButton} 
-          aria-label="Search"
-          data-glow={isFocused}
-        >
-          <span>Search</span>
-          <div className={styles.searchArrow}></div>
-        </button>
+
+        {mounted && (
+          <button
+            type="submit"
+            className={styles.searchButton}
+            aria-label="Search"
+            data-glow={isFocused}
+          >
+            <span>Search</span>
+            <div className={styles.searchArrow}></div>
+          </button>
+        )}
       </form>
     </div>
   );

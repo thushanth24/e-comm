@@ -1,0 +1,21 @@
+import { Category } from '@/components/admin/ProductForm';
+
+/**
+ * Recursively builds the full path for a category (e.g., "Men > Formal > Shirts")
+ * @param categoryId The target category's ID
+ * @param categories All categories as a flat array
+ * @returns The full path as a string
+ */
+export function getCategoryPath(categoryId: number, categories: Category[]): string {
+  const category = categories.find(cat => cat.id === categoryId);
+  if (!category) return '';
+  let path = [category.name];
+  let parentId = category.parentId;
+  while (parentId) {
+    const parent = categories.find(cat => cat.id === parentId);
+    if (!parent) break;
+    path.unshift(parent.name);
+    parentId = parent.parentId;
+  }
+  return path.join(' > ');
+}

@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
 import { ShoppingBag, Heart, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import styles from '@/styles/ProductCard.module.scss';
 
 interface ProductCardProps {
@@ -16,8 +19,15 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const fallbackImage = 'https://images.unsplash.com/photo-1523387210434-271e8be1f52b?w=800&auto=format&fit=crop';
+  const fallbackImage =
+    'https://images.unsplash.com/photo-1523387210434-271e8be1f52b?w=800&auto=format&fit=crop';
   const imageUrl = product.images?.length > 0 ? product.images[0].url : fallbackImage;
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isLowInventory = product.inventory <= 5 && product.inventory > 0;
   const isOutOfStock = product.inventory === 0;
@@ -35,12 +45,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </Link>
 
-        {isLowInventory && (
+        {mounted && isLowInventory && (
           <div className={`${styles.badge} ${styles.lowInventory}`}>
             Only {product.inventory} left
           </div>
         )}
-        {isOutOfStock && (
+        {mounted && isOutOfStock && (
           <div className={`${styles.badge} ${styles.outOfStock}`}>
             Out of Stock
           </div>
@@ -62,13 +72,17 @@ export default function ProductCard({ product }: ProductCardProps) {
         </Link>
         <div className={styles.footer}>
           <p className={styles.price}>{formatPrice(product.price)}</p>
-          <button
-            disabled={isOutOfStock}
-            className={`${styles.cartButton} ${isOutOfStock ? styles.disabled : styles.active}`}
-          >
-            <ShoppingBag className={styles.cartIcon} />
-            {isOutOfStock ? 'Sold Out' : 'Add to wishlist'}
-          </button>
+          {mounted && (
+            <button
+              disabled={isOutOfStock}
+              className={`${styles.cartButton} ${
+                isOutOfStock ? styles.disabled : styles.active
+              }`}
+            >
+              <ShoppingBag className={styles.cartIcon} />
+              {isOutOfStock ? 'Sold Out' : 'Add to wishlist'}
+            </button>
+          )}
         </div>
       </div>
     </div>

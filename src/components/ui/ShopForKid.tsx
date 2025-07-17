@@ -63,7 +63,7 @@ export default function ShopForWomen() {
   return (
     <section className={styles.shopForWomen}>
       <div className={styles.topText}>
-        <h2>SHOP FOR Kid</h2>
+        <h2>SHOP FOR KID</h2>
         <p>
           Discover the latest in Kid's fashion with our exclusive collection. From chic dresses
           to stylish accessories, find everything you need to elevate your wardrobe.

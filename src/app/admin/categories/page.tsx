@@ -2,6 +2,15 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import styles from '@/styles/AdminCategories.module.scss';
 
+// Add a simple back button
+function BackButton() {
+  return (
+    <Link href="/admin" className={styles.backButton} style={{marginBottom:16,display:'inline-block'}}>
+      ← Back to Dashboard
+    </Link>
+  );
+}
+
 // Step 1: Fetch categories as a tree
 async function getCategories() {
   const categories = await prisma.category.findMany({
@@ -40,6 +49,7 @@ export default async function AdminCategories() {
 
   return (
     <div className={styles.container}>
+      <BackButton />
       <div className={styles.header}>
         <div>
           <h1>Categories</h1>
@@ -49,7 +59,6 @@ export default async function AdminCategories() {
           Add New Category
         </Link>
       </div>
-
       <div className={styles.tableWrapper}>
         <div className={styles.tableScroll}>
           <table>

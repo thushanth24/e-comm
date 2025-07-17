@@ -19,6 +19,8 @@ interface Category {
   children?: Category[];
 }
 
+import { getCategoryPath } from '@/lib/categoryPath';
+
 interface ProductFormProps {
   initialData?: Partial<ProductFormData> & { id?: number };
   categories: Category[];
@@ -131,14 +133,23 @@ export default function ProductForm({ initialData, categories }: ProductFormProp
   };
 
   // Helper to render category hierarchy in dropdown
-  const renderCategoryOptions = (cats: Category[], level = 0): JSX.Element[] => {
-    return cats.flatMap(cat => [
+  const renderCategoryOptions = (cats: Category[]): JSX.Element[] => {
+    // Flatten all categories to a flat array for path building
+    const flat: Category[] = [];
+    function flatten(categories: Category[]) {
+      for (const cat of categories) {
+        flat.push(cat);
+        if (cat.children) flatten(cat.children);
+      }
+    }
+    flatten(cats);
+    return flat.map(cat => (
       <option key={cat.id} value={cat.id}>
-        {'— '.repeat(level) + cat.name}
-      </option>,
-      ...(cat.children ? renderCategoryOptions(cat.children, level + 1) : []),
-    ]);
+        {getCategoryPath(cat.id, flat)}
+      </option>
+    ));
   };
+
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
