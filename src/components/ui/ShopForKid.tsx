@@ -79,7 +79,7 @@ export default function ShopForWomen() {
             src="https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kl1.avif"
             alt="Women's Fashion"
             width={400}
-            height={400}
+            height={375}
             className={styles.imageBox}
           />
         </div>

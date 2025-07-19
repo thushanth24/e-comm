@@ -86,19 +86,19 @@ export default function Footer() {
             <h3>Shop</h3>
             <ul>
               <li>
-                <Link href="/categories/mens">
+                <Link href="/categories/men">
                   <ArrowRight size={14} />
                   <span>Men's Clothing</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/womens">
+                <Link href="/categories/women">
                   <ArrowRight size={14} />
                   <span>Women's Clothing</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/kids">
+                <Link href="/categories/kid">
                   <ArrowRight size={14} />
                   <span>Kids' Clothing</span>
                 </Link>

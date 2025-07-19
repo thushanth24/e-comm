@@ -11,7 +11,7 @@ import styles from '@/styles/ProductForm.module.scss';
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-interface Category {
+export interface Category {
   id: number;
   name: string;
   slug: string;

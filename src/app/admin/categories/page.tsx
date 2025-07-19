@@ -5,8 +5,8 @@ import styles from '@/styles/AdminCategories.module.scss';
 // Add a simple back button
 function BackButton() {
   return (
-    <Link href="/admin" className={styles.backButton} style={{marginBottom:16,display:'inline-block'}}>
-      ← Back to Dashboard
+    <Link href="/admin" className="inline-flex items-center gap-2 px-4 py-2 mb-4 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium shadow-sm transition-colors">
+      <span className="text-lg">&#8592;</span> Back to Dashboard
     </Link>
   );
 }

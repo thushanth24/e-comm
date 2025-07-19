@@ -49,7 +49,7 @@ export default async function Home() {
       <section className={styles.hero}>
         <div className={styles.heroImageWrapper}>
           <Image
-            src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1600&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1600&auto=format&fit=crop"
             alt="Fashion Collection"
             fill
             priority
@@ -132,7 +132,7 @@ export default async function Home() {
           <div className={styles.bannerGrid}>
             <div className={styles.bannerCard}>
               <Image
-                src="https://images.unsplash.com/photo-1550246140-29f40b909e5a?w=800&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=800&auto=format&fit=crop"
                 alt="Men's Collection"
                 fill
                 className={styles.bannerImage}
@@ -141,14 +141,14 @@ export default async function Home() {
                 <div className={styles.bannerBadge}>New Arrivals</div>
                 <h2>Men's Collection</h2>
                 <p>Fresh styles for the season</p>
-                <Link href="/category/men" className={styles.bannerBtn}>
+                <Link href="/categories/men" className={styles.bannerBtn}>
                   Shop Now
                 </Link>
               </div>
             </div>
             <div className={styles.bannerCard}>
               <Image
-                src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=800&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop"
                 alt="Women's Collection"
                 fill
                 className={styles.bannerImage}
@@ -157,7 +157,7 @@ export default async function Home() {
                 <div className={styles.bannerBadge}>Special Offer</div>
                 <h2>Women's Collection</h2>
                 <p>Up to 30% off selected items</p>
-                <Link href="/category/women" className={styles.bannerBtn}>
+                <Link href="/categories/women" className={styles.bannerBtn}>
                   Shop Now
                 </Link>
               </div>

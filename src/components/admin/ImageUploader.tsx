@@ -130,15 +130,16 @@ export default function ImageUploader({ existingImages = [], onImagesChange }: I
       )}
 
       {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mt-2">
           {images.map((imageUrl, index) => (
-            <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border">
+            <div key={index} className="relative group rounded-lg overflow-hidden border flex items-center justify-center" style={{ width: 120, height: 120 }}>
               <Image
                 src={imageUrl}
                 alt={`Product image ${index + 1}`}
-                fill
-                sizes="(max-width: 768px) 50vw, 25vw"
-                className="object-cover"
+                width={120}
+                height={120}
+                className="object-cover rounded"
+                style={{ maxWidth: 120, maxHeight: 120 }}
               />
               <button
                 type="button"
