@@ -25,20 +25,24 @@ async function getCategories() {
 }
 
 export default async function EditProduct({ params }: PageProps) {
-  const productId = parseInt(params.id);
+  const id = parseInt(params.id);
   
-  if (isNaN(productId)) {
+  if (isNaN(id)) {
     notFound();
   }
   
-  const [product, categories] = await Promise.all([
-    getProduct(productId),
-    getCategories(),
-  ]);
-  
+  const product = await prisma.product.findUnique({
+    where: { id: id },
+    include: {
+      images: true,
+    },
+  });
+
   if (!product) {
     notFound();
   }
+
+  const categories = await getCategories();
   
   // Format product data for the form
   const formattedProduct = {

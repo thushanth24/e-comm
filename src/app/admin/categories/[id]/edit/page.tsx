@@ -2,29 +2,17 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import CategoryForm from '@/components/admin/CategoryForm';
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-async function getCategory(id: number) {
-  const category = await prisma.category.findUnique({
-    where: { id },
-  });
+export default async function EditCategory({ params }: { params: { id: string } }) {
+  const id = parseInt(params.id);
   
-  return category;
-}
-
-export default async function EditCategory({ params }: PageProps) {
-  const categoryId = parseInt(params.id);
-  
-  if (isNaN(categoryId)) {
+  if (isNaN(id)) {
     notFound();
   }
-  
-  const category = await getCategory(categoryId);
-  
+
+  const category = await prisma.category.findUnique({
+    where: { id: id },
+  });
+
   if (!category) {
     notFound();
   }
