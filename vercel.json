@@ -1,9 +1,4 @@
 {
-  "build": {
-    "env": {
-      "DATABASE_URL": "@prisma:DATABASE_URL"
-    }
-  },
   "builds": [
     {
       "src": "next.config.js",
