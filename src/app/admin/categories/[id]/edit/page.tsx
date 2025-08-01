@@ -2,27 +2,28 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import CategoryForm from '@/components/admin/CategoryForm';
 
-export default async function EditCategory({
-  params,
-}: {
+interface EditCategoryPageProps {
   params: {
     id: string;
   };
-}) {
-  const id = parseInt(params.id);
-  
-  if (isNaN(id)) {
+}
+
+export default async function EditCategoryPage({ params }: EditCategoryPageProps) {
+  const id = Number(params.id);
+
+  // Ensure the ID is a valid integer
+  if (!Number.isInteger(id)) {
     notFound();
   }
 
   const category = await prisma.category.findUnique({
-    where: { id: id },
+    where: { id },
   });
 
   if (!category) {
     notFound();
   }
-  
+
   return (
     <div className="container-custom py-8">
       <div className="mb-8">
@@ -31,7 +32,7 @@ export default async function EditCategory({
           Update category information
         </p>
       </div>
-      
+
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
         <CategoryForm initialData={category} />
       </div>
