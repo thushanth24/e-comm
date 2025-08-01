@@ -2,8 +2,7 @@
   "build": {
     "env": {
       "DATABASE_URL": "@prisma:DATABASE_URL"
-    },
-    "use": "@vercel/postgres"
+    }
   },
   "builds": [
     {
