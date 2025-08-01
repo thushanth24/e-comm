@@ -5,9 +5,7 @@ import { prisma } from '@/lib/prisma';
 import ProductList from '@/components/ui/ProductList';
 import { ShoppingBag, Package, Award, CreditCard, Tag, ChevronRight } from 'lucide-react';
 import styles from '@/styles/Home.module.scss';
-import ShopForWomen from '@/components/ui/ShopForWomen';
-import ShopForMen from '@/components/ui/ShopForMen';
-import ShopForKid from '@/components/ui/ShopForKid';
+import ShopSectionsWrapper from '@/components/ShopSectionsWrapper';
 
 
 
@@ -101,9 +99,7 @@ export default async function Home() {
 
               
 
-      <ShopForWomen />
-      <ShopForMen />
-      <ShopForKid />
+      <ShopSectionsWrapper />
 
 
 
