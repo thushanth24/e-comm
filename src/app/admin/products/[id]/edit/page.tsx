@@ -2,35 +2,24 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ProductForm from '@/components/admin/ProductForm';
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-async function getProduct(id: number) {
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      images: true,
-    },
-  });
-  
-  return product;
-}
-
 async function getCategories() {
   const categories = await prisma.category.findMany();
   return categories;
 }
 
-export default async function EditProduct({ params }: PageProps) {
+export default async function EditProduct({
+  params,
+}: {
+  params: {
+    id: string;
+  };
+}) {
   const id = parseInt(params.id);
   
   if (isNaN(id)) {
     notFound();
   }
-  
+
   const product = await prisma.product.findUnique({
     where: { id: id },
     include: {

@@ -2,7 +2,13 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import CategoryForm from '@/components/admin/CategoryForm';
 
-export default async function EditCategory({ params }: { params: { id: string } }) {
+export default async function EditCategory({
+  params,
+}: {
+  params: {
+    id: string;
+  };
+}) {
   const id = parseInt(params.id);
   
   if (isNaN(id)) {
