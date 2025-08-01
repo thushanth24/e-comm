@@ -9,6 +9,7 @@ export default function AdminDashboard() {
         <p>Manage products and categories for your store</p>
       </div>
 
+
       <div className={styles.cardGrid}>
         <Link href="/admin/products" className={styles.card}>
           <div className={styles.cardHeader}>
