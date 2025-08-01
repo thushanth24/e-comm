@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { productSchema } from '@/lib/validations';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
+}
+
+interface RouteContext {
+  params: Promise<{
+    id: string;
+  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 // GET a single product by ID
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const productId = parseInt(params.id);
+    const productId = parseInt((await params).id);
     
     if (isNaN(productId)) {
       return NextResponse.json(
@@ -50,7 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PATCH update a product
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const productId = parseInt(params.id);
+    const productId = parseInt((await params).id);
 
     if (isNaN(productId)) {
       return NextResponse.json(
@@ -94,7 +102,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    const updatedProduct = await prisma.$transaction(async (tx) => {
+    const updatedProduct = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.productImage.deleteMany({
         where: { productId },
       });
@@ -143,7 +151,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE a product
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const productId = parseInt(params.id);
+    const productId = parseInt((await params).id);
     
     if (isNaN(productId)) {
       return NextResponse.json(

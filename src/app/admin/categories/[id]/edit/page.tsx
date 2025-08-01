@@ -2,16 +2,23 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import CategoryForm from '@/components/admin/CategoryForm';
 
-interface EditCategoryPageProps {
-  params: {
-    id: string;
-  };
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  parentId: number | null;
 }
 
-export default async function EditCategoryPage({ params }: EditCategoryPageProps) {
-  const id = Number(params.id);
+interface PageProps {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  // Ensure the ID is a valid integer
+export default async function Page({
+  params,
+}: PageProps) {
+  const id = Number((await params).id);
+
   if (!Number.isInteger(id)) {
     notFound();
   }

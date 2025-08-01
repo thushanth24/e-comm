@@ -1,23 +1,42 @@
+import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ProductList from '@/components/ui/ProductList';
 import PriceRangeFilter from '@/components/ui/PriceRangeFilter';
-import styles from '@/styles/SearchPage.module.scss'; // 👈 import SCSS
+import styles from '@/styles/SearchPage.module.scss';
 
+interface Category {
+  id: number;
+  slug: string;
+  name: string;
+}
+
+interface Product {
+  id: number;
+  slug: string;
+  name: string;
+  images: { url: string }[];
+}
+
+type SearchParams = {
+  query?: string;
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+};
 
 interface PageProps {
-  searchParams: {
-    query?: string;
-    category?: string;
-    minPrice?: string;
-    maxPrice?: string;
-  };
+  searchParams: Promise<SearchParams>;
+  params: Promise<Record<string, string | string[] | undefined>>;
 }
 
-async function getCategories() {
-  return await prisma.category.findMany();
+async function getCategories(): Promise<Category[]> {
+  const categories = await prisma.category.findMany({
+    select: { id: true, slug: true, name: true },
+  });
+  return categories;
 }
 
-async function searchProducts(params: PageProps['searchParams']) {
+async function searchProducts(params: SearchParams) {
   const { query, category, minPrice, maxPrice } = params;
 
   const whereClause: any = {};
@@ -47,7 +66,8 @@ async function searchProducts(params: PageProps['searchParams']) {
 }
 
 export async function generateMetadata({ searchParams }: PageProps) {
-  const { query, category } = searchParams;
+  const params = await searchParams;
+  const { query, category } = params;
 
   let title = 'Search Products';
   if (query) title = `Search: ${query}`;
@@ -60,18 +80,21 @@ export async function generateMetadata({ searchParams }: PageProps) {
 }
 
 export default async function SearchPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const query = params.query || '';
+  const categorySlug = params.category || '';
+  const minPrice = params.minPrice ? parseInt(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? parseInt(params.maxPrice) : undefined;
   const [products, categories] = await Promise.all([
-    searchProducts(searchParams),
+    searchProducts(await params),
     getCategories(),
   ]);
-
-  const { query, category } = searchParams;
 
   let title = 'All Products';
   if (query) {
     title = `Search Results for "${query}"`;
-  } else if (category) {
-    const categoryName = categories.find((c) => c.slug === category)?.name || category;
+  } else if (categorySlug) {
+    const categoryName = categories.find((c: Category) => c.slug === categorySlug)?.name || categorySlug;
     title = `${categoryName} Products`;
   }
 
@@ -87,15 +110,15 @@ export default async function SearchPage({ searchParams }: PageProps) {
             <div>
               <a
                 href="/search"
-                className={`${styles.filterLink} ${!category ? styles.active : ''}`}
+                className={`${styles.filterLink} ${!categorySlug ? styles.active : ''}`}
               >
                 All Categories
               </a>
-              {categories.map((cat) => (
+              {categories.map((cat: Category) => (
                 <a
                   key={cat.id}
                   href={`/search?category=${cat.slug}${query ? `&query=${query}` : ''}`}
-                  className={`${styles.filterLink} ${category === cat.slug ? styles.active : ''}`}
+                  className={`${styles.filterLink} ${categorySlug === cat.slug ? styles.active : ''}`}
                 >
                   {cat.name}
                 </a>

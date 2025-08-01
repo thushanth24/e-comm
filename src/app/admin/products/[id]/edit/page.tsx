@@ -2,6 +2,21 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ProductForm from '@/components/admin/ProductForm';
 
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  categoryId: number;
+  images: { url: string }[];
+}
+
+interface PageProps {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
+
 async function getCategories() {
   const categories = await prisma.category.findMany();
   return categories;
@@ -9,12 +24,8 @@ async function getCategories() {
 
 export default async function EditProduct({
   params,
-}: {
-  params: {
-    id: string;
-  };
-}) {
-  const id = parseInt(params.id);
+}: PageProps) {
+  const id = parseInt((await params).id);
   
   if (isNaN(id)) {
     notFound();
@@ -36,7 +47,7 @@ export default async function EditProduct({
   // Format product data for the form
   const formattedProduct = {
     ...product,
-    images: product.images.map(img => img.url),
+    images: product.images.map((img: { url: string }) => img.url),
   };
   
   return (

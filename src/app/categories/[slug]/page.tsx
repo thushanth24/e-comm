@@ -6,10 +6,27 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from '@/styles/CategoryPage.module.scss';
 
-
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams?: Promise<{ minPrice?: string; maxPrice?: string }>;
+}
+
+interface CategoryInfo {
+  id: number;
+  name: string;
+  slug: string;
+  children: { id: number; name: string; slug: string }[];
+}
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+interface CategoryNode {
+  id: number;
+  parentId: number | null;
 }
 
 // 🔁 Get all descendant category IDs recursively
@@ -25,8 +42,8 @@ async function getAllCategoryIds(slug: string): Promise<number[]> {
   });
 
   function collectIds(parentId: number): number[] {
-    const children = allCategories.filter(cat => cat.parentId === parentId);
-    return children.flatMap(child => [child.id, ...collectIds(child.id)]);
+    const children = allCategories.filter((cat: CategoryNode) => cat.parentId === parentId);
+    return children.flatMap((child: CategoryNode) => [child.id, ...collectIds(child.id)]);
   }
 
   return [root.id, ...collectIds(root.id)];
@@ -107,17 +124,17 @@ export default async function CategoryPage(props: PageProps) {
 
   return (
     <div className={styles.container}>
-  <h1>{categoryInfo.name}</h1>
+      <h1>{categoryInfo.name}</h1>
 
-  {categoryInfo.children.length > 0 && (
-    <div className={styles.subcategories}>
-      {categoryInfo.children.map((sub) => (
-        <Link key={sub.id} href={`/categories/${sub.slug}`}>
-          <p>{sub.name}</p>
-        </Link>
-      ))}
-    </div>
-  )}
+      {categoryInfo.children.length > 0 && (
+        <div className={styles.subcategories}>
+          {categoryInfo.children.map((sub: Category) => (
+            <Link key={sub.id} href={`/categories/${sub.slug}`}>
+              <p>{sub.name}</p>
+            </Link>
+          ))}
+        </div>
+      )}
 
   <div className={styles.layout}>
     <div className={styles.filters}>

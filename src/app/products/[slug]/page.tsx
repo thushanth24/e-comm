@@ -8,9 +8,10 @@ import styles from '@/styles/ProductPage.module.scss';
 
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 async function getProduct(slug: string) {
@@ -41,7 +42,8 @@ async function getRelatedProducts(categoryId: number, productId: number) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const product = await getProduct(params.slug);
+  const slug = (await params).slug;
+  const product = await getProduct(slug);
   
   if (!product) {
     return {
@@ -56,8 +58,11 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-export default async function ProductPage({ params }: PageProps) {
-  const product = await getProduct(params.slug);
+export default async function ProductPage({
+  params,
+}: PageProps) {
+  const slug = (await params).slug;
+  const product = await getProduct(slug);
   
   if (!product) {
     notFound();
@@ -94,7 +99,7 @@ export default async function ProductPage({ params }: PageProps) {
   
             {product.images.length > 1 && (
               <div className={styles.thumbnailGrid}>
-                {product.images.map((image, index) => (
+                {product.images.map((image: { id: number; url: string }, index: number) => (
                   <div key={image.id} className={styles.thumbnail}>
                     <Image
                       src={image.url}

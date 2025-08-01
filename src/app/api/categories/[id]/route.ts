@@ -4,15 +4,22 @@ import { prisma } from '@/lib/prisma';
 import { categorySchema } from '@/lib/validations';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
+}
+
+interface RouteContext {
+  params: Promise<{
+    id: string;
+  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 // GET a single category by ID
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const categoryId = parseInt(params.id);
+    const categoryId = parseInt((await params).id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -50,7 +57,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PATCH update a category
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const categoryId = parseInt(params.id);
+    const categoryId = parseInt((await params).id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -120,7 +127,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE a category
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const categoryId = parseInt(params.id);
+    const categoryId = parseInt((await params).id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
