@@ -13,11 +13,7 @@ import ShopSectionsWrapper from '@/components/ShopSectionsWrapper';
 // Revalidate this page every 60 seconds
 export const revalidate = 60;
 
-// Cache tags for revalidation
-export const CACHE_TAGS = {
-  PRODUCTS: 'products',
-  CATEGORIES: 'categories',
-} as const;
+import { CACHE_TAGS } from './actions/revalidate';
 
 async function getHomePageData() {
   try {
