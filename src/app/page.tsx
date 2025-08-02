@@ -75,18 +75,8 @@ export async function generateStaticParams() {
   return [{}];
 }
 
-// Revalidate specific paths when products or categories change
-export async function revalidateProducts() {
-  'server';
-  const { revalidateTag } = await import('next/cache');
-  revalidateTag(CACHE_TAGS.PRODUCTS);
-}
-
-export async function revalidateCategories() {
-  'server';
-  const { revalidateTag } = await import('next/cache');
-  revalidateTag(CACHE_TAGS.CATEGORIES);
-}
+// Revalidation functions have been moved to server actions
+// Check src/app/actions/revalidate.ts for implementation
 
 export default async function Home() {
   const { featuredProducts, newArrivals, categories } = await getHomePageData();
