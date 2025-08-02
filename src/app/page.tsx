@@ -10,36 +10,86 @@ import ShopSectionsWrapper from '@/components/ShopSectionsWrapper';
 
 
 
-async function getFeaturedProducts() {
-  const products = await prisma.product.findMany({
-    where: { featured: true },
-    include: { images: true },
-    take: 4,
-  });
-  return products;
+// Revalidate this page every 60 seconds
+export const revalidate = 60;
+
+// Cache tags for revalidation
+export const CACHE_TAGS = {
+  PRODUCTS: 'products',
+  CATEGORIES: 'categories',
+} as const;
+
+async function getHomePageData() {
+  try {
+    // Execute all database queries in parallel with proper caching
+    const [featuredProducts, newArrivals, categories] = await Promise.all([
+      // Get featured products with cache tag
+      prisma.product.findMany({
+        where: { featured: true },
+        include: { images: true },
+        take: 4,
+      }),
+      // Get new arrivals with cache tag
+      prisma.product.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { images: true },
+        take: 8,
+      }),
+      // Get all categories with cache tag
+      prisma.category.findMany()
+    ]);
+
+    // Add cache tags to the response
+    const response = {
+      featuredProducts,
+      newArrivals,
+      categories,
+    };
+
+    // Add cache tags for revalidation
+    if (typeof window === 'undefined') {
+      const { unstable_cache } = await import('next/cache');
+      
+      // Cache the response with tags
+      await unstable_cache(
+        async () => response,
+        [CACHE_TAGS.PRODUCTS, CACHE_TAGS.CATEGORIES],
+        { revalidate: 60 }
+      )();
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Error fetching home page data:', error);
+    // Return empty arrays to prevent page crash
+    return {
+      featuredProducts: [],
+      newArrivals: [],
+      categories: [],
+    };
+  }
 }
 
-
-
-async function getNewArrivals() {
-  const products = await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { images: true },
-    take: 8,
-  });
-  return products;
+// Generate static params for better caching
+export async function generateStaticParams() {
+  return [{}];
 }
 
-async function getCategories() {
-  return await prisma.category.findMany();
+// Revalidate specific paths when products or categories change
+export async function revalidateProducts() {
+  'server';
+  const { revalidateTag } = await import('next/cache');
+  revalidateTag(CACHE_TAGS.PRODUCTS);
+}
+
+export async function revalidateCategories() {
+  'server';
+  const { revalidateTag } = await import('next/cache');
+  revalidateTag(CACHE_TAGS.CATEGORIES);
 }
 
 export default async function Home() {
-  const [featuredProducts, newArrivals, categories] = await Promise.all([
-    getFeaturedProducts(),
-    getNewArrivals(),
-    getCategories(),
-  ]);
+  const { featuredProducts, newArrivals, categories } = await getHomePageData();
 
   return (
     <main className={styles.page}>

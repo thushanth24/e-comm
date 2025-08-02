@@ -92,6 +92,43 @@
   to { transform: rotate(360deg); }
 }
 
+// Skeleton Loading Styles
+.skeletonImage {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.skeletonTitle {
+  width: 80%;
+  height: 1.25rem;
+  background: #f0f0f0;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  animation: shimmer 1.5s infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+}
+
+.skeletonPrice {
+  width: 30%;
+  height: 1rem;
+  background: #f0f0f0;
+  border-radius: 0.25rem;
+  animation: shimmer 1.5s infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 @media (max-width: 768px) {
   .title {
     font-size: 1.5rem;
