@@ -87,6 +87,7 @@ export default async function Home() {
             alt="Fashion Collection"
             fill
             priority
+            sizes="(max-width: 1200px) 100vw, 90vw"
             className={styles.heroImage}
           />
           <div className={styles.heroContent}>
@@ -167,7 +168,9 @@ export default async function Home() {
                 src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=800&auto=format&fit=crop"
                 alt="Men's Collection"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className={styles.bannerImage}
+                priority
               />
               <div className={styles.bannerContent}>
                 <div className={styles.bannerBadge}>New Arrivals</div>
@@ -183,7 +186,9 @@ export default async function Home() {
                 src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop"
                 alt="Women's Collection"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className={styles.bannerImage}
+                priority
               />
               <div className={styles.bannerContent}>
                 <div className={styles.bannerBadge}>Special Offer</div>
