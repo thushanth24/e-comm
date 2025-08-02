@@ -1,6 +1,17 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 import styles from '@/styles/AdminCategories.module.scss';
+
+interface CategoryItem {
+  id: number;
+  name: string;
+  slug: string;
+  parentId: number | null;
+  children?: CategoryItem[];
+  _count: {
+    products: number;
+  };
+  level: number;
+}
 
 // Add a simple back button
 function BackButton() {
@@ -11,40 +22,44 @@ function BackButton() {
   );
 }
 
-// Step 1: Fetch categories as a tree
-async function getCategories() {
-  const categories = await prisma.category.findMany({
-    where: { parentId: null },
-    include: {
-      _count: { select: { products: true } },
-      children: {
-        include: {
-          _count: { select: { products: true } },
-          children: {
-            include: {
-              _count: { select: { products: true } },
-              children: true, // add more levels as needed
-            },
-          },
-        },
-      },
-    },
-  });
-
-  return categories;
+async function fetchCategories(): Promise<CategoryItem[]> {
+  try {
+    // Use relative URL in the browser, full URL in server components
+    const apiUrl = typeof window === 'undefined' 
+      ? `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/categories`
+      : '/api/categories';
+      
+    const res = await fetch(apiUrl, {
+      // Ensure we get fresh data on each request
+      cache: 'no-store',
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Failed to fetch categories: ${res.status} ${res.statusText}`);
+    }
+    
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
 }
 
-// Step 2: Flatten categories into a displayable list with indentation
-function flattenCategories(categories: any[], level = 0): any[] {
+// Flatten categories into a displayable list with indentation
+function flattenCategories(categories: CategoryItem[], level = 0): CategoryItem[] {
   return categories.flatMap((category) => {
-    const current = { ...category, level };
+    const current: CategoryItem = { 
+      ...category, 
+      level,
+      children: undefined // Remove children from the flattened items
+    };
     const children = category.children ? flattenCategories(category.children, level + 1) : [];
     return [current, ...children];
   });
 }
 
 export default async function AdminCategories() {
-  const tree = await getCategories();
+  const tree = await fetchCategories();
   const categories = flattenCategories(tree);
 
   return (

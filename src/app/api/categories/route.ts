@@ -3,17 +3,43 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { categorySchema } from '@/lib/validations';
 
-// GET all categories
+interface CategoryNode {
+  id: number;
+  name: string;
+  slug: string;
+  parentId: number | null;
+  children?: CategoryNode[];
+  _count: {
+    products: number;
+  };
+}
+
+// Recursive function to build category tree
+async function buildCategoryTree(parentId: number | null = null): Promise<CategoryNode[]> {
+  const categories = await prisma.category.findMany({
+    where: { parentId },
+    include: {
+      _count: { select: { products: true } },
+    },
+  });
+
+  const tree = [];
+  
+  for (const category of categories) {
+    const children = await buildCategoryTree(category.id);
+    tree.push({
+      ...category,
+      children: children.length > 0 ? children : undefined,
+    });
+  }
+
+  return tree;
+}
+
+// GET all categories as a tree
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    });
-    
+    const categories = await buildCategoryTree(null);
     return NextResponse.json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error);

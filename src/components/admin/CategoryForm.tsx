@@ -15,15 +15,45 @@ interface CategoryFormProps {
   initialData?: Partial<CategoryFormData> & { id?: number };
 }
 
-type CategoryItem = {
+interface CategoryItem {
   id: number;
   name: string;
-};
+  slug: string;
+  parentId?: number | null;
+  children?: CategoryItem[];
+  _count?: {
+    products: number;
+  };
+}
+
+interface FlattenedCategory {
+  id: number;
+  name: string;
+  slug: string;
+  level: number;
+}
+
+// Flatten categories for the dropdown
+function flattenCategories(categories: CategoryItem[], level: number = 0): FlattenedCategory[] {
+  return categories.flatMap(category => {
+    const current: FlattenedCategory = { 
+      id: category.id, 
+      name: '— '.repeat(level) + category.name,
+      slug: category.slug,
+      level: level
+    };
+    
+    const children = category.children ? 
+      flattenCategories(category.children, level + 1) : [];
+      
+    return [current, ...children];
+  });
+}
 
 export default function CategoryForm({ initialData }: CategoryFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [categories, setCategories] = useState<FlattenedCategory[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -49,15 +79,25 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch('/api/categories');
-        if (res.ok) {
-          const data: CategoryItem[] = await res.json();
-          setCategories(data);
-        } else {
-          console.error('Failed to fetch categories');
+        setLoading(true);
+        // Use relative URL in the browser
+        const res = await fetch('/api/categories', {
+          cache: 'no-store', // Ensure fresh data
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Failed to fetch categories: ${res.status} ${res.statusText}`);
         }
+        
+        const data: CategoryItem[] = await res.json();
+        // Flatten the tree for the dropdown
+        const flatCategories = flattenCategories(data);
+        setCategories(flatCategories);
       } catch (err) {
         console.error('Error fetching categories:', err);
+        setError('Failed to load categories. Please try again later.');
+      } finally {
+        setLoading(false);
       }
     }
 
