@@ -34,20 +34,25 @@ export async function GET(request: NextRequest) {
       if (maxPrice) where.price.lte = parseFloat(maxPrice);
     }
     
-    // Query products
-    const products = await prisma.product.findMany({
-      where,
-      include: {
-        images: true,
-        category: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      ...(limit ? { take: parseInt(limit) } : {}),
-    });
+    // Query products with a timeout to prevent hanging
+    const products = await Promise.race([
+      prisma.product.findMany({
+        where,
+        include: {
+          images: true,
+          category: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        ...(limit ? { take: parseInt(limit) } : {}),
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 10000)
+      )
+    ]);
     
-    return NextResponse.json(products);
+    return NextResponse.json(products, { status: 200 });
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
