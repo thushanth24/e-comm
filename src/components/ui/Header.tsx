@@ -10,7 +10,6 @@ import {
   Heart,
   Menu,
   X,
-  ChevronDown,
   Phone,
   Clock,
   MapPin,
@@ -29,10 +28,10 @@ export default function Header() {
     { href: '/categories/women', label: 'WOMEN' },
     { href: '/categories/men', label: 'MEN' },
     { href: '/categories/kid', label: 'KIDS' },
-    { href: '/personal-care', label: 'PERSONAL CARE' },
-    { href: '/travel-gear', label: 'TRAVEL GEAR' },
-    { href: '/mother-babycare', label: 'MOTHER & BABYCARE' },
-    { href: '/gift-cards', label: 'GIFT CARDS' },
+    { href: '/categories/personal-care', label: 'PERSONAL CARE' },
+    { href: '/categories/travel-gear', label: 'TRAVEL GEAR' },
+    { href: '/categories/mother-babycare', label: 'MOTHER & BABYCARE' },
+    { href: '/categories/gift-cards', label: 'GIFT CARDS' },
   ];
 
   return (
@@ -77,7 +76,7 @@ export default function Header() {
                 className={`${styles.categoryLink} ${isActive(cat.href) ? styles.activeCategory : ''}`}
               >
                 {cat.label}
-                {cat.href.includes('categories') && <ChevronDown size={16} className={styles.categoryChevron} />}
+
               </Link>
             </li>
           ))}

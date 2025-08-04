@@ -1,18 +1,28 @@
 
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background: rgb(255, 255, 255);
   color: black;
   font-family: sans-serif;
   margin: 0;
   padding: 0;
+  width: 100%;
+  position: relative;
 }
 
 /* Container override if needed */
 .container-custom {
-  max-width: 1200px;
+  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Optional: form button reset (no gradient, no hover) */

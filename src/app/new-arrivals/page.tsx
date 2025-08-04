@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { unstable_noStore as noStore } from 'next/cache';
 import { prisma } from '@/lib/prisma';
+import { ArrowRight } from 'lucide-react';
 import styles from '@/styles/NewArrivals.module.scss';
 
 interface Product {
@@ -114,45 +115,111 @@ const getNewArrivalsByCategory = cache(async () => {
   }
 });
 
+// Loading skeleton component
+function ProductCardSkeleton() {
+  return (
+    <div className={styles.productCard}>
+      <div className={`${styles.productImageWrapper} ${styles.skeleton}`} />
+      <div className={styles.productInfo}>
+        <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '80%', height: '1.2rem', marginBottom: '0.5rem' }} />
+        <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '60%', height: '1rem' }} />
+      </div>
+    </div>
+  );
+}
+
+function CategorySectionSkeleton() {
+  return (
+    <section className={styles.categorySection}>
+      <div className={styles.categoryHeader}>
+        <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '200px', height: '1.8rem' }} />
+      </div>
+      <div className={styles.productsGrid}>
+        {[1, 2, 3, 4].map((i) => (
+          <ProductCardSkeleton key={i} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function NewArrivalsPage() {
   const grouped = await getNewArrivalsByCategory();
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>New Arrivals</h1>
-      <p className={styles.subtitle}>Latest products, organized by category</p>
+      <div className={styles.headerContent}>
+        <h1 className={styles.title}>New Arrivals</h1>
+        <p className={styles.subtitle}>Discover our latest products, carefully selected and organized by category</p>
+      </div>
+      
       <div className={styles.categoryGroups}>
         {grouped.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>No new arrivals found. Check back soon!</p>
+            <div className={styles.emptyStateIcon}>📦</div>
+            <p>No new arrivals at the moment.</p>
+            <p>Check back soon for our latest products!</p>
+            <Link href="/products" className={styles.emptyStateButton}>
+              Browse All Products
+            </Link>
           </div>
-        ) : grouped.map((cat: CategoryWithProducts) => (
-          <section key={cat.id} className={styles.categorySection}>
-            <h2 className={styles.categoryTitle}>{cat.name}</h2>
-            <div className={styles.productsGrid}>
-              {cat.products.map((product: Product) => (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.slug}`}
-                  className={styles.productCard}
-                >
-                  <div className={styles.productImageWrapper}>
-                    <Image
-                      src={product.images[0]?.url || '/placeholder.jpg'}
-                      alt={product.name}
-                      width={220}
-                      height={280}
-                      className={styles.productImage}
-                    />
-                  </div>
-                  <div className={styles.productInfo}>
-                    <h3>{product.name}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
+        ) : (
+          <Suspense fallback={[1, 2, 3].map((i) => <CategorySectionSkeleton key={i} />)}>
+            {grouped.map((cat: CategoryWithProducts) => (
+              <section key={cat.id} className={styles.categorySection}>
+                <div className={styles.categoryHeader}>
+                  <h2 className={styles.categoryTitle}>{cat.name}</h2>
+                  <Link href={`/categories/${cat.name.toLowerCase()}`} className={styles.viewAllButton}>
+                    View all <ArrowRight size={16} />
+                  </Link>
+                </div>
+                <div className={styles.productsGrid}>
+                  {cat.products.map((product: Product) => {
+                    // Calculate discount for demo purposes
+                    const hasDiscount = Math.random() > 0.7;
+                    const discountPercent = hasDiscount ? Math.floor(Math.random() * 30) + 10 : 0;
+                    const originalPrice = hasDiscount 
+                      ? Math.round((product.price * 100) / (100 - discountPercent))
+                      : product.price;
+                    
+                    return (
+                      <Link
+                        key={product.id}
+                        href={`/products/${product.slug}`}
+                        className={styles.productCard}
+                      >
+                        <div className={styles.productImageWrapper}>
+                          <Image
+                            src={product.images[0]?.url || '/placeholder.jpg'}
+                            alt={product.name}
+                            width={220}
+                            height={280}
+                            className={styles.productImage}
+                            priority={false}
+                          />
+                          {hasDiscount && (
+                            <div className={styles.discountBadge}>
+                              -{discountPercent}%
+                            </div>
+                          )}
+                        </div>
+                        <div className={styles.productInfo}>
+                          <h3>{product.name}</h3>
+                          <div className={styles.price}>
+                            {hasDiscount && (
+                              <span className={styles.originalPrice}>LKR {originalPrice.toLocaleString('en-LK')}</span>
+                            )}
+                            <span>LKR {product.price.toLocaleString('en-LK')}</span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </Suspense>
+        )}
       </div>
       
       <div className={styles.note}>
