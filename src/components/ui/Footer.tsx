@@ -6,11 +6,49 @@ import {
   Facebook,
   Instagram,
   Twitter,
-  Send,
-  CreditCard,
-  Truck,
   ArrowRight,
+  Phone,
+  MapPin,
+  Github,
+  Linkedin,
+  Mail,
+  Globe
 } from 'lucide-react';
+import Button from '@/components/ui/Button';
+
+interface SocialLink {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}
+
+const developerSocials: SocialLink[] = [
+  {
+    label: 'GitHub',
+    href: 'https://github.com/axzellin',
+    icon: Github,
+    color: 'hover:text-gray-700',
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://linkedin.com/company/axzellin',
+    icon: Linkedin,
+    color: 'hover:text-blue-600',
+  },
+  {
+    label: 'Email',
+    href: 'mailto:contact@axzellin.com',
+    icon: Mail,
+    color: 'hover:text-red-500',
+  },
+  {
+    label: 'Website',
+    href: 'https://www.axzellin.com',
+    icon: Globe,
+    color: 'hover:text-green-500',
+  },
+];
 import styles from '@/styles/Footer.module.scss';
 
 export default function Footer() {
@@ -32,38 +70,12 @@ export default function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
-        {/* Top Section */}
-        <div className={styles.topSection}>
          
-
-          {/* Features */}
-          <div className={styles.features}>
-            <div className={styles.featureBox}>
-              <div className={styles.icon}>
-                <Truck />
-              </div>
-              <div className={styles.text}>
-                <h4>In store pick-up</h4>
-                <p>On all orders </p>
-              </div>
-            </div>
-            <div className={styles.featureBox}>
-              <div className={styles.icon}>
-                <CreditCard />
-              </div>
-              <div className={styles.text}>
-                <h4>Secure Payment</h4>
-                <p>100% secure payment</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Footer Links */}
         <div className={styles.footerLinks}>
           <div>
             <Link href="/" className={styles.logo}>
-              SRI RAAM SELECTION
+              SRI RAM SELECTION
             </Link>
             <p>
               Providing quality clothing and accessories for men, women, and
@@ -122,20 +134,50 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h3>Help</h3>
-            <ul>
-              <li><Link href="#">Customer Service</Link></li>
-              <li><Link href="#">My Account</Link></li>
-              <li><Link href="#">Shipping & Delivery</Link></li>
-              <li><Link href="#">Returns & Exchanges</Link></li>
-            </ul>
-          </div>
-        </div>
+          <div className={styles.developerSection}>
+            <h3>Developed By</h3>
+            <div className={styles.developerContent}>
+              {/* Logo */}
+              <img 
+                src="/images/logo2.PNG" 
+                alt="Axzell Innovations Logo" 
+                className={styles.developerLogo} 
+              />
 
-        {/* Bottom Bar */}
-        <div className={styles.bottomBar}>
-          {year && <p>© {year} axzell innovations. All rights reserved.</p>}
+              {/* Name and Contact */}
+              <div className={styles.contactRow}>
+                <div className={styles.contactInfo}>
+                  <span className={styles.developerName}>axzell innovations</span>
+                  <span className={styles.phoneNumber}>+94 (768) 180-977</span>
+                  <span className={styles.phoneNumber}>social@axzellin.com</span>
+
+                  <a 
+                    href="https://www.axzellin.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={styles.websiteLink}
+                  >
+                    <MapPin className={styles.contactIcon} />
+                    <span>www.axzellin.com</span>
+                  </a>
+                </div>
+                <div className={styles.socialIcons}>
+                  {developerSocials.map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Visit Axzell ${social.label}`}
+                      className={`${styles.socialIcon} ${social.color}`}
+                    >
+                      <social.icon className={styles.socialIconSvg} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

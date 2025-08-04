@@ -51,7 +51,7 @@ export default function Header() {
         </button>
 
         <Link href="/" className={styles.logo}>
-          <span className={styles.logoMain}>SRI RAAM</span>
+          <span className={styles.logoMain}>SRI RAM</span>
           <span className={styles.logoAccent}>SELECTION</span>
         </Link>
 
