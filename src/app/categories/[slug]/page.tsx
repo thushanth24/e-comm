@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ProductList from '@/components/ui/ProductList';
 import PriceRangeFilter from '@/components/ui/PriceRangeFilter';
-import Link from 'next/link';
-import Image from 'next/image';
+import { CategoryLink } from '@/components/ui/CategoryLink';
 import styles from '@/styles/CategoryPage.module.scss';
 
 interface PageProps {
@@ -128,17 +127,34 @@ export default async function CategoryPage(props: PageProps) {
 
       {categoryInfo.children.length > 0 && (
         <div className={styles.subcategories}>
-          {categoryInfo.children.map((sub: Category) => (
-            <Link key={sub.id} href={`/categories/${sub.slug}`}>
-              <p>{sub.name}</p>
-            </Link>
-          ))}
+          <div className={styles.subcategoriesInner}>
+            {categoryInfo.children.map((sub: Category) => (
+              <CategoryLink 
+                key={sub.id} 
+                href={`/categories/${sub.slug}`}
+                className={styles.subcategoryLink}
+              >
+                <span className={styles.subcategoryName}>
+                  {sub.name}
+                  <span className={styles.subcategoryArrow}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </span>
+              </CategoryLink>
+            ))}
+          </div>
         </div>
       )}
 
   <div className={styles.layout}>
     <div className={styles.filters}>
       <PriceRangeFilter />
+      {/* Show products under filter on mobile */}
+      <div className={styles.mobileProducts}>
+        <ProductList products={products} emptyMessage="No products found in this category" />
+      </div>
     </div>
     <div className={styles.products}>
       <ProductList products={products} emptyMessage="No products found in this category" />

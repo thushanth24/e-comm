@@ -1,35 +1,29 @@
 {
-  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
-    "id": 472,
+  "..\\node_modules\\next\\dist\\client\\components\\react-dev-overlay\\utils\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts": {
+    "id": "..\\node_modules\\next\\dist\\client\\components\\react-dev-overlay\\utils\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts",
     "files": [
-      "static/chunks/472.a3826d29d6854395.js"
-    ]
-  },
-  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
-    "id": 9341,
-    "files": [
-      "static/chunks/341.056900400c7cb71c.js"
+      "static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js"
     ]
   },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid": {
-    "id": 8118,
+    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid",
     "files": [
-      "static/css/b8a233354586249b.css",
-      "static/chunks/118.ef4bace9f5deeaad.js"
+      "static/css/_app-pages-browser_src_components_ui_ShopForKid_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_ShopForKid_tsx.js"
     ]
   },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForMen": {
-    "id": 8082,
+    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForMen",
     "files": [
-      "static/css/b8a233354586249b.css",
-      "static/chunks/82.141e726ed4db9e9e.js"
+      "static/css/_app-pages-browser_src_components_ui_ShopForMen_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_ShopForMen_tsx.js"
     ]
   },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForWomen": {
-    "id": 2700,
+    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForWomen",
     "files": [
-      "static/css/b8a233354586249b.css",
-      "static/chunks/700.9d9d54874a430546.js"
+      "static/css/_app-pages-browser_src_components_ui_ShopForWomen_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_ShopForWomen_tsx.js"
     ]
   }
 }

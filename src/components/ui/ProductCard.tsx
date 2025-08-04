@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
 import { ShoppingBag, Heart, Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import styles from '@/styles/ProductCard.module.scss';
+import { ProductLink } from './ProductLink';
 
 interface ProductCardProps {
   product: {
@@ -29,13 +29,14 @@ export default function ProductCard({ product }: ProductCardProps) {
     setMounted(true);
   }, []);
 
+  const isInStock = product.inventory > 0;
   const isLowInventory = product.inventory <= 5 && product.inventory > 0;
   const isOutOfStock = product.inventory === 0;
 
   return (
     <div className={styles.card}>
       <div className={styles.imageWrapper}>
-        <Link href={`/products/${product.slug}`}>
+        <ProductLink href={`/products/${product.slug}`}>
           <Image
             src={imageUrl}
             alt={product.name}
@@ -43,11 +44,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className={styles.image}
           />
-        </Link>
+        </ProductLink>
 
+        {mounted && isInStock && !isLowInventory && (
+          <div className={`${styles.badge} ${styles.inStock}`}>
+            In Stock
+          </div>
+        )}
         {mounted && isLowInventory && (
           <div className={`${styles.badge} ${styles.lowInventory}`}>
-            Only {product.inventory} left
+            Low Stock
           </div>
         )}
         {mounted && isOutOfStock && (
@@ -67,9 +73,9 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className={styles.info}>
-        <Link href={`/products/${product.slug}`} className={styles.titleLink}>
+        <ProductLink href={`/products/${product.slug}`} className={styles.titleLink}>
           <h3 className={styles.title}>{product.name}</h3>
-        </Link>
+        </ProductLink>
         <div className={styles.footer}>
           <p className={styles.price}>{formatPrice(product.price)}</p>
           {mounted && (

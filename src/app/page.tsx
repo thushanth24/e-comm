@@ -117,7 +117,7 @@ export default async function Home() {
         <div className={styles.container}>
           <div className={styles.valueGrid}>
             {[
-              { icon: <Package />, title: 'Free Shipping', description: 'On orders over $50' },
+              { icon: <Package />, title: 'Free Shipping', description: 'On orders over Rs. 10,000' },
               { icon: <CreditCard />, title: 'Secure Payment', description: '100% protected' },
               { icon: <Award />, title: 'Quality Guarantee', description: 'Premium materials' },
               { icon: <Tag />, title: 'Daily Offers', description: 'Discounts up to 50%' },

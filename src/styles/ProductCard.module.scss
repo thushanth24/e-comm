@@ -1,16 +1,68 @@
 .card {
   position: relative;
   max-width: 220px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  // Loading state overlay
+  .loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 1rem;
+    
+    .loadingBar {
+      width: 80px;
+      height: 2px;
+      background: rgba(37, 99, 235, 0.2);
+      border-radius: 1px;
+      overflow: hidden;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 30%;
+        height: 100%;
+        background: #2563eb;
+        border-radius: 1px;
+        animation: loading 1.5s ease-in-out infinite;
+      }
+    }
+  }
+  
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+  }
 }
 
 .imageWrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  background-color: #fff;
+  background-color: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 1rem;
   overflow: hidden;
+  transition: border-color 0.2s ease;
 
   img {
     width: 100%;
@@ -47,6 +99,11 @@
   font-weight: 500;
   border-radius: 9999px;
   backdrop-filter: blur(6px);
+}
+
+.inStock {
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
 .lowInventory {

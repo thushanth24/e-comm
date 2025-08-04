@@ -139,7 +139,7 @@ export default async function ProductPage({
           <span>Availability:</span>
           {product.inventory > 0 ? (
             <span className={styles.inStock}>
-              In Stock ({product.inventory} {product.inventory === 1 ? 'item' : 'items'} left)
+              In Stock
             </span>
           ) : (
             <span className={styles.outOfStock}>Out of Stock</span>
