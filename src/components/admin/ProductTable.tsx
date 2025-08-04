@@ -33,9 +33,14 @@ export default function ProductTable() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-10">
-        <span className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></span>
-        <span className="ml-4 text-blue-500">Loading products...</span>
+      <div className={styles.card}>
+        <div className="p-8 text-center">
+          <div className="inline-flex items-center justify-center space-x-3">
+            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-gray-700 font-medium">Loading products...</span>
+          </div>
+          <p className="mt-2 text-sm text-gray-500">Please wait while we fetch your products</p>
+        </div>
       </div>
     );
   }

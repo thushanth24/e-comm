@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
+import NavigationLoading from '@/components/ui/NavigationLoading';
 import '@/styles/globals.scss'; // use .scss instead of Tailwind CSS
 
 const inter = Inter({ subsets: ['latin'] });
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="layout">
+            <NavigationLoading />
             <Header />
             <main className="mainContent">{children}</main>
             <Footer />

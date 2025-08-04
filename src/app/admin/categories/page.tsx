@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from '@/styles/AdminCategories.module.scss';
 
@@ -58,9 +61,23 @@ function flattenCategories(categories: CategoryItem[], level = 0): CategoryItem[
   });
 }
 
-export default async function AdminCategories() {
-  const tree = await fetchCategories();
-  const categories = flattenCategories(tree);
+export default function AdminCategories() {
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const tree = await fetchCategories();
+        setCategories(flattenCategories(tree));
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCategories();
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -74,9 +91,20 @@ export default async function AdminCategories() {
           Add New Category
         </Link>
       </div>
-      <div className={styles.tableWrapper}>
-        <div className={styles.tableScroll}>
-          <table>
+      {loading ? (
+        <div className={styles.card}>
+          <div className="p-8 text-center">
+            <div className="inline-flex items-center justify-center space-x-3">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 font-medium">Loading categories...</span>
+            </div>
+            <p className="mt-2 text-sm text-gray-500">Please wait while we fetch your categories</p>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.tableWrapper}>
+          <div className={styles.tableScroll}>
+            <table>
             <thead>
               <tr>
                 <th>Name</th>
@@ -118,9 +146,10 @@ export default async function AdminCategories() {
                 ))
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
