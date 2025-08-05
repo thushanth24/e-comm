@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { usePageTransition } from '@/hooks/usePageTransition';
 import styles from '@/styles/ProductCard.module.scss';
 
 interface ProductLinkProps {
   href: string;
   children: React.ReactNode;
   className?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export function ProductLink({ 
@@ -18,29 +18,34 @@ export function ProductLink({
   className = '',
   onClick
 }: ProductLinkProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { startTransition } = usePageTransition();
   const pathname = usePathname();
   const isActive = pathname === href;
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isActive) {
       e.preventDefault();
       return;
     }
     
-    setIsLoading(true);
+    if (onClick) {
+      onClick(e);
+    }
+    
+    const target = e.currentTarget;
+    if (target.href && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      startTransition();
+      // Small delay to allow the animation to start
+      setTimeout(() => {
+        window.location.href = target.href;
+      }, 100);
+    }
     
     // Call the onClick handler if provided
     if (onClick) {
-      onClick();
+      onClick(e);
     }
-    
-    // Reset loading state after navigation completes or after a timeout
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // Fallback in case navigation doesn't complete
-    
-    return () => clearTimeout(timer);
   };
 
   return (
@@ -53,11 +58,6 @@ export function ProductLink({
       >
         {children}
       </Link>
-      {isLoading && (
-        <div className={styles.loadingOverlay}>
-          <div className={styles.loadingBar}></div>
-        </div>
-      )}
     </div>
   );
 }

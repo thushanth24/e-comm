@@ -14,7 +14,14 @@ interface CategoryInfo {
   id: number;
   name: string;
   slug: string;
+  parentId: number | null;
+  parent: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
   children: { id: number; name: string; slug: string }[];
+  parentHierarchy?: Array<{ id: number; name: string; slug: string }>;
 }
 
 interface Category {
@@ -48,16 +55,72 @@ async function getAllCategoryIds(slug: string): Promise<number[]> {
   return [root.id, ...collectIds(root.id)];
 }
 
-// 💡 Fetch category info for name + children (for display only)
-async function getCategoryInfo(slug: string) {
-  return await prisma.category.findUnique({
+// 💡 Fetch category info with parent hierarchy
+async function getCategoryInfo(slug: string): Promise<CategoryInfo | null> {
+  // First get the category with its direct parent and children
+  const category = await prisma.category.findUnique({
     where: { slug },
     include: {
-      children: {
-        include: { children: true },
-      },
+      children: true,
+      parent: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parentId: true
+        }
+      }
     },
   });
+
+  if (!category) return null;
+
+  // Get the full parent hierarchy
+  const parentHierarchy: Array<{ id: number; name: string; slug: string }> = [];
+  let currentParent = category.parent;
+  
+  // We'll build the hierarchy in reverse order (from root to direct parent)
+  const hierarchy: Array<{ id: number; name: string; slug: string }> = [];
+  
+  while (currentParent) {
+    hierarchy.unshift({
+      id: currentParent.id,
+      name: currentParent.name,
+      slug: currentParent.slug
+    });
+    
+    // Get the next parent
+    const nextParent = await prisma.category.findUnique({
+      where: { id: currentParent.id },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            parentId: true
+          }
+        }
+      },
+    });
+    
+    currentParent = nextParent?.parent || null;
+  }
+  
+  // Now build the final category info with hierarchy
+  return {
+    ...category,
+    parent: hierarchy.length > 0 ? {
+      id: hierarchy[hierarchy.length - 1].id,
+      name: hierarchy[hierarchy.length - 1].name,
+      slug: hierarchy[hierarchy.length - 1].slug
+    } : null,
+    children: category.children || [],
+    parentHierarchy: hierarchy
+  };
 }
 
 async function getProducts(categoryIds: number[], minPrice?: number, maxPrice?: number) {
@@ -121,9 +184,40 @@ export default async function CategoryPage(props: PageProps) {
 
   const products = await getProducts(categoryIds, minPrice, maxPrice);
 
+  // Function to generate breadcrumb items
+  const Breadcrumb = ({ items }: { items: Array<{ name: string; slug: string }> }) => (
+    <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+      <ol>
+        <li>
+          <CategoryLink href="/">Home</CategoryLink>
+        </li>
+        {items.map((item, index) => (
+          <li key={item.slug}>
+            <span className={styles.separator} aria-hidden="true">&gt;</span>
+            {index === items.length - 1 ? (
+              <span className={styles.currentCategory}>{item.name}</span>
+            ) : (
+              <CategoryLink href={`/categories/${item.slug}`}>
+                {item.name}
+              </CategoryLink>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+
+  // Prepare breadcrumb items
+  const breadcrumbItems = [
+    ...(categoryInfo.parentHierarchy || []),
+    { name: categoryInfo.name, slug: categoryInfo.slug }
+  ];
+
   return (
     <div className={styles.container}>
-      <h1>{categoryInfo.name}</h1>
+      <div className={styles.breadcrumbContainer}>
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
 
       {categoryInfo.children.length > 0 && (
         <div className={styles.subcategories}>

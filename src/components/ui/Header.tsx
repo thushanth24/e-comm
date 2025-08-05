@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { CategoryLink } from './CategoryLink';
 import SearchBar from './SearchBar';
 import {
   ShoppingBag,
@@ -35,7 +36,8 @@ export default function Header() {
   ];
 
   return (
-    <header className={styles.header}>
+    <>
+      <header className={styles.header}>
       {/* Top Announcement Bar */}
       <div className={styles.announcementBar}>
         <p>SPECIAL DISCOUNTS ON ALL ORDERS | USE CODE: FUTURE10</p>
@@ -49,20 +51,26 @@ export default function Header() {
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <Link href="/" className={styles.logo}>
+        <CategoryLink 
+          href="/" 
+          className={styles.logo}
+        >
           <span className={styles.logoMain}>SRI RAM</span>
           <span className={styles.logoAccent}>SELECTION</span>
-        </Link>
+        </CategoryLink>
 
         <div className={styles.search}>
           <SearchBar />
         </div>
 
         <div className={styles.actions}>
-          <Link href="/favorites" className={styles.actionIcon}>
+          <CategoryLink 
+            href="/favorites" 
+            className={styles.actionIcon}
+          >
             <Heart size={20} />
             <span>Wishlist</span>
-          </Link>
+          </CategoryLink>
         </div>
       </div>
 
@@ -71,17 +79,17 @@ export default function Header() {
         <ul>
           {categories.map((cat) => (
             <li key={cat.href}>
-              <Link 
+              <CategoryLink 
                 href={cat.href}
                 className={`${styles.categoryLink} ${isActive(cat.href) ? styles.activeCategory : ''}`}
               >
                 {cat.label}
-
-              </Link>
+              </CategoryLink>
             </li>
           ))}
         </ul>
       </nav>
     </header>
+    </>
   );
 }

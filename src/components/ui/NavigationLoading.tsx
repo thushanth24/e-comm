@@ -1,97 +1,42 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePageTransition } from '@/hooks/usePageTransition';
 
 export default function NavigationLoading() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    const handleStart = () => {
-      setIsLoading(true);
-      setProgress(0);
-      // Simulate progress
-      timer = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(timer);
-            return 90; // Don't go to 100% until the page is actually loaded
-          }
-          return prev + 10;
-        });
-      }, 100);
-    };
-    
-    const handleComplete = () => {
-      setProgress(100);
-      setTimeout(() => {
-        setIsLoading(false);
-        setProgress(0);
-      }, 300);
-    };
-
-    // Handle Next.js route changes
-    const handleRouteChangeStart = () => handleStart();
-    const handleRouteChangeComplete = () => handleComplete();
-
-    // Set up event listeners
-    window.addEventListener('beforeunload', handleStart);
-    window.addEventListener('load', handleComplete);
-    window.addEventListener('routeChangeStart', handleRouteChangeStart);
-    window.addEventListener('routeChangeComplete', handleRouteChangeComplete);
-
-    // Clean up event listeners
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener('beforeunload', handleStart);
-      window.removeEventListener('load', handleComplete);
-      window.removeEventListener('routeChangeStart', handleRouteChangeStart);
-      window.removeEventListener('routeChangeComplete', handleRouteChangeComplete);
-    };
-  }, []);
-
-  // Reset loading state when pathname changes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      setProgress(0);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [pathname]);
+  const { isLoading } = usePageTransition();
 
   return (
     <AnimatePresence mode="wait">
       {isLoading && (
         <motion.div
-          className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 z-[100] shadow-lg"
-          initial={{ width: '0%' }}
+          className="fixed inset-0 z-[9999] pointer-events-none"
+          initial={{ clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)' }}
           animate={{
-            width: `${progress}%`,
-            transition: { duration: 0.3, ease: 'easeInOut' }
+            clipPath: [
+              'polygon(0 0, 100% 0, 100% 0, 0 0)',
+              'polygon(0 0, 100% 0, 100% 30%, 0 20%)',
+              'polygon(0 0, 100% 0, 100% 60%, 0 40%)',
+              'polygon(0 0, 100% 0, 100% 100%, 0 90%)',
+              'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+            ]
           }}
-          exit={{ 
-            opacity: 0,
-            transition: { duration: 0.3 }
+          exit={{
+            clipPath: [
+              'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+              'polygon(0 0, 100% 0, 100% 90%, 0 100%)',
+              'polygon(0 40%, 100% 60%, 100% 100%, 0 100%)',
+              'polygon(0 20%, 100% 30%, 100% 100%, 0 100%)',
+              'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+            ]
+          }}
+          transition={{
+            duration: 1.2,
+            ease: [0.4, 0, 0.2, 1],
+            times: [0, 0.3, 0.6, 0.9, 1]
           }}
         >
-          <motion.div 
-            className="h-full w-1/3 bg-white opacity-30 absolute right-0"
-            animate={{
-              x: ['-100%', '300%'],
-              transition: { 
-                repeat: Infinity, 
-                duration: 1.5,
-                ease: 'easeInOut'
-              }
-            }}
-          />
+          <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80" />
         </motion.div>
       )}
     </AnimatePresence>

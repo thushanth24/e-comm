@@ -5,6 +5,7 @@ import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import NavigationLoading from '@/components/ui/NavigationLoading';
 import '@/styles/globals.scss'; // use .scss instead of Tailwind CSS
+import '@/styles/transitions.css'; // Import transitions CSS
 
 const inter = Inter({ subsets: ['latin'] });
 

@@ -3,6 +3,7 @@
 html, body {
   max-width: 100%;
   overflow-x: hidden;
+  position: relative;
 }
 
 body {
@@ -13,6 +14,31 @@ body {
   padding: 0;
   width: 100%;
   position: relative;
+  min-height: 100vh;
+  transition: transform 0.5s ease-in-out;
+  will-change: transform;
+}
+
+/* Page transition overlay */
+.page-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #4f46e5, #7c3aed);
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+body.page-transition-active {
+  overflow: hidden;
+}
+
+body.page-transition-active .page-transition-overlay {
+  opacity: 1;
 }
 
 /* Container override if needed */

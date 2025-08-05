@@ -1,0 +1,17 @@
+/* Page transition effects */
+.page-transition-fade-out {
+  opacity: 0.7;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+.page-transition-fade-in {
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+  pointer-events: auto;
+}
+
+/* Disable transitions during initial page load */
+body:not(.page-transition-fade-out):not(.page-transition-fade-in) {
+  transition: none !important;
+}
