@@ -6,6 +6,7 @@
   overflow: hidden;
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
   
   &:hover {
     transform: translateY(-4px);
@@ -213,4 +214,23 @@
   background-color: #e5e7eb;
   color: #9ca3af;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 0.7rem;
+    margin-bottom: 0.1rem;
+    line-height: 1.05;
+  }
+  .price {
+    font-size: 0.68rem;
+  }
+  .cartButton {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
+    min-width: 48px;
+  }
+  .footer {
+    margin-top: 0.08rem;
+  }
 }

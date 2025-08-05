@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { CategoryLink } from './CategoryLink';
 import SearchBar from './SearchBar';
@@ -35,61 +35,117 @@ export default function Header() {
     { href: '/categories/gift-cards', label: 'GIFT CARDS' },
   ];
 
+  // Close menu when clicking on overlay
+  const handleOverlayClick = () => {
+    setIsMenuOpen(false);
+  };
+
+  // Close menu when pressing Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
   return (
     <>
       <header className={styles.header}>
-      {/* Top Announcement Bar */}
-      <div className={styles.announcementBar}>
-        <p>SPECIAL DISCOUNTS ON ALL ORDERS | USE CODE: FUTURE10</p>
-      </div>
-
-      <div className={styles.mainHeader}>
-        <button 
-          className={styles.mobileMenuButton}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        <CategoryLink 
-          href="/" 
-          className={styles.logo}
-        >
-          <span className={styles.logoMain}>SRI RAM</span>
-          <span className={styles.logoAccent}>SELECTION</span>
-        </CategoryLink>
-
-        <div className={styles.search}>
-          <SearchBar />
+        {/* Top Announcement Bar */}
+        <div className={styles.announcementBar}>
+          <p>SPECIAL DISCOUNTS ON ALL ORDERS | USE CODE: FUTURE10</p>
         </div>
 
-        <div className={styles.actions}>
-          <CategoryLink 
-            href="/favorites" 
-            className={styles.actionIcon}
+        <div className={styles.mainHeader}>
+          <button 
+            className={styles.mobileMenuButton}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
           >
-            <Heart size={20} />
-            <span>Wishlist</span>
-          </CategoryLink>
-        </div>
-      </div>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
 
-      {/* Category Navigation */}
-      <nav className={styles.categoryNav}>
-        <ul>
-          {categories.map((cat) => (
-            <li key={cat.href}>
-              <CategoryLink 
-                href={cat.href}
-                className={`${styles.categoryLink} ${isActive(cat.href) ? styles.activeCategory : ''}`}
-              >
-                {cat.label}
-              </CategoryLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </header>
+          <CategoryLink 
+            href="/" 
+            className={styles.logo}
+          >
+            <span className={styles.logoMain}>SRI RAM</span>
+            <span className={styles.logoAccent}>SELECTION</span>
+          </CategoryLink>
+
+          <div className={styles.search}>
+            <SearchBar />
+          </div>
+
+          <div className={styles.actions}>
+            <CategoryLink 
+              href="/favorites" 
+              className={styles.actionIcon}
+            >
+              <Heart size={20} />
+              <span>Wishlist</span>
+            </CategoryLink>
+          </div>
+        </div>
+
+        {/* Desktop Category Navigation */}
+        <nav className={`${styles.categoryNav} ${styles.desktopNav}`}>
+          <ul>
+            {categories.map((cat) => (
+              <li key={cat.href}>
+                <CategoryLink 
+                  href={cat.href}
+                  className={`${styles.categoryLink} ${isActive(cat.href) ? styles.activeCategory : ''}`}
+                >
+                  {cat.label}
+                </CategoryLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Mobile Menu Overlay */}
+        <div 
+          className={`${styles.mobileMenuOverlay} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}
+          onClick={handleOverlayClick}
+          role="button"
+          tabIndex={-1}
+          aria-label="Close menu"
+        />
+
+        {/* Mobile Menu */}
+        <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
+          <div className={styles.mobileMenuHeader}>
+            <h2>Menu</h2>
+            <button 
+              className={styles.mobileMenuClose}
+              onClick={() => setIsMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          <nav className={styles.mobileNav}>
+            <ul>
+              {categories.map((cat) => (
+                <li key={cat.href}>
+                  <CategoryLink 
+                    href={cat.href}
+                    className={`${styles.mobileNavLink} ${isActive(cat.href) ? styles.activeCategory : ''}`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {cat.label}
+                  </CategoryLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </header>
     </>
   );
 }
