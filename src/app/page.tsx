@@ -99,10 +99,10 @@ export default async function Home() {
                 Discover our curated selection of premium fashion essentials
               </p>
               <div className={styles.heroActions}>
-                <Link href="/shop" className={styles.primaryBtn}>
+                <Link href="/categories/women" className={styles.primaryBtn}>
                   <ShoppingBag className={styles.btnIcon} /> Shop Now
                 </Link>
-                <Link href="/collections" className={styles.secondaryBtn}>
+                <Link href="/categories/men" className={styles.secondaryBtn}>
                   View Collections
                 </Link>
               </div>

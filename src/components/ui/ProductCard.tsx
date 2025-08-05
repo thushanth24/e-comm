@@ -6,6 +6,20 @@ import { Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import styles from '@/styles/ProductCard.module.scss';
 import { ProductLink } from './ProductLink';
+import dynamic from 'next/dynamic';
+
+// Dynamically import ClientOnly with no SSR
+const ClientOnly = dynamic(() => import('@/components/ClientOnly'), { ssr: false });
+
+// Preload the first few product images
+const preloadImages = (images: string[]) => {
+  if (typeof window === 'undefined') return;
+  
+  images.slice(0, 5).forEach((src) => {
+    const img = new window.Image();
+    img.src = src;
+  });
+};
 
 interface ProductCardProps {
   product: {
@@ -16,47 +30,80 @@ interface ProductCardProps {
     images: { url: string }[];
     inventory: number;
   };
+  priority?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const fallbackImage =
-    'https://images.unsplash.com/photo-1523387210434-271e8be1f52b?w=800&auto=format&fit=crop';
-  const imageUrl = product.images?.length > 0 ? product.images[0].url : fallbackImage;
-
+export default function ProductCard({ product, priority = false }: ProductCardProps) {
+  const fallbackImage = '/images/placeholder-product.jpg';
+  const imageUrl = product.images?.[0]?.url || fallbackImage;
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Preload images for the first few products
+    if (priority && product.images?.[0]?.url) {
+      preloadImages([product.images[0].url]);
+    }
+  }, [product.images, priority]);
+
+  if (!mounted) {
+    return (
+      <div className={styles.card}>
+        <div className={`${styles.imageWrapper} ${styles.skeleton}`} />
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.card}>
-      <div className={styles.imageWrapper}>
-        <ProductLink href={`/products/${product.slug}`}>
-          <Image
-            src={imageUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className={styles.image}
-          />
-        </ProductLink>
+    <ClientOnly>
+      <div className={styles.card}>
+        <div className={styles.imageWrapper}>
+          <ProductLink href={`/products/${product.slug}`}>
+            <Image
+              src={imageUrl}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className={`${styles.image} ${isImageLoading ? styles.loading : ''}`}
+              priority={priority}
+              loading={priority ? 'eager' : 'lazy'}
+              quality={75}
+              onLoadingComplete={() => setIsImageLoading(false)}
+              placeholder="blur"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg=="
+            />
+          </ProductLink>
 
-        <div className={styles.quickActions}>
-          <button className={styles.actionButton} aria-label="Quick view">
-            <Eye className={styles.icon} />
-          </button>
+          <div className={styles.quickActions}>
+            <button 
+              className={styles.actionButton} 
+              aria-label="Quick view"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                // Handle quick view
+              }}
+            >
+              <Eye className={styles.icon} />
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.info}>
+          <ProductLink href={`/products/${product.slug}`} className={styles.titleLink}>
+            <h3 className={styles.title} title={product.name}>
+              {product.name.length > 50 ? `${product.name.substring(0, 50)}...` : product.name}
+            </h3>
+          </ProductLink>
+          <div className={styles.footer}>
+            <p className={styles.price}>{formatPrice(product.price)}</p>
+            {product.inventory <= 0 && (
+              <span className={styles.outOfStock}>Out of Stock</span>
+            )}
+          </div>
         </div>
       </div>
-
-      <div className={styles.info}>
-        <ProductLink href={`/products/${product.slug}`} className={styles.titleLink}>
-          <h3 className={styles.title}>{product.name}</h3>
-        </ProductLink>
-        <div className={styles.footer}>
-          <p className={styles.price}>{formatPrice(product.price)}</p>
-        </div>
-      </div>
-    </div>
+    </ClientOnly>
   );
 }

@@ -1,10 +1,12 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import ProductList from '@/components/ui/ProductList';
+import ProductImages from '@/components/ui/ProductImages';
 import styles from '@/styles/ProductPage.module.scss';
+import { Suspense } from 'react';
+import ProductCardSkeleton from '../../../../components/ui/ProductCardSkeleton';
 
 
 interface PageProps {
@@ -72,91 +74,56 @@ export default async function ProductPage({
   
   return (
     <div className={styles.container}>
-    <div className={styles.breadcrumb}>
-      <Link href="/">Home</Link>
-      {' / '}
-      <Link href={`/categories/${product.category.slug}`}>
-        {product.category.name}
-      </Link>
-      {' / '}
-      <span>{product.name}</span>
-    </div>
-  
-    <div className={styles.productGrid}>
-      <div className={styles.images}>
-        {product.images.length > 0 ? (
-          <>
-            <div className={styles.mainImage}>
-              <Image
-                src={product.images[0].url}
-                alt={product.name}
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className={styles.image}
-              />
-            </div>
-  
-            {product.images.length > 1 && (
-              <div className={styles.thumbnailGrid}>
-                {product.images.map((image: { id: number; url: string }, index: number) => (
-                  <div key={image.id} className={styles.thumbnail}>
-                    <Image
-                      src={image.url}
-                      alt={`${product.name} image ${index + 1}`}
-                      fill
-                      sizes="25vw"
-                      className={styles.image}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className={styles.noImage}>
-            <span>No image available</span>
+      <div className={styles.breadcrumb}>
+        <Link href="/">Home</Link>
+        {' / '}
+        <Link href={`/categories/${product.category.slug}`}>
+          {product.category.name}
+        </Link>
+        {' / '}
+        <span>{product.name}</span>
+      </div>
+
+      <div className={styles.productGrid}>
+        <Suspense fallback={<div className={styles.imageSkeleton} />}>
+          <ProductImages images={product.images} name={product.name} />
+        </Suspense>
+
+        <div className={styles.details}>
+          <div className={styles.header}>
+            <h1>{product.name}</h1>
+            <Link href={`/categories/${product.category.slug}`} className={styles.category}>
+              {product.category.name}
+            </Link>
           </div>
-        )}
+
+          <div className={styles.price}>{formatPrice(product.price)}</div>
+
+          <div className={styles.description}>
+            <h3>Description</h3>
+            <p>{product.description}</p>
+          </div>
+
+          <div className={styles.availability}>
+            <span>Availability: </span>
+            {product.inventory > 0 ? (
+              <span className={styles.inStock}>In Stock</span>
+            ) : (
+              <span className={styles.outOfStock}>Out of Stock</span>
+            )}
+          </div>
+        </div>
       </div>
-  
-      <div className={styles.details}>
-        <div className={styles.header}>
-          <h1>{product.name}</h1>
-          <Link href={`/categories/${product.category.slug}`} className={styles.category}>
-            {product.category.name}
-          </Link>
-        </div>
-  
-        <div className={styles.price}>{formatPrice(product.price)}</div>
-  
-        <div className={styles.description}>
-          <h3>Description</h3>
-          <p>{product.description}</p>
-        </div>
-  
-        <div className={styles.availability}>
-          <span>Availability:</span>
-          {product.inventory > 0 ? (
-            <span className={styles.inStock}>
-              In Stock
-            </span>
-          ) : (
-            <span className={styles.outOfStock}>Out of Stock</span>
-          )}
-        </div>
-  
-        {/* Wishlist button removed */}
-      </div>
+
+      {relatedProducts.length > 0 && (
+        <section className={styles.relatedSection}>
+          <h2>You may also like</h2>
+          <Suspense fallback={Array(4).fill(0).map((_, i) => <ProductCardSkeleton key={i} />)}>
+            <ProductList products={relatedProducts} />
+          </Suspense>
+        </section>
+      )}
     </div>
-  
-    {relatedProducts.length > 0 && (
-      <section className={styles.relatedSection}>
-        <h2>You may also like</h2>
-        <ProductList products={relatedProducts} />
-      </section>
-    )}
-  </div>
   
   );
 }

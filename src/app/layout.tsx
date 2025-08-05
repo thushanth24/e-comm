@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from 'next-themes';
-import Header from '@/components/ui/Header';
-import Footer from '@/components/ui/Footer';
-import NavigationLoading from '@/components/ui/NavigationLoading';
-import '@/styles/globals.scss'; // use .scss instead of Tailwind CSS
-import '@/styles/transitions.css'; // Import transitions CSS
+import ClientLayout from './ClientLayout';
+import '@/styles/globals.scss';
+import '@/styles/transitions.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,16 +25,12 @@ export default function RootLayout({
       <head>
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+        <meta name="robots" content="noindex" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="layout">
-            <NavigationLoading />
-            <Header />
-            <main className="mainContent">{children}</main>
-            <Footer />
-          </div>
-        </ThemeProvider>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );
