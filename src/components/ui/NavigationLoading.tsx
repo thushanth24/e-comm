@@ -2,9 +2,18 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePageTransition } from '@/hooks/usePageTransition';
+import { useEffect, useState } from 'react';
 
 export default function NavigationLoading() {
+  const [mounted, setMounted] = useState(false);
   const { isLoading } = usePageTransition();
+
+  // This ensures the component only renders on the client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <AnimatePresence mode="wait">

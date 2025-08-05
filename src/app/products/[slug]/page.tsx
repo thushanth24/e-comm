@@ -146,11 +146,7 @@ export default async function ProductPage({
           )}
         </div>
   
-        <div className={styles.action}>
-          <button disabled={product.inventory === 0}>
-            {product.inventory === 0 ? 'Out of Stock' : 'Add to wishlist'}
-          </button>
-        </div>
+        {/* Wishlist button removed */}
       </div>
     </div>
   

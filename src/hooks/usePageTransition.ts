@@ -9,7 +9,7 @@ export function usePageTransition() {
   const [isLoading, setIsLoading] = useState(false);
 
   const startTransition = useCallback((url?: string) => {
-    if (url) {
+    if (url && typeof window !== 'undefined') {
       // Set loading state
       setIsLoading(true);
       // Add fade-out class to body
@@ -24,6 +24,8 @@ export function usePageTransition() {
 
   // Handle page load completion
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const handleLoad = () => {
       if (isLoading) {
         // Add a small delay to ensure all content is rendered
@@ -50,7 +52,7 @@ export function usePageTransition() {
     return () => {
       window.removeEventListener('load', handleLoad);
     };
-  }, [isLoading, currentPath]);
+  }, [isLoading, pathname]);
 
   return {
     startTransition,

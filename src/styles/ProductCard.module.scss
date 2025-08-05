@@ -183,39 +183,6 @@
   font-size: 0.875rem;
 }
 
-.cartButton {
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  border: none;
-  transition: all 0.2s ease;
-}
-
-.cartIcon {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
-.active {
-  background-color: #dbeafe;
-  color: #2563eb;
-
-  &:hover {
-    background-color: #2563eb;
-    color: #fff;
-  }
-}
-
-.disabled {
-  background-color: #e5e7eb;
-  color: #9ca3af;
-  cursor: not-allowed;
-}
-
 @media (max-width: 768px) {
   .title {
     font-size: 0.7rem;
@@ -225,11 +192,7 @@
   .price {
     font-size: 0.68rem;
   }
-  .cartButton {
-    font-size: 0.65rem;
-    padding: 0.15rem 0.3rem;
-    min-width: 48px;
-  }
+  /* Cart button styles removed */
   .footer {
     margin-top: 0.08rem;
   }

@@ -10,9 +10,12 @@ import '@/styles/transitions.css'; // Import transitions CSS
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SRI RAAM SELECTION',
+  title: 'SRI RAM SELECTION',
   description: 'Discover trendy clothing and accessories for men, women, and kids at StyleStore.',
   keywords: 'fashion, clothing, accessories, mens clothing, womens clothing, kids clothing',
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
@@ -22,6 +25,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="layout">

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
-import { ShoppingBag, Heart, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import styles from '@/styles/ProductCard.module.scss';
 import { ProductLink } from './ProductLink';
@@ -29,10 +29,6 @@ export default function ProductCard({ product }: ProductCardProps) {
     setMounted(true);
   }, []);
 
-  const isInStock = product.inventory > 0;
-  const isLowInventory = product.inventory <= 5 && product.inventory > 0;
-  const isOutOfStock = product.inventory === 0;
-
   return (
     <div className={styles.card}>
       <div className={styles.imageWrapper}>
@@ -46,11 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </ProductLink>
 
-
         <div className={styles.quickActions}>
-          <button className={styles.actionButton} aria-label="Add to wishlist">
-            <Heart className={styles.icon} />
-          </button>
           <button className={styles.actionButton} aria-label="Quick view">
             <Eye className={styles.icon} />
           </button>
@@ -63,17 +55,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         </ProductLink>
         <div className={styles.footer}>
           <p className={styles.price}>{formatPrice(product.price)}</p>
-          {mounted && (
-            <button
-              disabled={isOutOfStock}
-              className={`${styles.cartButton} ${
-                isOutOfStock ? styles.disabled : styles.active
-              }`}
-            >
-              <ShoppingBag className={styles.cartIcon} />
-              {isOutOfStock ? 'Sold Out' : 'Add to wishlist'}
-            </button>
-          )}
         </div>
       </div>
     </div>

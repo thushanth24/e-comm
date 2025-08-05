@@ -8,9 +8,16 @@ interface CategoryLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement
   href: string;
   children: React.ReactNode;
   className?: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
-export function CategoryLink({ href, children, className = '' }: CategoryLinkProps) {
+export function CategoryLink({ 
+  href, 
+  children, 
+  className = '', 
+  onClick,
+  ...props 
+}: CategoryLinkProps) {
   const { startTransition } = usePageTransition();
   const pathname = usePathname();
   const isActive = pathname === href;
@@ -26,6 +33,11 @@ export function CategoryLink({ href, children, className = '' }: CategoryLinkPro
       e.preventDefault();
       startTransition(href);
     }
+
+    // Call the onClick prop if it exists
+    if (onClick) {
+      onClick(e);
+    }
   };
 
   return (
@@ -34,6 +46,7 @@ export function CategoryLink({ href, children, className = '' }: CategoryLinkPro
       onClick={handleClick}
       className={className}
       aria-current={isActive ? 'page' : undefined}
+      {...props}
     >
       {children}
     </Link>

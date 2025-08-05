@@ -82,13 +82,7 @@ export default function Header() {
           </div>
 
           <div className={styles.actions}>
-            <CategoryLink 
-              href="/favorites" 
-              className={styles.actionIcon}
-            >
-              <Heart size={20} />
-              <span>Wishlist</span>
-            </CategoryLink>
+            {/* Wishlist removed */}
           </div>
         </div>
 
