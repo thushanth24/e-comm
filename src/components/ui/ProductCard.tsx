@@ -46,21 +46,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </ProductLink>
 
-        {mounted && isInStock && !isLowInventory && (
-          <div className={`${styles.badge} ${styles.inStock}`}>
-            In Stock
-          </div>
-        )}
-        {mounted && isLowInventory && (
-          <div className={`${styles.badge} ${styles.lowInventory}`}>
-            Low Stock
-          </div>
-        )}
-        {mounted && isOutOfStock && (
-          <div className={`${styles.badge} ${styles.outOfStock}`}>
-            Out of Stock
-          </div>
-        )}
 
         <div className={styles.quickActions}>
           <button className={styles.actionButton} aria-label="Add to wishlist">

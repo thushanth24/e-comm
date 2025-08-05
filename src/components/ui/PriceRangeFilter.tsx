@@ -50,7 +50,7 @@ export default function PriceRangeFilter() {
       <div className={styles.form}>
         <div className={styles.inputContainer}>
           <div className={styles.inputGroup}>
-            <span className={styles.symbol}>$</span>
+            <span className={styles.symbol}>LKR</span>
             <input
               type="number"
               placeholder="Min"
@@ -62,7 +62,7 @@ export default function PriceRangeFilter() {
           </div>
           <div className={styles.divider}></div>
           <div className={styles.inputGroup}>
-            <span className={styles.symbol}>$</span>
+            <span className={styles.symbol}>LKR</span>
             <input
               type="number"
               placeholder="Max"

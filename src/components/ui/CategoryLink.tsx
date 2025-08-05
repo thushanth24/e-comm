@@ -32,9 +32,7 @@ export function CategoryLink({ href, children, className = '' }: CategoryLinkPro
     <Link
       href={href}
       onClick={handleClick}
-      className={`block py-2 px-4 text-sm font-medium transition-colors duration-200 hover:bg-gray-100 hover:text-primary rounded-md ${
-        isActive ? 'text-primary bg-gray-50' : 'text-gray-700'
-      } ${className}`}
+      className={className}
       aria-current={isActive ? 'page' : undefined}
     >
       {children}
