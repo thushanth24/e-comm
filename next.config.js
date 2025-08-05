@@ -5,7 +5,7 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        pathname: '/**', // Required for Unsplash to allow all image paths
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -18,16 +18,40 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
   },
   experimental: {
     serverActions: {
       allowedOrigins: [
-        'http://localhost:5000', // add protocol for consistency
+        'http://localhost:5000',
         'https://*.replit.dev',
         'https://*.replit.app',
       ],
     },
   },
+  // Enable React strict mode
+  reactStrictMode: true,
+  // Enable production browser source maps
+  productionBrowserSourceMaps: false,
+  // Enable compression
+  compress: true,
+  // Enable static export if needed
+  // output: 'export',
+  // Enable static HTML export
+  // trailingSlash: true,
 };
 
-module.exports = nextConfig;
+// Enable bundle analyzer in development
+if (process.env.ANALYZE === 'true') {
+  const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+  });
+  module.exports = withBundleAnalyzer(nextConfig);
+} else {
+  module.exports = nextConfig;
+}

@@ -6,7 +6,7 @@ import ProductList from '@/components/ui/ProductList';
 import ProductImages from '@/components/ui/ProductImages';
 import styles from '@/styles/ProductPage.module.scss';
 import { Suspense } from 'react';
-import ProductCardSkeleton from '../../../../components/ui/ProductCardSkeleton';
+import ProductCardSkeleton from '@/components/ui/ProductCardSkeleton';
 
 
 interface PageProps {
