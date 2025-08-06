@@ -8,14 +8,6 @@ import styles from '@/styles/ProductPage.module.scss';
 import { Suspense } from 'react';
 import ProductCardSkeleton from '@/components/ui/ProductCardSkeleton';
 
-
-interface PageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}
-
 async function getProduct(slug: string) {
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -43,8 +35,12 @@ async function getRelatedProducts(categoryId: number, productId: number) {
   return products;
 }
 
-export async function generateMetadata({ params }: PageProps) {
-  const slug = (await params).slug;
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const slug = params.slug;
   const product = await getProduct(slug);
   
   if (!product) {
@@ -62,8 +58,12 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductPage({
   params,
-}: PageProps) {
-  const slug = (await params).slug;
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const slug = params.slug;
   const product = await getProduct(slug);
   
   if (!product) {

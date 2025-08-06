@@ -2,22 +2,19 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import CategoryForm from '@/components/admin/CategoryForm';
 
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  parentId: number | null;
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
+// Optional: Helps Next.js 15 type system with metadata inference
+export async function generateMetadata() {
+  return {};
 }
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}
-
-export default async function Page({
-  params,
-}: PageProps) {
-  const id = Number((await params).id);
+export default async function EditCategoryPage({ params }: Props) {
+  const id = parseInt(params.id);
 
   if (!Number.isInteger(id)) {
     notFound();

@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Configure experimental features
+
   images: {
     remotePatterns: [
       {
@@ -25,15 +27,7 @@ const nextConfig = {
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
   },
-  experimental: {
-    serverActions: {
-      allowedOrigins: [
-        'http://localhost:5000',
-        'https://*.replit.dev',
-        'https://*.replit.app',
-      ],
-    },
-  },
+ 
   // Enable React strict mode
   reactStrictMode: true,
   // Enable production browser source maps

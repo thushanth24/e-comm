@@ -12,20 +12,18 @@ interface Product {
   images: { url: string }[];
 }
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}
-
 async function getCategories() {
   const categories = await prisma.category.findMany();
   return categories;
 }
 
-export default async function EditProduct({
-  params,
-}: PageProps) {
-  const id = parseInt((await params).id);
+type PageProps = {
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
+export default async function EditProductPage({ params }: PageProps) {
+  const id = parseInt(params.id);
   
   if (isNaN(id)) {
     notFound();

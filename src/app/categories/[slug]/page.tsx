@@ -2,11 +2,6 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ClientCategoryPage from './ClientCategoryPage';
 
-interface PageProps {
-  params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
 interface CategoryInfo {
   id: number;
   name: string;
@@ -129,7 +124,13 @@ async function getProducts(categoryIds: number[], minPrice?: number, maxPrice?: 
 }
 
 // Main Category Page - Server Component
-export default async function CategoryPage({ params, searchParams }: PageProps) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const minPrice = Array.isArray(searchParams?.minPrice) ? searchParams.minPrice[0] : searchParams?.minPrice;
   const maxPrice = Array.isArray(searchParams?.maxPrice) ? searchParams.maxPrice[0] : searchParams?.maxPrice;

@@ -24,10 +24,7 @@ type SearchParams = {
   maxPrice?: string;
 };
 
-interface PageProps {
-  searchParams: Promise<SearchParams>;
-  params: Promise<Record<string, string | string[] | undefined>>;
-}
+
 
 async function getCategories(): Promise<Category[]> {
   const categories = await prisma.category.findMany({
@@ -65,9 +62,18 @@ async function searchProducts(params: SearchParams) {
   });
 }
 
-export async function generateMetadata({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const { query, category } = params;
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const getStringParam = (param: string | string[] | undefined): string => {
+    if (Array.isArray(param)) return param[0] || '';
+    return param || '';
+  };
+
+  const query = getStringParam(searchParams.query);
+  const category = getStringParam(searchParams.category);
 
   let title = 'Search Products';
   if (query) title = `Search: ${query}`;
@@ -79,14 +85,26 @@ export async function generateMetadata({ searchParams }: PageProps) {
   };
 }
 
-export default async function SearchPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const query = params.query || '';
-  const categorySlug = params.category || '';
-  const minPrice = params.minPrice ? parseInt(params.minPrice) : undefined;
-  const maxPrice = params.maxPrice ? parseInt(params.maxPrice) : undefined;
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  // Ensure all params are strings, not string arrays
+  const getStringParam = (param: string | string[] | undefined): string => {
+    if (Array.isArray(param)) return param[0] || '';
+    return param || '';
+  };
+
+  const query = getStringParam(searchParams.query);
+  const categorySlug = getStringParam(searchParams.category);
+  const minPriceStr = getStringParam(searchParams.minPrice);
+  const maxPriceStr = getStringParam(searchParams.maxPrice);
+  
+  const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined;
+  const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined;
   const [products, categories] = await Promise.all([
-    searchProducts(await params),
+    searchProducts({ query, category: categorySlug, minPrice: minPriceStr, maxPrice: maxPriceStr }),
     getCategories(),
   ]);
 
