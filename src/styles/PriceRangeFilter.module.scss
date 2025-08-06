@@ -46,7 +46,7 @@
   flex-wrap: wrap;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 400px) {
   .inputContainer {
     flex-direction: column;
     align-items: stretch;
@@ -63,6 +63,7 @@
   background: #f8fafc;
   border-radius: 8px;
   padding: 0 0.75rem;
+  width: 80%;
   transition: all 0.3s ease;
   border: 1px solid #e2e8f0;
 
@@ -81,7 +82,7 @@
 
 .input {
   flex: 1;
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem 1.5rem 0.75rem 0.5rem; // Added more padding-right for better spacing
   background: transparent;
   border: none;
   color: #1e293b;
