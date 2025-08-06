@@ -1,13 +1,10 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import ProductList from '@/components/ui/ProductList';
-import PriceRangeFilter from '@/components/ui/PriceRangeFilter';
-import { CategoryLink } from '@/components/ui/CategoryLink';
-import styles from '@/styles/CategoryPage.module.scss';
+import ClientCategoryPage from './ClientCategoryPage';
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ minPrice?: string; maxPrice?: string }>;
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 interface CategoryInfo {
@@ -22,12 +19,6 @@ interface CategoryInfo {
   } | null;
   children: { id: number; name: string; slug: string }[];
   parentHierarchy?: Array<{ id: number; name: string; slug: string }>;
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
 }
 
 interface CategoryNode {
@@ -57,7 +48,7 @@ async function getAllCategoryIds(slug: string): Promise<number[]> {
 
 // 💡 Fetch category info with parent hierarchy
 async function getCategoryInfo(slug: string): Promise<CategoryInfo | null> {
-  // First get the category with its direct parent and children
+  // Get the category with its direct parent and children
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
@@ -76,11 +67,8 @@ async function getCategoryInfo(slug: string): Promise<CategoryInfo | null> {
   if (!category) return null;
 
   // Get the full parent hierarchy
-  const parentHierarchy: Array<{ id: number; name: string; slug: string }> = [];
-  let currentParent = category.parent;
-  
-  // We'll build the hierarchy in reverse order (from root to direct parent)
   const hierarchy: Array<{ id: number; name: string; slug: string }> = [];
+  let currentParent = category.parent;
   
   while (currentParent) {
     hierarchy.unshift({
@@ -110,7 +98,6 @@ async function getCategoryInfo(slug: string): Promise<CategoryInfo | null> {
     currentParent = nextParent?.parent || null;
   }
   
-  // Now build the final category info with hierarchy
   return {
     ...category,
     parent: hierarchy.length > 0 ? {
@@ -141,120 +128,31 @@ async function getProducts(categoryIds: number[], minPrice?: number, maxPrice?: 
   });
 }
 
-// ✅ SEO metadata
-export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
-  const { slug } = await props.params;
-
-  if (!slug) {
-    return {
-      title: 'Category Not Found',
-      description: 'No category specified.',
-    };
-  }
-
-  const category = await prisma.category.findUnique({ where: { slug } });
-
-  if (!category) {
-    return {
-      title: 'Category Not Found',
-      description: 'The requested category could not be found.',
-    };
-  }
-
-  return {
-    title: `${category.name} - StyleStore`,
-    description: `Browse our collection of ${category.name.toLowerCase()} clothing and accessories.`,
-  };
-}
-
-// ✅ Main Category Page
-export default async function CategoryPage(props: PageProps) {
-  const { slug } = await props.params;
-  const searchParams = props.searchParams ? await props.searchParams : {};
-
+// Main Category Page - Server Component
+export default async function CategoryPage({ params, searchParams }: PageProps) {
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const minPrice = Array.isArray(searchParams?.minPrice) ? searchParams.minPrice[0] : searchParams?.minPrice;
+  const maxPrice = Array.isArray(searchParams?.maxPrice) ? searchParams.maxPrice[0] : searchParams?.maxPrice;
+  
   if (!slug) notFound();
 
+  // Server-side data fetching
   const categoryInfo = await getCategoryInfo(slug.toLowerCase());
   if (!categoryInfo) notFound();
-
+  
   const categoryIds = await getAllCategoryIds(slug.toLowerCase());
-
-  const minPrice = searchParams.minPrice ? parseFloat(searchParams.minPrice) : undefined;
-  const maxPrice = searchParams.maxPrice ? parseFloat(searchParams.maxPrice) : undefined;
-
-  const products = await getProducts(categoryIds, minPrice, maxPrice);
-
-  // Function to generate breadcrumb items
-  const Breadcrumb = ({ items }: { items: Array<{ name: string; slug: string }> }) => (
-    <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-      <ol>
-        <li>
-          <CategoryLink href="/">Home</CategoryLink>
-        </li>
-        {items.map((item, index) => (
-          <li key={item.slug}>
-            <span className={styles.separator} aria-hidden="true">&gt;</span>
-            {index === items.length - 1 ? (
-              <span className={styles.currentCategory}>{item.name}</span>
-            ) : (
-              <CategoryLink href={`/categories/${item.slug}`}>
-                {item.name}
-              </CategoryLink>
-            )}
-          </li>
-        ))}
-      </ol>
-    </nav>
+  const products = await getProducts(
+    categoryIds,
+    minPrice ? parseFloat(minPrice) : undefined,
+    maxPrice ? parseFloat(maxPrice) : undefined
   );
-
-  // Prepare breadcrumb items
-  const breadcrumbItems = [
-    ...(categoryInfo.parentHierarchy || []),
-    { name: categoryInfo.name, slug: categoryInfo.slug }
-  ];
-
-  return (
-    <div className={styles.container}>
-      <div className={styles.breadcrumbContainer}>
-        <Breadcrumb items={breadcrumbItems} />
-      </div>
-
-      {categoryInfo.children.length > 0 && (
-        <div className={styles.subcategories}>
-          <div className={styles.subcategoriesInner}>
-            {categoryInfo.children.map((sub: Category) => (
-              <CategoryLink 
-                key={sub.id} 
-                href={`/categories/${sub.slug}`}
-                className={styles.subcategoryLink}
-              >
-                <span className={styles.subcategoryName}>
-                  {sub.name}
-                  <span className={styles.subcategoryArrow}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </span>
-              </CategoryLink>
-            ))}
-          </div>
-        </div>
-      )}
-
-  <div className={styles.layout}>
-    <div className={styles.filters}>
-      <PriceRangeFilter />
-      {/* Show products under filter on mobile */}
-      <div className={styles.mobileProducts}>
-        <ProductList products={products} emptyMessage="No products found in this category" />
-      </div>
-    </div>
-    <div className={styles.products}>
-      <ProductList products={products} emptyMessage="No products found in this category" />
-    </div>
-  </div>
-</div>
-
-  );
+  
+  return <ClientCategoryPage 
+    categoryInfo={categoryInfo} 
+    products={products} 
+    minPrice={minPrice}
+    maxPrice={maxPrice}
+  />;
 }
+
+// Client component is now in a separate file

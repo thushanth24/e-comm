@@ -1,7 +1,7 @@
 .footer {
   background: linear-gradient(135deg, #0f172a, #1e293b);
   color: #ffffff;
-  padding: 1rem 1rem;
+  padding: 0.5rem 1rem;
   position: relative;
   overflow: hidden;
 
@@ -29,13 +29,13 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 3rem;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
   }
 
   .features {
     display: flex;
-    gap: 2rem;
+    gap: 1.25rem;
     flex-wrap: wrap;
 
     .featureBox {
@@ -102,9 +102,9 @@
 
   .footerLinks {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 3rem;
-    padding-top: 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    padding: 1.5rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 
     h3 {
@@ -219,11 +219,11 @@
   }
 
   .bottomBar {
-    margin-top: 4rem;
-    padding-top: 2rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #94a3b8;
   }
 

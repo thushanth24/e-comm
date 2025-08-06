@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from '@/styles/ShopForMen.module.scss';
+import styles from '@/styles/ShopForWomen.module.scss';
 
 const images = [
   'https://axzell-saas.s3.eu-north-1.amazonaws.com/home/l1.avif',

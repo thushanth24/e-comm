@@ -1,4 +1,3 @@
-// ShopForWomen.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -18,7 +17,7 @@ const images = [
 const visibleCount = 3;
 const slideWidth = 316; // 300px + 16px gap
 
-export default function ShopForWomen() {
+export default function ShopForMen() {
   const [index, setIndex] = useState(visibleCount);
   const [transition, setTransition] = useState(true);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -61,7 +60,7 @@ export default function ShopForWomen() {
   };
 
   return (
-    <section className={styles.shopForWomen}>
+    <section className={styles.shopForMen}>
       <div className={styles.topText}>
         <h2>SHOP FOR MEN</h2>
         <p>

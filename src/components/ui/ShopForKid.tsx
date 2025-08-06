@@ -1,10 +1,9 @@
-// ShopForWomen.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from '@/styles/ShopForMen.module.scss';
+import styles from '@/styles/ShopForKid.module.scss';
 
 const images = [
   "https://axzell-saas.s3.eu-north-1.amazonaws.com/home/kr1.avif",
@@ -18,7 +17,7 @@ const images = [
 const visibleCount = 3;
 const slideWidth = 316; // 300px + 16px gap
 
-export default function ShopForWomen() {
+export default function ShopForKid() {
   const [index, setIndex] = useState(visibleCount);
   const [transition, setTransition] = useState(true);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -61,7 +60,7 @@ export default function ShopForWomen() {
   };
 
   return (
-    <section className={styles.shopForWomen}>
+    <section className={styles.shopForKid}>
       <div className={styles.topText}>
         <h2>SHOP FOR KID</h2>
         <p>

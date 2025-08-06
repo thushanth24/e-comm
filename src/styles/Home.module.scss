@@ -208,8 +208,60 @@
 
 /* Featured Sections - Modern Layout */
 .featuredProducts, .newArrivals {
-  padding: 5rem 0;
+  padding: 3rem 0;
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: 2rem 0;
+  }
+
+  .sectionLink {
+    display: inline-flex;
+    align-items: center;
+    color: #3b82f6;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0 0.5rem 1rem;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    
+    @media (min-width: 768px) {
+      font-size: 1.1rem;
+      padding: 0.5rem 0 0.5rem 1.5rem;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      transition: width 0.3s ease;
+    }
+
+    &:hover {
+      color: #2563eb;
+      transform: translateX(4px);
+      
+      &::after {
+        width: 100%;
+      }
+      
+      .linkIcon {
+        transform: translateX(4px);
+      }
+    }
+    
+    .linkIcon {
+      margin-left: 0.5rem;
+      transition: transform 0.3s ease;
+      width: 18px;
+      height: 18px;
+    }
+  }
 
   .container {
     max-width: 1400px;
@@ -219,27 +271,45 @@
 
   .sectionHeader {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 3rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
     position: relative;
+    width: 100%;
+    
+    @media (min-width: 768px) {
+      margin-bottom: 2rem;
+    }
 
     h2 {
-      font-size: 2rem;
-      font-weight: 800;
+      font-size: 1.5rem;
+      font-weight: 700;
       color: #1e293b;
       position: relative;
       display: inline-block;
+      margin: 0;
+      padding-bottom: 0.75rem;
 
       &::after {
         content: '';
         position: absolute;
-        bottom: -10px;
+        bottom: 0;
         left: 0;
-        width: 60px;
-        height: 4px;
+        width: 40px;
+        height: 3px;
         background: linear-gradient(90deg, #3b82f6, #8b5cf6);
         border-radius: 2px;
+      }
+      
+      @media (min-width: 768px) {
+        font-size: 1.75rem;
+        padding-bottom: 1rem;
+        
+        &::after {
+          width: 50px;
+          height: 4px;
+        }
       }
     }
 
@@ -361,10 +431,20 @@
 
 /* Brand Showcase - Futuristic Grid */
 .brands {
-  padding: 5rem 0;
+  padding: 3rem 0;
   background: linear-gradient(135deg, #0f172a, #1e293b);
   position: relative;
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    padding: 2rem 0;
+  }
+  
+  .container {
+    @media (max-width: 767px) {
+      padding: 0 1rem;
+    }
+  }
 
   &::before {
     content: '';
@@ -387,27 +467,56 @@
 
   .sectionHeaderCenter {
     text-align: center;
-    margin-bottom: 3rem;
-
-    h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 1rem;
+    margin-bottom: 2rem;
+    
+    @media (min-width: 768px) {
+      margin-bottom: 3rem;
     }
-
+    
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 0.5rem;
+      
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+    }
+    
     p {
-      color: rgba(255,255,255,0.7);
-      max-width: 600px;
-      margin: 0 auto;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      padding: 0 1rem;
+      
+      @media (min-width: 768px) {
+        font-size: 1.1rem;
+        padding: 0;
+      }
     }
   }
 
   .brandGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.5rem;
-
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+    
+    @media (min-width: 480px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+    
     .brandCard {
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(10px);

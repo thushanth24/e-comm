@@ -37,6 +37,13 @@
       "static/chunks/_app-pages-browser_src_components_ui_NavigationLoading_tsx.js"
     ]
   },
+  "app\\categories\\[slug]\\ClientCategoryPage.tsx -> @/components/ui/PriceRangeFilter": {
+    "id": "app\\categories\\[slug]\\ClientCategoryPage.tsx -> @/components/ui/PriceRangeFilter",
+    "files": [
+      "static/css/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.js"
+    ]
+  },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid": {
     "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid",
     "files": [

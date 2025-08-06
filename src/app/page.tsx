@@ -149,13 +149,13 @@ export default async function Home() {
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
             <h2>Featured Products</h2>
-            <Link href="/shop" className={styles.sectionLink}>
-              View all <ChevronRight className={styles.linkIcon} />
-            </Link>
           </div>
           <Suspense fallback={<div className={styles.loading}>Loading featured products...</div>}>
             <ProductList products={featuredProducts} emptyMessage="No featured products available" />
           </Suspense>
+          <Link href="/shop" className={styles.sectionLink}>
+              View all <ChevronRight className={styles.linkIcon} />
+            </Link>
         </div>
       </section>
 
@@ -208,13 +208,14 @@ export default async function Home() {
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
             <h2>New Arrivals</h2>
-            <Link href="/new-arrivals" className={styles.sectionLink}>
-              View all <ChevronRight className={styles.linkIcon} />
-            </Link>
+           
           </div>
           <Suspense fallback={<div className={styles.loading}>Loading new arrivals...</div>}>
             <ProductList products={newArrivals} emptyMessage="No new products available" />
           </Suspense>
+          <Link href="/new-arrivals" className={styles.sectionLink}>
+              View all <ChevronRight className={styles.linkIcon} />
+            </Link>
         </div>
       </section>
 
