@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import ClientCategoryPage from './ClientCategoryPage';
 
 interface PageProps {
-  params: { slug: string };
+  params: { slug: string | string[] };
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
