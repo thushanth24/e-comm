@@ -15,6 +15,7 @@ interface Product {
   description: string;
   inventory: number;
   featured: boolean;
+  categoryId: number;
   images: {
     id: number;
     url: string;
@@ -25,6 +26,7 @@ interface Product {
 interface Category {
   id: number;
   name: string;
+  slug: string;
 }
 
 interface CategoryWithProducts extends Category {
@@ -39,6 +41,7 @@ const getNewArrivalsByCategory = cache(async () => {
       select: {
         id: true,
         name: true,
+        slug: true,
         _count: {
           select: { products: true }
         }
@@ -63,7 +66,7 @@ const getNewArrivalsByCategory = cache(async () => {
     const productsByCategory = await prisma.product.findMany({
       where: {
         categoryId: {
-          in: categories.map(cat => cat.id)
+          in: categories.map((cat: Category) => cat.id)
         }
       },
       orderBy: { 
@@ -92,7 +95,7 @@ const getNewArrivalsByCategory = cache(async () => {
     });
 
     // Group products by category
-    const groupedProducts = productsByCategory.reduce((acc, product) => {
+    const groupedProducts = productsByCategory.reduce<Record<number, typeof productsByCategory>>((acc: Record<number, typeof productsByCategory>, product: Product) => {
       if (!acc[product.categoryId]) {
         acc[product.categoryId] = [];
       }
@@ -104,11 +107,11 @@ const getNewArrivalsByCategory = cache(async () => {
 
     // Map back to the expected format
     return categories
-      .map(cat => ({
+      .map((cat: Category) => ({
         ...cat,
         products: groupedProducts[cat.id] || []
       }))
-      .filter(cat => cat.products.length > 0);
+      .filter((cat: Category & { products: Product[] }) => cat.products.length > 0);
   } catch (error) {
     console.error('Error fetching new arrivals:', error);
     return [];
@@ -169,7 +172,7 @@ export default async function NewArrivalsPage() {
               <section key={cat.id} className={styles.categorySection}>
                 <div className={styles.categoryHeader}>
                   <h2 className={styles.categoryTitle}>{cat.name}</h2>
-                  <Link href={`/categories/${cat.name.toLowerCase()}`} className={styles.viewAllButton}>
+                  <Link href={`/categories/${cat.slug}`} className={styles.viewAllButton}>
                     View all <ArrowRight size={16} />
                   </Link>
                 </div>
@@ -222,9 +225,7 @@ export default async function NewArrivalsPage() {
         )}
       </div>
       
-      <div className={styles.note}>
-        <p>Showing up to 4 products per category. <Link href="/products" className={styles.viewAllLink}>View all products</Link></p>
-      </div>
+     
     </main>
   );
 }

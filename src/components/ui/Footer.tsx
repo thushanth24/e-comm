@@ -25,20 +25,20 @@ interface SocialLink {
 
 const developerSocials: SocialLink[] = [
   {
-    label: 'GitHub',
-    href: 'https://github.com/axzellin',
-    icon: Github,
-    color: 'hover:text-gray-700',
+    label: 'Facebook',
+    href: 'https://www.facebook.com/people/axzell-innovations/61575055448626/?mibextid=wwXIfr&rdid=z7N8FTNA5aCiy62C&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F191FPBhqty%2F%3Fmibextid%3DwwXIfr',
+    icon: Facebook,
+    color: 'hover:text-blue-600',
   },
   {
     label: 'LinkedIn',
-    href: 'https://linkedin.com/company/axzellin',
+    href: 'https://www.linkedin.com/company/axzell-innovations',
     icon: Linkedin,
     color: 'hover:text-blue-600',
   },
   {
     label: 'Email',
-    href: 'mailto:contact@axzellin.com',
+    href: 'mailto:social@axzellin.com',
     icon: Mail,
     color: 'hover:text-red-500',
   },
@@ -148,8 +148,14 @@ export default function Footer() {
               <div className={styles.contactRow}>
                 <div className={styles.contactInfo}>
                   <span className={styles.developerName}>axzell innovations</span>
-                  <span className={styles.phoneNumber}>+94 (768) 180-977</span>
-                  <span className={styles.phoneNumber}>social@axzellin.com</span>
+                  <span className={styles.phoneNumber}>
+                    <Phone className={styles.contactIcon} size={14} />
+                    +94 (768) 180-977
+                  </span>
+                  <span className={styles.phoneNumber}>
+                    <Mail className={styles.contactIcon} size={14} />
+                    social@axzellin.com
+                  </span>
 
                   <a 
                     href="https://www.axzellin.com" 

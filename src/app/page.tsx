@@ -153,7 +153,7 @@ export default async function Home() {
           <Suspense fallback={<div className={styles.loading}>Loading featured products...</div>}>
             <ProductList products={featuredProducts} emptyMessage="No featured products available" />
           </Suspense>
-          <Link href="/shop" className={styles.sectionLink}>
+          <Link href="/categories/men" className={styles.sectionLink}>
               View all <ChevronRight className={styles.linkIcon} />
             </Link>
         </div>

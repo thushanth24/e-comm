@@ -113,8 +113,7 @@ export default function ClientCategoryPage({
           <ProductList 
             products={products} 
             emptyMessage="No products found in this category"
-            viewAllHref={isClient ? `/categories/${categoryInfo.slug}/products` : undefined}
-            viewAllText={`View All ${categoryInfo.name} Products`}
+           
           />
         </div>
       </div>
