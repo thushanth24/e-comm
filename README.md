@@ -1,6 +1,6 @@
 # StyleStore - Full-Stack E-commerce Catalog
 
-StyleStore is a full-stack e-commerce catalog web application for a clothing store built with Next.js, Prisma, and AWS S3.
+StyleStore is a full-stack e-commerce catalog web application for a clothing store built with Next.js, Supabase, and AWS S3.
 
 ## Features
 
@@ -21,7 +21,7 @@ StyleStore is a full-stack e-commerce catalog web application for a clothing sto
 
 - **Frontend & Backend**: Next.js 13+ (App Router)
 - **Language**: TypeScript
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: PostgreSQL with Supabase
 - **Styling**: Tailwind CSS
 - **Validation**: Zod
 - **Image Storage**: AWS S3
