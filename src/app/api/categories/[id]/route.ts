@@ -1,25 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
+import { createClient } from '@supabase/supabase-js';
 import { categorySchema } from '@/lib/validations';
 
+// Create admin client with service role key to bypass RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
+
+// Regular client for read operations
+import { supabase } from '@/lib/supabase';
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  parentId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface RouteParams {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
+  };
 }
 
 interface RouteContext {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  };
+  searchParams: Record<string, string | string[] | undefined>;
 }
 
 // GET a single category by ID
 export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const categoryId = parseInt((await params).id);
+    const categoryId = parseInt(params.id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -28,23 +52,33 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       );
     }
     
-    const category = await prisma.category.findUnique({
-      where: { id: categoryId },
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    });
+    // Get category
+    const { data: category, error: fetchError } = await supabase
+      .from('category')
+      .select('*')
+      .eq('id', categoryId)
+      .single();
     
-    if (!category) {
-      return NextResponse.json(
-        { message: 'Category not found' },
-        { status: 404 }
-      );
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') { // Not found
+        return NextResponse.json(
+          { message: 'Category not found' },
+          { status: 404 }
+        );
+      }
+      throw fetchError;
     }
     
-    return NextResponse.json(category);
+    // Get product count
+    const { count: productsCount } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .eq('category_id', categoryId);
+    
+    return NextResponse.json({
+      ...category,
+      products_count: productsCount || 0
+    });
   } catch (error) {
     console.error('Error fetching category:', error);
     return NextResponse.json(
@@ -57,7 +91,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 // PATCH update a category
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const categoryId = parseInt((await params).id);
+    const categoryId = parseInt(params.id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -67,15 +101,20 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
     
     // Check if category exists
-    const existingCategory = await prisma.category.findUnique({
-      where: { id: categoryId },
-    });
+    const { data: existingCategory, error: fetchError } = await supabase
+      .from('category')
+      .select('*')
+      .eq('id', categoryId)
+      .single();
     
-    if (!existingCategory) {
-      return NextResponse.json(
-        { message: 'Category not found' },
-        { status: 404 }
-      );
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') { // Not found
+        return NextResponse.json(
+          { message: 'Category not found' },
+          { status: 404 }
+        );
+      }
+      throw fetchError;
     }
     
     const body = await request.json();
@@ -85,9 +124,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     
     // Check if slug is unique (if different from current)
     if (validatedData.slug !== existingCategory.slug) {
-      const slugExists = await prisma.category.findUnique({
-        where: { slug: validatedData.slug },
-      });
+      const { data: slugExists, error: slugError } = await supabase
+        .from('category')
+        .select('id')
+        .eq('slug', validatedData.slug)
+        .single();
+      
+      if (slugError && slugError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        throw slugError;
+      }
       
       if (slugExists) {
         return NextResponse.json(
@@ -97,18 +142,27 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       }
     }
     
-    // Update category
-    const updatedCategory = await prisma.category.update({
-      where: { id: categoryId },
-      data: {
+    // Update category using admin client to bypass RLS
+    const { data: updatedCategory, error: updateError } = await supabaseAdmin
+      .from('category')
+      .update({
         name: validatedData.name,
         slug: validatedData.slug,
-      },
-    });
+        parentId: body.parentId ?? existingCategory.parentId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq('id', categoryId)
+      .select()
+      .single();
+    
+    if (updateError) {
+      console.error('Error updating category:', updateError);
+      throw new Error('Error updating category');
+    }
     
     return NextResponse.json(updatedCategory);
   } catch (error) {
-    console.error('Error updating category:', error);
+    console.error('Error in categories PATCH:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -118,7 +172,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
     
     return NextResponse.json(
-      { message: 'Error updating category' },
+      { message: error instanceof Error ? error.message : 'Error updating category' },
       { status: 500 }
     );
   }
@@ -127,7 +181,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE a category
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const categoryId = parseInt((await params).id);
+    const categoryId = parseInt(params.id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -137,43 +191,67 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
     
     // Check if category exists
-    const existingCategory = await prisma.category.findUnique({
-      where: { id: categoryId },
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    });
+    const { data: category, error: fetchError } = await supabase
+      .from('category')
+      .select('*')
+      .eq('id', categoryId)
+      .single();
     
-    if (!existingCategory) {
-      return NextResponse.json(
-        { message: 'Category not found' },
-        { status: 404 }
-      );
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') { // Not found
+        return NextResponse.json(
+          { message: 'Category not found' },
+          { status: 404 }
+        );
+      }
+      throw fetchError;
     }
     
     // Check if category has products
-    if (existingCategory._count.products > 0) {
+    const { count: productsCount } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .eq('category_id', categoryId);
+    
+    if ((productsCount || 0) > 0) {
       return NextResponse.json(
-        { message: 'Cannot delete category with associated products. Please remove or reassign all products first.' },
+        { message: 'Cannot delete a category that has products' },
         { status: 400 }
       );
     }
     
-    // Delete category
-    await prisma.category.delete({
-      where: { id: categoryId },
-    });
+    // Check if category has children
+    const { count: childCategoriesCount } = await supabase
+      .from('category')
+      .select('*', { count: 'exact', head: true })
+      .eq('parentId', categoryId);
+    
+    if ((childCategoriesCount || 0) > 0) {
+      return NextResponse.json(
+        { message: 'Cannot delete a category that has subcategories' },
+        { status: 400 }
+      );
+    }
+    
+    // Delete the category using admin client to bypass RLS
+    const { error: deleteError } = await supabaseAdmin
+      .from('category')
+      .delete()
+      .eq('id', categoryId);
+    
+    if (deleteError) {
+      console.error('Error deleting category:', deleteError);
+      throw new Error('Error deleting category');
+    }
     
     return NextResponse.json(
       { message: 'Category deleted successfully' },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error in categories DELETE:', error);
     return NextResponse.json(
-      { message: 'Error deleting category' },
+      { message: error instanceof Error ? error.message : 'Error deleting category' },
       { status: 500 }
     );
   }

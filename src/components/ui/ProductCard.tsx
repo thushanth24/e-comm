@@ -35,7 +35,12 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const fallbackImage = '/images/placeholder-product.jpg';
-  const imageUrl = product.images?.[0]?.url || fallbackImage;
+  let imageUrl = product.images?.[0]?.url || fallbackImage;
+  
+  // Ensure the image URL has a leading slash if it's a relative path
+  if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('blob:') && !imageUrl.startsWith('data:')) {
+    imageUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+  }
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 

@@ -41,3 +41,7 @@ StyleStore is a full-stack e-commerce catalog web application for a clothing sto
 
 ```bash
 cp .env.example .env.local
+
+
+admin@example.com
+admin123

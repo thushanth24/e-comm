@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { getProductBySlug, getProducts } from '@/lib/supabase';
 import { formatPrice } from '@/lib/utils';
 import ProductList from '@/components/ui/ProductList';
 import ProductImages from '@/components/ui/ProductImages';
@@ -9,30 +9,14 @@ import { Suspense } from 'react';
 import ProductCardSkeleton from '@/components/ui/ProductCardSkeleton';
 
 async function getProduct(slug: string) {
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    include: {
-      images: true,
-      category: true,
-    },
-  });
-  
-  return product;
+  return await getProductBySlug(slug);
 }
 
 async function getRelatedProducts(categoryId: number, productId: number) {
-  const products = await prisma.product.findMany({
-    where: {
-      categoryId,
-      id: { not: productId },
-    },
-    include: {
-      images: true,
-    },
-    take: 4,
-  });
-  
-  return products;
+  const products = await getProducts();
+  return (products || [])
+    .filter((p: any) => p.category_id === categoryId && p.id !== productId)
+    .slice(0, 4);
 }
 
 export async function generateMetadata({
@@ -86,7 +70,7 @@ export default async function ProductPage({
 
       <div className={styles.productGrid}>
         <Suspense fallback={<div className={styles.imageSkeleton} />}>
-          <ProductImages images={product.images} name={product.name} />
+          <ProductImages images={product.images || []} name={product.name} />
         </Suspense>
 
         <div className={styles.details}>
@@ -97,7 +81,7 @@ export default async function ProductPage({
             </Link>
           </div>
 
-          <div className={styles.price}>{formatPrice(product.price)}</div>
+          <p className={styles.price}>{formatPrice(Number(product.price))}</p>
 
           <div className={styles.description}>
             <h3>Description</h3>

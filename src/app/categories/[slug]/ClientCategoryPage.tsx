@@ -11,7 +11,7 @@ export interface CategoryInfo {
   id: number;
   name: string;
   slug: string;
-  parentId: number | null;
+  parentId: string | null;
   parent: {
     id: number;
     name: string;

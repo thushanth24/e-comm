@@ -1,63 +1,38 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { prisma } from '@/lib/prisma';
+import { getProducts, getCategories } from '@/lib/supabase';
 import ProductList from '@/components/ui/ProductList';
 import { ShoppingBag, Package, Award, CreditCard, Tag, ChevronRight } from 'lucide-react';
 import styles from '@/styles/Home.module.scss';
 import ShopSectionsWrapper from '@/components/ShopSectionsWrapper';
 
-
-
-
 // Revalidate this page every 60 seconds
 export const revalidate = 60;
 
-import { CACHE_TAGS } from './actions/revalidate';
-
 async function getHomePageData() {
   try {
-    // Execute all database queries in parallel with proper caching
-    const [featuredProducts, newArrivals, categories] = await Promise.all([
-      // Get featured products with cache tag
-      prisma.product.findMany({
-        where: { featured: true },
-        include: { images: true },
-        take: 4,
-      }),
-      // Get new arrivals with cache tag
-      prisma.product.findMany({
-        orderBy: { createdAt: 'desc' },
-        include: { images: true },
-        take: 8,
-      }),
-      // Get all categories with cache tag
-      prisma.category.findMany()
+    // Execute all database queries in parallel
+    const [products, categories] = await Promise.all([
+      getProducts(),
+      getCategories()
     ]);
 
-    // Add cache tags to the response
-    const response = {
+    // Get featured products
+    const featuredProducts = (products || [])
+      .filter((p: any) => p.featured)
+      .slice(0, 4);
+
+    // Get new arrivals (assuming products are ordered by created_at desc from Supabase)
+    const newArrivals = (products || []).slice(0, 8);
+
+    return {
       featuredProducts,
       newArrivals,
-      categories,
+      categories: categories || []
     };
-
-    // Add cache tags for revalidation
-    if (typeof window === 'undefined') {
-      const { unstable_cache } = await import('next/cache');
-      
-      // Cache the response with tags
-      await unstable_cache(
-        async () => response,
-        [CACHE_TAGS.PRODUCTS, CACHE_TAGS.CATEGORIES],
-        { revalidate: 60 }
-      )();
-    }
-
-    return response;
   } catch (error) {
-    console.error('Error fetching home page data:', error);
-    // Return empty arrays to prevent page crash
+    console.error('Error in getHomePageData:', error);
     return {
       featuredProducts: [],
       newArrivals: [],

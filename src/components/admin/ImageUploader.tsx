@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import Image from 'next/image';
 import { imageUploadSchema } from '@/lib/validations';
 import Button from '@/components/ui/Button';
-import { getPublicUrl } from '@/lib/publicS3'; // Make sure this is correctly configured
+import { uploadFile, deleteFile, STORAGE_BUCKET } from '@/lib/storage';
+
+const STORAGE_URL = `https://jegaqqjdtmspoxlrwwaz.supabase.co/storage/v1/object/public/${STORAGE_BUCKET}`;
 
 interface ImageUploaderProps {
   existingImages: string[];
@@ -14,133 +16,141 @@ interface ImageUploaderProps {
 export default function ImageUploader({ existingImages = [], onImagesChange }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [images, setImages] = useState<string[]>(existingImages);
+  // Ensure existing images have the full URL
+  const [images, setImages] = useState<string[]>(() => {
+    return existingImages.map(img => {
+      // If it's already a full URL, use it as is
+      if (img.startsWith('http')) return img;
+      // If it's a path, construct the full URL
+      if (img.startsWith('/')) return `${STORAGE_URL}${img}`;
+      // Otherwise, assume it's a path without leading slash
+      return `${STORAGE_URL}/${img}`;
+    });
+  });
 
   const uploadImage = async (file: File) => {
     try {
       console.log('📤 Starting upload for file:', file);
-
       setIsUploading(true);
       setUploadError(null);
 
+      // Validate file
       const validationResult = imageUploadSchema.safeParse({
         filename: file.name,
         contentType: file.type,
       });
 
       if (!validationResult.success) {
-        console.error('❌ Validation failed:', validationResult.error.errors);
         throw new Error(validationResult.error.errors[0]?.message || 'Invalid file');
       }
 
-      console.log('✅ Validation passed:', file.name);
-
-      const response = await fetch('/api/s3/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          filename: file.name,
-          contentType: file.type,
-        }),
-      });
-
-      console.log('📡 Requesting presigned URL...');
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('❌ Failed to get upload URL:', error);
-        throw new Error(error.message || 'Failed to get upload URL');
-      }
-
-      const { url, fields } = await response.json();
-      console.log('✅ Received presigned URL:', { url, fields });
-
-      const formData = new FormData();
-      Object.entries(fields).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
-      formData.append('file', file);
-
-      console.log('📦 Uploading file to S3...');
-      const uploadResponse = await fetch(url, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        const text = await uploadResponse.text();
-        console.error('❌ S3 upload failed:', text);
-        throw new Error('Failed to upload image to S3');
-      }
-
-      console.log('✅ Upload successful. Constructing public URL...');
-      const imageUrl = getPublicUrl(fields.key);
-      console.log('🌐 Public image URL:', imageUrl);
-
-      const newImages = [...images, imageUrl];
+      // Upload file using our storage utility
+      const { path, publicUrl } = await uploadFile(file);
+      console.log('✅ Upload successful:', publicUrl);
+      
+      // Update state with the new image URL
+      const newImages = [...images, publicUrl];
       setImages(newImages);
-      onImagesChange(newImages);
+      // Pass the full URL to the parent component for validation
+      onImagesChange([...existingImages, publicUrl]);
     } catch (error) {
-      console.error('🛑 Upload error:', error);
-      setUploadError(error instanceof Error ? error.message : 'Failed to upload image');
+      handleError(error);
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
-    await uploadImage(files[0]);
+    
+    // Convert FileList to array and upload each file
+    // Limit to 10 images max
+    const filesToUpload = Array.from(files).slice(0, 10 - images.length);
+    
+    if (filesToUpload.length < files.length) {
+      setUploadError('Maximum 10 images allowed. Only the first ' + filesToUpload.length + ' will be uploaded.');
+    }
+    
+    filesToUpload.forEach((file) => {
+      uploadImage(file).catch(handleError);
+    });
+    
+    // Reset the input value to allow re-uploading the same file
     e.target.value = '';
   };
 
-  const removeImage = (indexToRemove: number) => {
-    const newImages = images.filter((_, index) => index !== indexToRemove);
-    setImages(newImages);
-    onImagesChange(newImages);
+  const removeImage = async (index: number) => {
+    try {
+      const imageToRemove = images[index];
+      // Extract just the path part for deletion
+      const pathToRemove = imageToRemove.replace(`${STORAGE_URL}/`, '');
+      
+      // Remove from storage using our utility
+      await deleteFile(pathToRemove);
+      
+      // Update UI and parent component
+      const newImages = images.filter((_, i) => i !== index);
+      setImages(newImages);
+      onImagesChange(existingImages.filter((_, i) => i !== index));
+      
+    } catch (error) {
+      console.error('Error removing image:', error);
+      setUploadError(error instanceof Error ? error.message : 'Failed to remove image');
+    }
+  };
+
+  // Add proper type for the error
+  const handleError = (error: unknown) => {
+    if (error instanceof Error) {
+      setUploadError(error.message);
+    } else {
+      setUploadError('An unknown error occurred');
+    }
+    console.error('Error:', error);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-4">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => document.getElementById('file-upload')?.click()}
-          isLoading={isUploading}
-          disabled={isUploading}
-        >
-          {isUploading ? 'Uploading...' : 'Upload Image'}
-        </Button>
-        <input
-          id="file-upload"
-          type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          className="hidden"
-          onChange={handleFileChange}
-          disabled={isUploading}
-        />
+      <div className="flex items-center gap-4">
+        <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+          Upload Images
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
+        {isUploading && (
+          <div className="flex items-center text-gray-600">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-2"></div>
+            Uploading...
+          </div>
+        )}
       </div>
-
+      
       {uploadError && (
-        <p className="text-red-500 text-sm">{uploadError}</p>
+        <div className="text-red-600 text-sm mt-2">
+          {uploadError}
+        </div>
       )}
 
       {images.length > 0 && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mt-2">
-          {images.map((imageUrl, index) => (
-            <div key={index} className="relative group rounded-lg overflow-hidden border flex items-center justify-center" style={{ width: 120, height: 120 }}>
-              <Image
-                src={imageUrl}
-                alt={`Product image ${index + 1}`}
-                width={120}
-                height={120}
-                className="object-cover rounded"
-                style={{ maxWidth: 120, maxHeight: 120 }}
-              />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
+          {images.map((url, index) => (
+            <div key={url} className="relative group">
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <Image
+                  src={url}
+                  alt={`Product image ${index + 1}`}
+                  width={120}
+                  height={120}
+                  className="object-cover rounded"
+                  style={{ maxWidth: 120, maxHeight: 120 }}
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => removeImage(index)}

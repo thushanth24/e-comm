@@ -5,41 +5,105 @@ import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
 import styles from '@/styles/AdminProducts.module.scss';
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function ProductTable() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchProducts() {
-      setLoading(true);
-      const res = await fetch('/api/products');
-      const data = await res.json();
-      setProducts(data);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('Product')
+          .select(`
+            *,
+            category:Category!categoryId(*),
+            images:ProductImage!ProductImage_productId_fkey(*)
+          `)
+          .order('createdAt', { ascending: false });
+
+        if (error) throw error;
+        setProducts(data || []);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
     fetchProducts();
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-    const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      setProducts(products.filter((p) => p.id !== id));
-    } else {
-      alert('Failed to delete product');
+    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
+    
+    try {
+      // First, get all images associated with this product
+      const { data: images, error: fetchError } = await supabase
+        .from('ProductImage')
+        .select('storagePath')
+        .eq('productId', id);
+
+      if (fetchError) throw fetchError;
+
+      // Delete images from storage
+      if (images && images.length > 0) {
+        const imagePaths = images.map(img => img.storagePath).filter((path): path is string => !!path);
+
+        if (imagePaths.length > 0) {
+          const { error: deleteError } = await supabase.storage
+            .from('product-images')
+            .remove(imagePaths);
+
+          if (deleteError) {
+            console.error('Error deleting images from storage:', deleteError);
+            throw deleteError;
+          }
+        }
+      }
+
+      // Delete the product from the database
+      const { error: deleteError } = await supabase
+        .from('Product')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) throw deleteError;
+
+      // Update local state to remove the deleted product
+      setProducts(products.filter(product => product.id !== id));
+      
+      // Show success message
+      alert('Product deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Failed to delete product. Please try again.');
     }
   };
 
   if (loading) {
     return (
-      <div className={styles.card}>
-        <div className="p-8 text-center">
-          <div className="inline-flex items-center justify-center space-x-3">
-            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-gray-700 font-medium">Loading products...</span>
+      <div className="flex justify-center items-center h-32">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border-l-4 border-red-500 p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
           </div>
-          <p className="mt-2 text-sm text-gray-500">Please wait while we fetch your products</p>
+          <div className="ml-3">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
         </div>
       </div>
     );
@@ -71,12 +135,20 @@ export default function ProductTable() {
                   <td>
                     <div className={styles.productCell}>
                       <div className={styles.imageWrapper}>
-                        {product.images[0] ? (
+                        {product.images?.[0]?.storagePath ? (
                           <Image
-                            src={product.images[0].url}
+                            src={product.images[0].storagePath.startsWith('http') 
+                              ? product.images[0].storagePath 
+                              : `https://jegaqqjdtmspoxlrwwaz.supabase.co/storage/v1/object/public/product-images/${product.images[0].storagePath}`}
                             alt={product.name}
-                            width={40}
-                            height={40}
+                            width={64}
+                            height={64}
+                            className="object-cover rounded-md"
+                            onError={(e) => {
+                              // Fallback to placeholder if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/images/placeholder-product.jpg';
+                            }}
                           />
                         ) : (
                           <div className={styles.placeholderIcon}>

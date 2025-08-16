@@ -31,6 +31,15 @@ export default function ProductImages({ images, name }: ProductImagesProps) {
     );
   }
 
+  // Helper function to ensure image URLs are properly formatted
+  const getImageUrl = (url: string) => {
+    if (!url) return '/images/placeholder-product.jpg';
+    if (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:')) {
+      return url;
+    }
+    return url.startsWith('/') ? url : `/${url}`;
+  };
+
   return (
     <div className={styles.images}>
       <div 
@@ -38,7 +47,7 @@ export default function ProductImages({ images, name }: ProductImagesProps) {
         onClick={toggleZoom}
       >
         <Image
-          src={images[currentImageIndex]?.url || '/images/placeholder-product.jpg'}
+          src={getImageUrl(images[currentImageIndex]?.url)}
           alt={`${name} - ${currentImageIndex + 1} of ${images.length}`}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
@@ -65,7 +74,7 @@ export default function ProductImages({ images, name }: ProductImagesProps) {
               type="button"
             >
               <Image
-                src={image.url}
+                src={getImageUrl(image.url)}
                 alt=""
                 width={80}
                 height={80}

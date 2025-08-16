@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configure experimental features
+  experimental: {
+    // Enable server actions (if needed for future features)
+    serverActions: true,
+    // Optimize package imports
+    optimizePackageImports: ['@supabase/supabase-js'],
+  },
 
+  // Image optimization configuration
   images: {
     remotePatterns: [
       {
@@ -19,6 +26,12 @@ const nextConfig = {
         hostname: 's3.amazonaws.com',
         pathname: '/**',
       },
+      // Add your Supabase storage domain
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
@@ -27,17 +40,75 @@ const nextConfig = {
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
   },
- 
+
+  // API configuration
+  api: {
+    // Increase the API body size limit (default is 1MB)
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+    // Configure API response size limit (default is 4MB)
+    responseLimit: '10mb',
+  },
+
   // Enable React strict mode
   reactStrictMode: true,
+  
   // Enable production browser source maps
   productionBrowserSourceMaps: false,
+  
   // Enable compression
   compress: true,
-  // Enable static export if needed
-  // output: 'export',
-  // Enable static HTML export
-  // trailingSlash: true,
+  
+  // Security headers
+  async headers() {
+    return [
+      {
+        // Apply these headers to all routes
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
+  },
+  
+  // Webpack configuration
+  webpack: (config, { isServer, dev }) => {
+    // Add file loader for better file handling
+    config.module.rules.push({
+      test: /\.(png|jpe?g|gif|webp|svg|ico|mp4|webm|wav|mp3|m4a|aac|oga|woff2?|eot|ttf|otf)$/i,
+      type: 'asset/resource',
+      generator: {
+        filename: 'static/media/[name].[hash][ext]',
+      },
+    });
+
+    // Only run TypeScript type checking during production builds
+    if (!dev && isServer) {
+      const withTypeChecking = require('@zeit/next-typescript');
+      return withTypeChecking(config);
+    }
+
+    return config;
+  },
+  
+  // Environment variables that should be exposed to the browser
+  env: {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  },
 };
 
 // Enable bundle analyzer in development

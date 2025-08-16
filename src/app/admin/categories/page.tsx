@@ -8,11 +8,9 @@ interface CategoryItem {
   id: number;
   name: string;
   slug: string;
-  parentId: number | null;
+  parentId: string | null;
   children?: CategoryItem[];
-  _count: {
-    products: number;
-  };
+  products_count?: number;
   level: number;
 }
 
@@ -38,10 +36,14 @@ async function fetchCategories(): Promise<CategoryItem[]> {
     });
     
     if (!res.ok) {
+      const errorText = await res.text();
+      console.error('API Error Response:', errorText);
       throw new Error(`Failed to fetch categories: ${res.status} ${res.statusText}`);
     }
     
-    return await res.json();
+    const data = await res.json();
+    console.log('Fetched categories:', data); // Debug log
+    return data;
   } catch (error) {
     console.error('Error fetching categories:', error);
     return [];
@@ -129,7 +131,7 @@ export default function AdminCategories() {
                       {category.name}
                     </td>
                     <td>{category.slug}</td>
-                    <td>{category._count?.products || 0}</td>
+                    <td>{category.products_count || 0}</td>
                     <td className={styles.actionsCell}>
                       <Link href={`/admin/categories/${category.id}/edit`} className={styles.edit}>
                         Edit
