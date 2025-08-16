@@ -98,6 +98,20 @@ export const getPublicUrl = (path: string, bucket = 'product-images') => {
 
 // Helper function for handling Supabase errors
 export const handleError = (error: any) => {
+  if (!error) return null;
+  
+  // Log the full error in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Supabase Error:', error);
+  }
+  
+  // Return a user-friendly error message
+  return {
+    message: error.message || 'An unexpected error occurred',
+    code: error.code,
+    details: error.details,
+    hint: error.hint,
+  };
   console.error('Supabase error details:', {
     message: error.message,
     code: error.code,
@@ -140,18 +154,30 @@ export const getProductById = async (id: number) => {
 };
 
 export const getProductBySlug = async (slug: string) => {
-  const { data, error } = await supabase
-    .from('Product')
-    .select('*')
-    .eq('slug', slug)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('Product')
+      .select(`
+        *,
+        category:category_id (id, name, slug)
+      `)
+      .eq('slug', slug)
+      .single();
 
-  if (error) {
-    handleError(error);
-    return null;
+    if (error) {
+      // If no product found, return null instead of throwing an error
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    const errorDetails = handleError(error);
+    console.error('Error in getProductBySlug:', errorDetails);
+    throw new Error(errorDetails?.message || 'Failed to fetch product');
   }
-
-  return data;
 };
 
 export const saveProduct = async (productData: any) => {

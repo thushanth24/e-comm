@@ -12,9 +12,24 @@ interface Product {
   images: { url: string }[];
 }
 
-async function getCategories() {
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  parentId: string | null;
+  children?: Category[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+async function getCategories(): Promise<Category[]> {
   const categories = await prisma.category.findMany();
-  return categories;
+  // Convert parentId to string to match the expected type
+  return categories.map((category: { id: number; name: string; slug: string; parentId: number | null; }) => ({
+    ...category,
+    parentId: category.parentId ? category.parentId.toString() : null,
+    children: [] // Initialize empty children array if needed
+  }));
 }
 
 type PageProps = {

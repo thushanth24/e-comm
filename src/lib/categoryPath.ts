@@ -6,13 +6,13 @@ import { Category } from '@/components/admin/ProductForm';
  * @param categories All categories as a flat array
  * @returns The full path as a string
  */
-export function getCategoryPath(categoryId: number, categories: Category[]): string {
-  const category = categories.find(cat => cat.id === categoryId);
+export function getCategoryPath(categoryId: number | string, categories: Category[]): string {
+  const category = categories.find(cat => cat.id.toString() === categoryId.toString());
   if (!category) return '';
   let path = [category.name];
   let parentId = category.parentId;
   while (parentId) {
-    const parent = categories.find(cat => cat.id === parentId);
+    const parent = categories.find(cat => cat.id.toString() === parentId);
     if (!parent) break;
     path.unshift(parent.name);
     parentId = parent.parentId;

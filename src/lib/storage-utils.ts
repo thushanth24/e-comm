@@ -9,7 +9,7 @@ type FileUploadOptions = {
   cacheControl?: string;
 };
 
-type UploadResponse = {
+export type UploadResponse = {
   path: string;
   url: string;
   error?: Error;

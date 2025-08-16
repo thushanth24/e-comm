@@ -2,8 +2,10 @@
 const nextConfig = {
   // Configure experimental features
   experimental: {
-    // Enable server actions (if needed for future features)
-    serverActions: true,
+    // Enable server actions
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
     // Optimize package imports
     optimizePackageImports: ['@supabase/supabase-js'],
   },
@@ -41,15 +43,7 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
   },
 
-  // API configuration
-  api: {
-    // Increase the API body size limit (default is 1MB)
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-    // Configure API response size limit (default is 4MB)
-    responseLimit: '10mb',
-  },
+  // API configuration - body parser settings are now handled in route configs
 
   // Enable React strict mode
   reactStrictMode: true,
@@ -94,12 +88,6 @@ const nextConfig = {
         filename: 'static/media/[name].[hash][ext]',
       },
     });
-
-    // Only run TypeScript type checking during production builds
-    if (!dev && isServer) {
-      const withTypeChecking = require('@zeit/next-typescript');
-      return withTypeChecking(config);
-    }
 
     return config;
   },
