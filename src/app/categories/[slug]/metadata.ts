@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { getCategoryBySlug } from '@/lib/supabase';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -10,10 +10,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
-  const category = await prisma.category.findUnique({ 
-    where: { slug },
-    select: { name: true }
-  });
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     return {

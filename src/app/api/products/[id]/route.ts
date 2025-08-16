@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, Prisma } from '@prisma/client';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase-client';
 import { productSchema } from '@/lib/validations';
 
 interface RouteParams {
@@ -28,33 +27,53 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         { status: 400 }
       );
     }
-    
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      include: {
-        images: true,
-        category: true,
-      },
-    });
-    
+
+    const { data: product, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        product_images(*),
+        categories!inner(id, name, slug)
+      `)
+      .eq('id', productId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching product:', error);
+      return NextResponse.json(
+        { message: 'Error fetching product' },
+        { status: 500 }
+      );
+    }
+
     if (!product) {
       return NextResponse.json(
         { message: 'Product not found' },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json(product);
+
+    // Format the response to match the expected format
+    const formattedProduct = {
+      ...product,
+      category: product.categories,
+      images: product.product_images || []
+    };
+
+    // Remove the categories property to avoid confusion
+    delete formattedProduct.categories;
+    delete formattedProduct.product_images;
+
+    return NextResponse.json(formattedProduct);
   } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json(
-      { message: 'Error fetching product' },
+      { message: 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
-// PATCH update a product
 // PATCH update a product
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
@@ -67,12 +86,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: productId },
-      include: { images: true },
-    });
+    // Check if product exists
+    const { data: existingProduct, error: fetchError } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', productId)
+      .single();
 
-    if (!existingProduct) {
+    if (fetchError || !existingProduct) {
       return NextResponse.json(
         { message: 'Product not found' },
         { status: 404 }
@@ -81,7 +102,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const body = await request.json();
 
-    // ✅ Normalize images to string[] in case they are objects
+    // Normalize images to string[] in case they are objects
     const normalizedBody = {
       ...body,
       images: body.images.map((img: any) => typeof img === 'string' ? img : img.url),
@@ -89,10 +110,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const validatedData = productSchema.parse(normalizedBody);
 
+    // Check if slug is being changed and if new slug already exists
     if (validatedData.slug !== existingProduct.slug) {
-      const slugExists = await prisma.product.findUnique({
-        where: { slug: validatedData.slug },
-      });
+      const { data: slugExists, error: slugError } = await supabase
+        .from('products')
+        .select('id')
+        .eq('slug', validatedData.slug)
+        .single();
 
       if (slugExists) {
         return NextResponse.json(
@@ -102,33 +126,52 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    const updatedProduct = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      await tx.productImage.deleteMany({
-        where: { productId },
+    // Start a transaction
+    const { data: updatedProduct, error: updateError } = await supabase
+      .rpc('update_product_with_images', {
+        p_id: productId,
+        p_name: validatedData.name,
+        p_slug: validatedData.slug,
+        p_description: validatedData.description,
+        p_price: validatedData.price,
+        p_inventory: validatedData.inventory,
+        p_featured: validatedData.featured,
+        p_category_id: validatedData.categoryId,
+        p_images: validatedData.images
       });
 
-      return tx.product.update({
-        where: { id: productId },
-        data: {
-          name: validatedData.name,
-          slug: validatedData.slug,
-          description: validatedData.description,
-          price: validatedData.price,
-          inventory: validatedData.inventory,
-          featured: validatedData.featured,
-          categoryId: validatedData.categoryId,
-          images: {
-            create: validatedData.images.map((url) => ({ url })),
-          },
-        },
-        include: {
-          images: true,
-          category: true,
-        },
-      });
-    });
+    if (updateError) {
+      console.error('Error updating product:', updateError);
+      throw updateError;
+    }
 
-    return NextResponse.json(updatedProduct);
+    // Fetch the updated product with its images and category
+    const { data: fullProduct, error: fetchUpdatedError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        product_images(*),
+        categories!inner(*)
+      `)
+      .eq('id', productId)
+      .single();
+
+    if (fetchUpdatedError || !fullProduct) {
+      console.error('Error fetching updated product:', fetchUpdatedError);
+      throw new Error('Failed to fetch updated product');
+    }
+
+    // Format the response
+    const formattedProduct = {
+      ...fullProduct,
+      category: fullProduct.categories,
+      images: fullProduct.product_images || []
+    };
+
+    delete formattedProduct.categories;
+    delete formattedProduct.product_images;
+
+    return NextResponse.json(formattedProduct);
 
   } catch (error) {
     console.error('Error updating product:', error);
@@ -147,7 +190,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-
 // DELETE a product
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
@@ -161,21 +203,26 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
     
     // Check if product exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: productId },
-    });
+    const { data: existingProduct, error: fetchError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', productId)
+      .single();
     
-    if (!existingProduct) {
+    if (fetchError || !existingProduct) {
       return NextResponse.json(
         { message: 'Product not found' },
         { status: 404 }
       );
     }
     
-    // Delete product (images will be cascade deleted)
-    await prisma.product.delete({
-      where: { id: productId },
-    });
+    // Delete product (foreign key constraint will handle the images)
+    const { error: deleteError } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId);
+    
+    if (deleteError) throw deleteError;
     
     return NextResponse.json(
       { message: 'Product deleted successfully' },

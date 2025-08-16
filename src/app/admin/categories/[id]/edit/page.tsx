@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase-client';
 import CategoryForm from '@/components/admin/CategoryForm';
 
 type Props = {
@@ -20,11 +20,14 @@ export default async function EditCategoryPage({ params }: Props) {
     notFound();
   }
 
-  const category = await prisma.category.findUnique({
-    where: { id },
-  });
+  const { data: category, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-  if (!category) {
+  if (error || !category) {
+    console.error('Error fetching category:', error);
     notFound();
   }
 

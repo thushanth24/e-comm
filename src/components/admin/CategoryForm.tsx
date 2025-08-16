@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { categorySchema } from '@/lib/validations';
+import { categorySchema, type CategoryFormData as CategoryFormSchema } from '@/lib/validations';
 import { generateSlug } from '@/lib/utils';
+import { supabase } from '@/lib/supabase-client';
 import Button from '@/components/ui/Button';
 
-type CategoryFormData = z.infer<typeof categorySchema> & {
-  parentId?: number | null;
-};
+// Extend the form data type with the id for updates
+type CategoryFormData = CategoryFormSchema & { id?: number };
 
 interface CategoryFormProps {
   initialData?: Partial<CategoryFormData> & { id?: number };
@@ -19,11 +19,9 @@ interface CategoryItem {
   id: number;
   name: string;
   slug: string;
-  parentId?: number | null;
+  parent_id?: number | null;
   children?: CategoryItem[];
-  _count?: {
-    products: number;
-  };
+  products_count?: number;
 }
 
 interface FlattenedCategory {
@@ -34,7 +32,7 @@ interface FlattenedCategory {
 }
 
 // Flatten categories for the dropdown
-function flattenCategories(categories: CategoryItem[], level: number = 0): FlattenedCategory[] {
+function flattenCategories(categories: CategoryItem[] = [], level: number = 0): FlattenedCategory[] {
   return categories.flatMap(category => {
     const current: FlattenedCategory = { 
       id: category.id, 
@@ -53,14 +51,17 @@ function flattenCategories(categories: CategoryItem[], level: number = 0): Flatt
 export default function CategoryForm({ initialData }: CategoryFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<FlattenedCategory[]>([]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<CategoryFormData>({
+  const [formData, setFormData] = useState<Omit<CategoryFormData, 'id'>>({
     name: initialData?.name || '',
     slug: initialData?.slug || '',
-    parentId: initialData?.parentId || null,
+    description: initialData?.description || '',
+    parent_id: initialData?.parent_id ?? null,
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -75,41 +76,59 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
     }
   }, [formData.name, initialData?.slug]);
 
-  // Load all categories for parent selection
   useEffect(() => {
-    async function fetchCategories() {
+    const fetchCategories = async () => {
       try {
-        setLoading(true);
-        // Use relative URL in the browser
-        const res = await fetch('/api/categories', {
-          cache: 'no-store', // Ensure fresh data
+        const { data, error } = await supabase
+          .from('categories')
+          .select('*')
+          .order('name', { ascending: true });
+          
+        if (error) throw error;
+        
+        // Build the category tree
+        const categoriesMap = new Map<number, CategoryItem>();
+        const rootCategories: CategoryItem[] = [];
+        
+        // First pass: create map of all categories
+        data?.forEach(category => {
+          categoriesMap.set(category.id, { ...category, children: [] });
         });
         
-        if (!res.ok) {
-          throw new Error(`Failed to fetch categories: ${res.status} ${res.statusText}`);
-        }
+        // Second pass: build the tree
+        data?.forEach(category => {
+          const node = categoriesMap.get(category.id);
+          if (node) {
+            if (category.parent_id) {
+              const parent = categoriesMap.get(category.parent_id);
+              if (parent) {
+                parent.children = parent.children || [];
+                parent.children.push(node);
+              }
+            } else {
+              rootCategories.push(node);
+            }
+          }
+        });
         
-        const data: CategoryItem[] = await res.json();
-        // Flatten the tree for the dropdown
-        const flatCategories = flattenCategories(data);
-        setCategories(flatCategories);
+        setCategories(rootCategories);
       } catch (err) {
-        console.error('Error fetching categories:', err);
         setError('Failed to load categories. Please try again later.');
+        console.error('Error fetching categories:', err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
-    }
+    };
 
     fetchCategories();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'parentId' ? (value ? parseInt(value) : null) : value,
+      [name]: name === 'parent_id' ? (value ? parseInt(value) : null) : value,
     }));
 
     if (formErrors[name]) {
@@ -144,42 +163,73 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
-    const isValid = validateForm();
-    if (!isValid) return;
-
-    setLoading(true);
+    setIsSubmitting(true);
 
     try {
-      const url = initialData?.id
-        ? `/api/categories/${initialData.id}`
-        : '/api/categories';
+      const slug = formData.slug || generateSlug(formData.name);
+      
+      // Prepare data for validation
+      const formDataWithSlug = {
+        ...formData,
+        slug,
+        name: formData.name.trim(),
+        description: formData.description ? formData.description.trim() : null,
+        parent_id: formData.parent_id || null,
+      };
 
-      const method = initialData?.id ? 'PATCH' : 'POST';
+      // Validate with zod schema
+      const validatedData = categorySchema.parse(formDataWithSlug);
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // Prepare data for Supabase
+      const categoryData = {
+        name: validatedData.name,
+        slug: validatedData.slug,
+        description: validatedData.description,
+        parent_id: validatedData.parent_id,
+      };
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to save category');
+      if (initialData?.id) {
+        // Update existing category
+        const { error } = await supabase
+          .from('categories')
+          .update(categoryData)
+          .eq('id', initialData.id);
+          
+        if (error) throw error;
+      } else {
+        // Create new category
+        const { error } = await supabase
+          .from('categories')
+          .insert([categoryData]);
+          
+        if (error) throw error;
       }
 
-      setSuccess(initialData?.id ? 'Category updated successfully!' : 'Category created successfully!');
-
+      setSuccess(initialData?.id 
+        ? 'Category updated successfully!' 
+        : 'Category created successfully!');
+      
+      // Redirect to categories list after a short delay
       setTimeout(() => {
         router.push('/admin/categories');
-        router.refresh();
       }, 1500);
-
-    } catch (error) {
-      console.error('Error saving category:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save category');
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        // Handle validation errors
+        const errors: Record<string, string> = {};
+        err.issues.forEach(issue => {
+          const path = issue.path[0];
+          if (typeof path === 'string') {
+            errors[path] = issue.message;
+          }
+        });
+        setFormErrors(errors);
+      } else {
+        console.error('Error saving category:', err);
+        setError(err instanceof Error ? err.message : 'Something went wrong');
+      }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -224,14 +274,32 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
           {formErrors.slug && <p className="text-red-500 text-sm">{formErrors.slug}</p>}
         </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <label htmlFor="parentId" className="block text-sm font-medium">Parent Category</label>
-          <select
-            id="parentId"
-            name="parentId"
-            value={formData.parentId ?? ''}
+        <div className="space-y-2">
+          <label htmlFor="description" className="block text-sm font-medium">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            className={`w-full px-4 py-2 border rounded-md ${formErrors.description ? 'border-red-500' : 'border-gray-300'}`}
+          />
+          {formErrors.description && <p className="text-red-500 text-sm">{formErrors.description}</p>}
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <label htmlFor="parent_id" className="block text-sm font-medium">Parent Category</label>
+          <select
+            id="parent_id"
+            value={formData.parent_id ?? ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                parent_id: value ? Number(value) : null,
+              });
+            }}
+            className="w-full p-2 border rounded"
+            disabled={isLoading}
           >
             <option value="">None (Top-level)</option>
             {categories
@@ -246,8 +314,12 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
       </div>
 
       <div className="flex space-x-4">
-        <Button type="submit" isLoading={loading}>
-          {initialData?.id ? 'Update Category' : 'Create Category'}
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Saving...' : initialData?.id ? 'Update Category' : 'Create Category'}
         </Button>
         <Button
           type="button"

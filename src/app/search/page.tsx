@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase-client';
 import ProductList from '@/components/ui/ProductList';
 import PriceRangeFilter from '@/components/ui/PriceRangeFilter';
 import styles from '@/styles/SearchPage.module.scss';
@@ -24,42 +24,59 @@ type SearchParams = {
   maxPrice?: string;
 };
 
-
-
 async function getCategories(): Promise<Category[]> {
-  const categories = await prisma.category.findMany({
-    select: { id: true, slug: true, name: true },
-  });
-  return categories;
+  const { data: categories, error } = await supabase
+    .from('categories')
+    .select('id, slug, name')
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+
+  return categories || [];
 }
 
 async function searchProducts(params: SearchParams) {
   const { query, category, minPrice, maxPrice } = params;
 
-  const whereClause: any = {};
+  let queryBuilder = supabase
+    .from('products')
+    .select(`
+      *,
+      product_images(*)
+    `);
 
+  // Apply text search if query exists
   if (query) {
-    whereClause.OR = [
-      { name: { contains: query, mode: 'insensitive' } },
-      { description: { contains: query, mode: 'insensitive' } },
-    ];
+    queryBuilder = queryBuilder.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
   }
 
+  // Apply category filter
   if (category) {
-    whereClause.category = { slug: category };
+    queryBuilder = queryBuilder.eq('category_id', parseInt(category));
   }
 
+  // Apply price range filters
   if (minPrice || maxPrice) {
-    whereClause.price = {};
-    if (minPrice) whereClause.price.gte = parseFloat(minPrice);
-    if (maxPrice) whereClause.price.lte = parseFloat(maxPrice);
+    if (minPrice) queryBuilder = queryBuilder.gte('price', parseInt(minPrice));
+    if (maxPrice) queryBuilder = queryBuilder.lte('price', parseInt(maxPrice));
   }
 
-  return await prisma.product.findMany({
-    where: whereClause,
-    include: { images: true, category: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  // Execute the query
+  const { data: products, error } = await queryBuilder.order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error searching products:', error);
+    return [];
+  }
+
+  // Map the response to match the expected format
+  return products?.map(product => ({
+    ...product,
+    images: product.product_images || []
+  })) || [];
 }
 
 export async function generateMetadata({

@@ -2,11 +2,13 @@ import { z } from 'zod';
 
 // Category schema validation
 export const categorySchema = z.object({
-  name: z.string().min(2, { message: "Category name must be at least 2 characters long" }),
-  slug: z.string().min(2).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-    message: "Slug must contain only lowercase letters, numbers, and hyphens",
-  }),
+  name: z.string().min(1, 'Name is required'),
+  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
+  description: z.string().optional(),
+  parent_id: z.number().int().positive().nullable().optional(),
 });
+
+export type CategoryFormData = z.infer<typeof categorySchema>;
 
 // Helper function to validate and normalize image URLs
 const normalizeImageUrl = (url: string) => {

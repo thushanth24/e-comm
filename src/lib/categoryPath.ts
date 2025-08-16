@@ -1,4 +1,10 @@
-import { Category } from '@/components/admin/ProductForm';
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  parent_id: number | null;
+  children?: Category[];
+}
 
 /**
  * Recursively builds the full path for a category (e.g., "Men > Formal > Shirts")
@@ -9,13 +15,17 @@ import { Category } from '@/components/admin/ProductForm';
 export function getCategoryPath(categoryId: number | string, categories: Category[]): string {
   const category = categories.find(cat => cat.id.toString() === categoryId.toString());
   if (!category) return '';
+  
   let path = [category.name];
-  let parentId = category.parentId;
-  while (parentId) {
-    const parent = categories.find(cat => cat.id.toString() === parentId);
+  let currentCategory = category;
+  
+  while (currentCategory.parent_id) {
+    const parent = categories.find(cat => cat.id === currentCategory.parent_id);
     if (!parent) break;
+    
     path.unshift(parent.name);
-    parentId = parent.parentId;
+    currentCategory = parent;
   }
+  
   return path.join(' > ');
 }

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import ProductForm from '@/components/admin/ProductForm';
+import { supabase } from '@/lib/supabase-client';
+import ProductForm, { Category } from '@/components/admin/ProductForm';
 
 interface Product {
   id: number;
@@ -8,75 +8,99 @@ interface Product {
   slug: string;
   description: string;
   price: number;
-  categoryId: number;
-  images: { url: string }[];
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  parentId: string | null;
-  children?: Category[];
-  createdAt?: Date;
-  updatedAt?: Date;
+  category_id: number;
+  product_images: { url: string }[];
 }
 
 async function getCategories(): Promise<Category[]> {
-  const categories = await prisma.category.findMany();
-  // Convert parentId to string to match the expected type
-  return categories.map((category: { id: number; name: string; slug: string; parentId: number | null; }) => ({
+  const { data: categories, error } = await supabase
+    .from('categories')
+    .select('*')
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+
+  if (!categories) return [];
+
+  // Map database fields to our TypeScript interface
+  const mappedCategories: Category[] = categories.map(category => ({
     ...category,
-    parentId: category.parentId ? category.parentId.toString() : null,
-    children: [] // Initialize empty children array if needed
+    parentId: category.parent_id?.toString() || null, // Ensure parentId is string | null
+    children: []
   }));
+
+  // Build category tree
+  const categoryMap = new Map<number, Category>();
+  const rootCategories: Category[] = [];
+
+  // First pass: create map of all categories
+  mappedCategories.forEach(category => {
+    categoryMap.set(category.id, category);
+  });
+
+  // Second pass: build tree structure
+  mappedCategories.forEach(category => {
+    if (category.parentId) {
+      const parentId = parseInt(category.parentId);
+      if (!isNaN(parentId)) {
+        const parent = categoryMap.get(parentId);
+        if (parent) {
+          parent.children = parent.children || [];
+          parent.children.push(category);
+        }
+      }
+    } else {
+      rootCategories.push(category);
+    }
+  });
+
+  return rootCategories;
 }
 
 type PageProps = {
   params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
 };
 
 export default async function EditProductPage({ params }: PageProps) {
-  const id = parseInt(params.id);
-  
-  if (isNaN(id)) {
-    notFound();
-  }
-
-  const product = await prisma.product.findUnique({
-    where: { id: id },
-    include: {
-      images: true,
-    },
-  });
+  const [{ data: product }, categories] = await Promise.all([
+    supabase
+      .from('products')
+      .select(`
+        *,
+        product_images(*)
+      `)
+      .eq('id', params.id)
+      .single(),
+    getCategories(),
+  ]);
 
   if (!product) {
     notFound();
   }
 
-  const categories = await getCategories();
-  
-  // Format product data for the form
-  const formattedProduct = {
-    ...product,
-    images: product.images.map((img: { url: string }) => img.url),
-  };
-  
   return (
-    <div className="container-custom py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Edit Product</h1>
-        <p className="text-muted-foreground mt-2">
-          Update product information
-        </p>
-      </div>
-      
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
-        <ProductForm 
-          initialData={formattedProduct} 
-          categories={categories} 
-        />
+    <div className="container mx-auto px-4 py-8">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Edit Product</h1>
+          <p className="text-muted-foreground mt-2">
+            Update product information
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+          <ProductForm
+            initialData={{
+              ...product,
+              categoryId: product.category_id,
+              images: product.product_images?.map((img: any) => img.url) || [],
+            }}
+            categories={categories}
+          />
+        </div>
       </div>
     </div>
   );

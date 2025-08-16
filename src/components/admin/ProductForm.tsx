@@ -1,13 +1,12 @@
 'use client';
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
+import { getCategoryPath } from '@/lib/categoryPath';
 import { productSchema } from '@/lib/validations';
 import { generateSlug } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import Button from '@/components/ui/Button';
 import ImageUploader from './ImageUploader';
 import styles from '@/styles/ProductForm.module.scss';
@@ -20,9 +19,9 @@ export interface Category {
   slug: string;
   parentId: string | null;
   children?: Category[];
+  createdAt?: string;
+  updatedAt?: string;
 }
-
-import { getCategoryPath } from '@/lib/categoryPath';
 
 interface ProductFormProps {
   initialData?: Partial<ProductFormData> & { id?: number };
@@ -201,32 +200,32 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
         price: validatedData.price,
         description: validatedData.description,
         inventory: validatedData.inventory,
-        categoryId: validatedData.categoryId,
+        category_id: validatedData.categoryId,
         featured: validatedData.featured,
-        // No need to set createdAt as it has a default value in the database
       };
 
       let productId = initialData?.id;
       let existingImageUrls: string[] = [];
 
       if (productId) {
+        // Get existing images
         const { data: existingImages, error: imagesError } = await supabase
-          .from('ProductImage')
+          .from('product_images')
           .select('*')
-          .eq('productId', productId);
+          .eq('product_id', productId);
 
         if (imagesError) {
           console.error('Error fetching existing images:', imagesError);
           throw imagesError;
         }
 
-        // Map the image URLs from the database response
-        existingImageUrls = existingImages?.map((img: any) => img.public_url) || [];
+        existingImageUrls = existingImages?.map(img => img.url) || [];
       }
 
       if (productId) {
+        // Update existing product
         const { error: updateError } = await supabase
-          .from('Product')
+          .from('products')
           .update(productData)
           .eq('id', productId);
 
@@ -235,8 +234,9 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
           throw updateError;
         }
       } else {
+        // Create new product
         const { data, error: createError } = await supabase
-          .from('Product')
+          .from('products')
           .insert([productData])
           .select()
           .single();
@@ -252,55 +252,49 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
       if (validatedData.images && validatedData.images.length > 0) {
         try {
           // Delete any existing images that were removed
-          const removedImages = existingImageUrls.filter((url: string) => 
+          const removedImages = existingImageUrls.filter(url => 
             !validatedData.images.some(img => 
               typeof img === 'string' && url && img.includes(url.split('/').pop() || '')
             )
           );
           
-          if (removedImages.length > 0) {
-            // Remove from storage
-            const { error: removeError } = await supabase.storage
-              .from('product-images')
-              .remove(removedImages.map(url => {
-                const urlObj = new URL(url);
-                return urlObj.pathname.split('/').pop() || '';
-              }).filter(Boolean));
-              
-            if (removeError) {
-              console.error('Error removing images from storage:', removeError);
-              throw removeError;
+          // Remove old images from storage
+          for (const url of removedImages) {
+            try {
+              const path = url.split('/').pop();
+              if (path) {
+                await supabase.storage
+                  .from('product-images')
+                  .remove([path]);
+              }
+            } catch (error) {
+              console.error('Error removing image from storage:', error);
             }
           }
 
           // Delete existing image records for this product
           const { error: deleteError } = await supabase
-            .from('ProductImage')
+            .from('product_images')
             .delete()
-            .eq('productId', productId);
+            .eq('product_id', productId);
 
           if (deleteError) {
             console.error('Error deleting existing image records:', deleteError);
             throw deleteError;
           }
 
-          // Insert new image records with exact column names from the schema
+          // Insert new image records
           const imageRecords = validatedData.images
             .filter((img): img is string => typeof img === 'string' && img.length > 0)
-            .map((imageUrl) => {
-              // Extract the storage path from the full URL
-              const url = new URL(imageUrl);
-              const storagePath = url.pathname.split('/').pop();
-              return {
-                "productId": productId,
-                "storage_path": storagePath || ''
-                // createdAt will be set by the database default
-              };
-            });
+            .map((url) => ({
+              product_id: productId,
+              url,
+              is_primary: false
+            }));
 
           if (imageRecords.length > 0) {
             const { error: imageError } = await supabase
-              .from('ProductImage')
+              .from('product_images')
               .insert(imageRecords);
 
             if (imageError) {
@@ -316,9 +310,9 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
         try {
           // Remove all images if none are provided
           const { error: deleteError } = await supabase
-            .from('ProductImage')
+            .from('product_images')
             .delete()
-            .eq('productId', productId);
+            .eq('product_id', productId);
             
           if (deleteError) {
             console.error('Error deleting image records:', deleteError);
@@ -326,24 +320,21 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
           }
             
           // Remove from storage
-          const filesToRemove = existingImageUrls
-            .map(url => url.split('/').pop())
-            .filter(Boolean) as string[];
-            
-          if (filesToRemove.length > 0) {
-            const { error: removeError } = await supabase.storage
-              .from('product-images')
-              .remove(filesToRemove);
-              
-            if (removeError) {
-              console.error('Error removing files from storage:', removeError);
-              throw removeError;
+          for (const url of existingImageUrls) {
+            try {
+              const path = url.split('/').pop();
+              if (path) {
+                await supabase.storage
+                  .from('product-images')
+                  .remove([path]);
+              }
+            } catch (error) {
+              console.error('Error removing file from storage:', error);
             }
           }
         } catch (error) {
           console.error('Error in image cleanup:', error);
           // Don't re-throw here to allow the main operation to complete
-          // The error is already logged for debugging
         }
       }
 
@@ -420,6 +411,30 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
       setLoading(false);
     }
   };
+
+  function getParentName(catId: number, cats: Category[]): string {
+    const cat = cats.find(c => c.id === catId);
+    if (!cat) return '';
+    return cat.name;
+  }
+
+  function getCategoryPath(catId: number, cats: Category[]): string {
+    const cat = cats.find(c => c.id === catId);
+    if (!cat) return '';
+    
+    let path = cat.name;
+    let current = cat;
+    
+    while (current.parentId) {
+      // Convert parentId to number for comparison since id is a number
+      const parent = cats.find(c => c.id.toString() === current.parentId);
+      if (!parent) break;
+      path = `${parent.name} > ${path}`;
+      current = parent;
+    }
+    
+    return path;
+  }
 
   const renderCategoryOptions = (cats: Category[]): React.ReactNode[] => {
     const flat: Category[] = [];

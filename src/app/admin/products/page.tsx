@@ -1,7 +1,9 @@
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { prisma } from '@/lib/prisma';
+
+
 import ProductTable from '@/components/admin/ProductTable';
 import styles from '@/styles/AdminProducts.module.scss';
 

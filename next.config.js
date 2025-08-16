@@ -79,13 +79,23 @@ const nextConfig = {
   },
   
   // Webpack configuration
-  webpack(config, { isServer, dev }) {
-    // Add your custom webpack configuration here
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // Ensure the @ alias points to the src directory
-      '@': require('path').resolve(__dirname, 'src'),
-    };
+  webpack: (config, { isServer, dev }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        worker_threads: false,
+      };
+
+      // Add webpack alias for @
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@': require('path').resolve(__dirname, 'src'),
+      };
+    }
     // Add file loader for better file handling
     config.module.rules.push({
       test: /\.(png|jpe?g|gif|webp|svg|ico|mp4|webm|wav|mp3|m4a|aac|oga|woff2?|eot|ttf|otf)$/i,

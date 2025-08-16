@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 
 // Import client components with SSR disabled
 const Header = dynamic(() => import('@/components/ui/Header'), { ssr: false });
@@ -23,6 +24,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         <Header />
         <main className="mainContent">{children}</main>
         <Footer />
+        <Toaster position="top-right" richColors closeButton />
       </div>
     </ThemeProvider>
   );

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getProducts, getCategories } from '@/lib/supabase';
+import { getProducts, getCategories } from '@/lib/supabase-client';
 import ProductList from '@/components/ui/ProductList';
 import { ShoppingBag, Package, Award, CreditCard, Tag, ChevronRight } from 'lucide-react';
 import styles from '@/styles/Home.module.scss';
@@ -14,29 +14,27 @@ async function getHomePageData() {
   try {
     // Execute all database queries in parallel
     const [products, categories] = await Promise.all([
-      getProducts(),
+      getProducts({ limit: 12 }), // Get first 12 products for new arrivals
       getCategories()
     ]);
 
-    // Get featured products
-    const featuredProducts = (products || [])
-      .filter((p: any) => p.featured)
-      .slice(0, 4);
-
-    // Get new arrivals (assuming products are ordered by created_at desc from Supabase)
-    const newArrivals = (products || []).slice(0, 8);
+    // Get featured products (already filtered in the query)
+    const featuredProducts = products.filter(p => p.featured).slice(0, 4);
+    
+    // Get new arrivals (already ordered by created_at desc from Supabase)
+    const newArrivals = products.slice(0, 8);
 
     return {
       featuredProducts,
       newArrivals,
-      categories: categories || []
+      categories
     };
   } catch (error) {
     console.error('Error in getHomePageData:', error);
     return {
       featuredProducts: [],
       newArrivals: [],
-      categories: [],
+      categories: []
     };
   }
 }

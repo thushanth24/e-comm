@@ -230,7 +230,12 @@ export const getCategories = async (): Promise<Category[]> => {
     return [];
   }
 
-  return data || [];
+  // Ensure consistent typing with parentId as string | null
+  return (data || []).map(category => ({
+    ...category,
+    parentId: category.parent_id?.toString() || null,
+    children: []
+  }));
 };
 
 export const getCategoryBySlug = async (slug: string): Promise<Category | null> => {
@@ -240,12 +245,17 @@ export const getCategoryBySlug = async (slug: string): Promise<Category | null> 
     .eq('slug', slug)
     .single();
 
-  if (error) {
-    handleError(error);
+  if (error || !data) {
+    if (error) handleError(error);
     return null;
   }
 
-  return data;
+  // Ensure consistent typing with parentId as string | null
+  return {
+    ...data,
+    parentId: data.parent_id?.toString() || null,
+    children: []
+  };
 };
 
 // Formats product data from the database for use in forms

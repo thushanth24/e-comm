@@ -1,34 +1,29 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProductBySlug, supabase } from '@/lib/supabase';
 import { formatPrice } from '@/lib/utils';
 import ProductList from '@/components/ui/ProductList';
 import ProductImages from '@/components/ui/ProductImages';
 import styles from '@/styles/ProductPage.module.scss';
 import { Suspense } from 'react';
 import ProductCardSkeleton from '@/components/ui/ProductCardSkeleton';
+import { getProductBySlug, getProducts } from '@/lib/supabase-client';
 
 async function getProduct(slug: string) {
   return await getProductBySlug(slug);
 }
 
 async function getRelatedProducts(categoryId: number, productId: number) {
-  const { data: products, error } = await supabase
-    .from('Product')
-    .select(`
-      *,
-      category:category_id (id, name, slug)
-    `)
-    .eq('category_id', categoryId)
-    .neq('id', productId)
-    .limit(4);
-
-  if (error) {
+  try {
+    const products = await getProducts({ 
+      categoryId,
+      limit: 4,
+      excludeId: productId
+    });
+    return products || [];
+  } catch (error) {
     console.error('Error fetching related products:', error);
     return [];
   }
-
-  return products || [];
 }
 
 export async function generateMetadata({

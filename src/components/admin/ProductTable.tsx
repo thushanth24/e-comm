@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
 import styles from '@/styles/AdminProducts.module.scss';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getProducts, deleteFile } from '@/lib/supabase-client';
+import { supabase } from '@/lib/supabase-client';
 
 export default function ProductTable() {
   const [products, setProducts] = useState<any[]>([]);
@@ -16,17 +17,8 @@ export default function ProductTable() {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('Product')
-          .select(`
-            *,
-            category:Category!categoryId(*),
-            images:ProductImage!ProductImage_productId_fkey(*)
-          `)
-          .order('createdAt', { ascending: false });
-
-        if (error) throw error;
-        setProducts(data || []);
+        const products = await getProducts({});
+        setProducts(products);
       } catch (err) {
         console.error('Error fetching products:', err);
         setError('Failed to load products. Please try again.');
@@ -41,37 +33,42 @@ export default function ProductTable() {
     if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
     
     try {
-      // First, get all images associated with this product
-      const { data: images, error: fetchError } = await supabase
-        .from('ProductImage')
-        .select('storagePath')
-        .eq('productId', id);
+      // First, get the product with its images
+      const { data: product, error: fetchError } = await supabase
+        .from('products')
+        .select('*, product_images(*)')
+        .eq('id', id)
+        .single();
 
       if (fetchError) throw fetchError;
 
-      // Delete images from storage
-      if (images && images.length > 0) {
-        const imagePaths = images.map(img => img.storagePath).filter((path): path is string => !!path);
-
-        if (imagePaths.length > 0) {
-          const { error: deleteError } = await supabase.storage
-            .from('product-images')
-            .remove(imagePaths);
-
-          if (deleteError) {
-            console.error('Error deleting images from storage:', deleteError);
-            throw deleteError;
+      // Delete associated images from storage
+      if (product?.product_images?.length > 0) {
+        for (const image of product.product_images) {
+          try {
+            if (image.url) {
+              const path = image.url.split('/').pop();
+              if (path) {
+                await deleteFile(path);
+              }
+            }
+          } catch (storageError) {
+            console.error('Error deleting image from storage:', storageError);
           }
         }
       }
 
-      // Delete the product from the database
+      // Delete the product (this will cascade delete the images in the database)
       const { error: deleteError } = await supabase
-        .from('Product')
+        .from('products')
         .delete()
         .eq('id', id);
 
       if (deleteError) throw deleteError;
+
+      // Refresh the product list
+      const updatedProducts = await getProducts({});
+      setProducts(updatedProducts);
 
       // Update local state to remove the deleted product
       setProducts(products.filter(product => product.id !== id));

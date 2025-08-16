@@ -30,7 +30,7 @@
   "app\\ClientLayout.tsx -> @/components/ui/Footer": {
     "id": 243,
     "files": [
-      "static/css/d4e95c8ccc8c78b1.css",
+      "static/css/10281b3e01409932.css",
       "static/chunks/6874-d27b54d0b28e3259.js",
       "static/chunks/243.7746a1b8b89f1323.js"
     ]
@@ -38,7 +38,7 @@
   "app\\ClientLayout.tsx -> @/components/ui/Header": {
     "id": 3065,
     "files": [
-      "static/css/cb5d64e96ee8f02d.css",
+      "static/css/294299f9e5dad809.css",
       "static/chunks/6874-d27b54d0b28e3259.js",
       "static/chunks/3065.191a2a08ece28989.js"
     ]
@@ -57,6 +57,13 @@
       "static/chunks/3245.6275a1c5e324dfb9.js"
     ]
   },
+  "app\\new-arrivals\\page.tsx -> @/components/ui/Button": {
+    "id": 3741,
+    "files": [
+      "static/css/a2b0beaae4391ea2.css",
+      "static/chunks/3741.701fdf6265e1545a.js"
+    ]
+  },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid": {
     "id": 8118,
     "files": [
@@ -68,7 +75,7 @@
     "id": 8082,
     "files": [
       "static/css/37c2a1c4a8be3f2e.css",
-      "static/chunks/8082.534d05e22b890127.js"
+      "static/chunks/8082.8df34d83672938aa.js"
     ]
   },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForWomen": {

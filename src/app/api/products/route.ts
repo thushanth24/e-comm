@@ -1,10 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
-import { productSchema } from '@/lib/validations';
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+
+// Initialize Supabase client without authentication
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+export const dynamic = 'force-dynamic';
 
 // GET all products with optional filtering
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
@@ -15,129 +20,131 @@ export async function GET(request: NextRequest) {
     const maxPrice = searchParams.get('maxPrice');
     const limit = searchParams.get('limit');
     
-    // Build filter conditions
-    const where: any = {};
+    // Start building the query
+    let query = supabase
+      .from('products')
+      .select(`
+        *,
+        categories!inner(*),
+        product_images(*)
+      `);
     
+    // Apply filters
     if (category) {
-      where.category = {
-        slug: category,
-      };
+      query = query.eq('categories.slug', category);
     }
     
     if (featured === 'true') {
-      where.featured = true;
+      query = query.eq('featured', true);
     }
     
-    if (minPrice || maxPrice) {
-      where.price = {};
-      if (minPrice) where.price.gte = parseFloat(minPrice);
-      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    if (minPrice) {
+      query = query.gte('price', parseFloat(minPrice));
     }
     
-    // Query products with a timeout to prevent hanging
-    const products = await Promise.race([
-      prisma.product.findMany({
-        where,
-        include: {
-          images: true,
-          category: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        ...(limit ? { take: parseInt(limit) } : {}),
-      }),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout')), 10000)
-      )
-    ]);
+    if (maxPrice) {
+      query = query.lte('price', parseFloat(maxPrice));
+    }
     
-    return NextResponse.json(products, { status: 200 });
+    // Apply limit if specified
+    if (limit) {
+      query = query.limit(parseInt(limit));
+    }
+    
+    // Execute the query
+    const { data: products, error } = await query.order('created_at', { ascending: false });
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Transform the data to match the expected format
+    const formattedProducts = products.map(product => ({
+      ...product,
+      images: product.product_images,
+      category: product.categories,
+      product_images: undefined,
+      categories: undefined
+    }));
+    
+    return NextResponse.json(formattedProducts);
   } catch (error) {
     console.error('Error fetching products:', error);
-    return NextResponse.json(
-      { message: 'Error fetching products' },
-      { status: 500 }
-    );
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
 
 // POST create a new product
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('📦 Incoming product data:', body);
-
-    // ✅ Normalize image data to just an array of URL strings
-    const normalizedBody = {
-      ...body,
-      images: body.images.map((img: any) => typeof img === 'string' ? img : img.url),
+    
+    // Basic validation
+    if (!body.name || !body.price || !body.categoryId) {
+      return new NextResponse('Missing required fields', { status: 400 });
+    }
+    
+    // Create product data
+    const productData = {
+      name: body.name,
+      description: body.description || '',
+      price: parseFloat(body.price),
+      category_id: body.categoryId,
+      stock: parseInt(body.stock) || 0,
+      featured: Boolean(body.featured) || false,
+      slug: body.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
     };
-
-    // ✅ Validate normalized data
-    const validatedData = productSchema.parse(normalizedBody);
-
-    // ✅ Check for existing slug
-    const existingProductSlug = await prisma.product.findUnique({
-      where: { slug: validatedData.slug },
-    });
-
-    if (existingProductSlug) {
-      return NextResponse.json(
-        { message: 'A product with this slug already exists' },
-        { status: 400 }
-      );
+    
+    // Insert product
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .insert(productData)
+      .select()
+      .single();
+    
+    if (productError) throw productError;
+    
+    // Insert images if provided
+    if (body.images && body.images.length > 0) {
+      const imageInserts = body.images.map((url: string) => ({
+        product_id: product.id,
+        url,
+        is_primary: false
+      }));
+      
+      const { error: imageError } = await supabase
+        .from('product_images')
+        .insert(imageInserts);
+      
+      if (imageError) throw imageError;
     }
-
-    // ✅ Check if category exists
-    const categoryExists = await prisma.category.findUnique({
-      where: { id: validatedData.categoryId },
-    });
-
-    if (!categoryExists) {
-      return NextResponse.json(
-        { message: 'Category not found' },
-        { status: 400 }
-      );
-    }
-
-    // ✅ Create product
-    const product = await prisma.product.create({
-      data: {
-        name: validatedData.name,
-        slug: validatedData.slug,
-        description: validatedData.description,
-        price: validatedData.price,
-        inventory: validatedData.inventory,
-        featured: validatedData.featured || false,
-        categoryId: validatedData.categoryId,
-        images: {
-          create: validatedData.images.map((url) => ({ url })),
-        },
-      },
-      include: {
-        images: true,
-        category: true,
-      },
-    });
-
-    return NextResponse.json(product, { status: 201 });
-
+    
+    // Fetch the created product with relations
+    const { data: createdProduct, error: fetchError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories(*),
+        product_images(*)
+      `)
+      .eq('id', product.id)
+      .single();
+    
+    if (fetchError) throw fetchError;
+    
+    // Format the response
+    const formattedProduct = {
+      ...createdProduct,
+      images: createdProduct.product_images,
+      category: createdProduct.categories,
+      product_images: undefined,
+      categories: undefined
+    };
+    
+    return NextResponse.json(formattedProduct, { status: 201 });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error('❌ Zod validation error:', error.errors);
-      return NextResponse.json(
-        { message: 'Validation error', errors: error.errors },
-        { status: 400 }
-      );
-    }
-
-    console.error('❌ Error creating product:', error);
-    return NextResponse.json(
-      { message: 'Error creating product' },
-      { status: 500 }
-    );
+    console.error('Error creating product:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
-
 
