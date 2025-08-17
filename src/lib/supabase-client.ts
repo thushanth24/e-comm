@@ -18,7 +18,7 @@ export const supabase = createClient<Database>(
 // Delete a product by ID
 export const deleteProduct = async (id: number) => {
   const { error } = await supabase
-    .from('products')
+    .from('Product')
     .delete()
     .eq('id', id);
     
@@ -35,63 +35,134 @@ type ProductFilters = {
 };
 
 // Helper functions for common operations
+// Type for the product with relations
+type ProductWithRelations = Database['public']['Tables']['Product']['Row'] & {
+  category: Database['public']['Tables']['Category']['Row'];
+  ProductImage: Database['public']['Tables']['ProductImage']['Row'][];
+};
+
 export const getProducts = async (filters: ProductFilters = {}) => {
-  let query = supabase
-    .from('products')
-    .select(`
-      *,
-      categories!inner(*),
-      product_images(*)
-    `);
+  try {
+    console.log('Fetching products with filters:', filters);
+    
+    // Start building the query
+    console.log('Creating Supabase query...');
+    let query = supabase
+      .from('Product')
+      .select(`
+        *,
+        category:categoryId(*),
+        ProductImage(*)
+      `);
 
-  // Apply filters if any
-  if (filters.categoryId) {
-    query = query.eq('categories.id', filters.categoryId);
-  }
-  if (filters.featured) {
-    query = query.eq('featured', true);
-  }
-  if (filters.limit) {
-    query = query.limit(filters.limit);
-  }
-  if (filters.excludeId) {
-    query = query.neq('id', filters.excludeId);
-  }
+    // Apply filters if any
+    if (filters.categoryId) {
+      console.log('Applying category filter:', filters.categoryId);
+      query = query.eq('categoryId', filters.categoryId);
+    }
+    if (filters.featured) {
+      console.log('Filtering featured products');
+      query = query.eq('featured', true);
+    }
+    if (filters.limit) {
+      console.log('Applying limit:', filters.limit);
+      query = query.limit(filters.limit);
+    }
+    if (filters.excludeId) {
+      console.log('Excluding product ID:', filters.excludeId);
+      query = query.neq('id', filters.excludeId);
+    }
 
-  const { data, error } = await query.order('created_at', { ascending: false });
-  
-  if (error) throw error;
-  
-  return data.map(product => ({
-    ...product,
-    images: product.product_images,
-    category: product.categories,
-    product_images: undefined,
-    categories: undefined
-  }));
+    // Execute the query
+    console.log('Executing query...');
+    const result = await query.order('createdAt', { ascending: false });
+    
+    console.log('Query executed. Status:', result.status, 'Status Text:', result.statusText);
+    
+    if (result.error) {
+      console.error('Full error object:', JSON.stringify(result.error, null, 2));
+      console.error('Supabase query error details:', {
+        message: result.error.message,
+        name: result.error.name,
+        details: (result.error as any).details,
+        hint: (result.error as any).hint,
+        code: (result.error as any).code,
+        status: (result.error as any).status,
+        statusCode: (result.error as any).statusCode
+      });
+      
+      throw new Error(`Failed to fetch products: ${result.error.message}`);
+    }
+    
+    const data = result.data;
+    if (!data) {
+      console.warn('No products found');
+      return [];
+    }
+    
+    // Transform the data to match the expected format
+    return data.map(product => ({
+      ...product,
+      images: product.ProductImage || [],
+      category: product.category || null,
+      product_images: undefined
+    }));
+  } catch (error) {
+    console.error('Error in getProducts:', error);
+    throw error; // Re-throw to be handled by the caller
+  }
 };
 
 export const getProductBySlug = async (slug: string) => {
-  const { data, error } = await supabase
-    .from('products')
-    .select(`
-      *,
-      categories(*),
-      product_images(*)
-    `)
-    .eq('slug', slug)
-    .single();
+  try {
+    console.log('Fetching product by slug:', slug);
+    
+    const { data, error, status, statusText } = await supabase
+      .from('Product')
+      .select(`
+        *,
+        category:categoryId(*),
+        ProductImage(*)
+      `)
+      .eq('slug', slug)
+      .single();
 
-  if (error) throw error;
-  if (!data) return null;
+    console.log('Product by slug query result:', { 
+      data: !!data, 
+      error, 
+      status, 
+      statusText 
+    });
 
-  return {
-    ...data,
-    images: data.product_images,
-    category: data.categories,
-    product_images: undefined,
-    categories: undefined
-  };
+    if (error) {
+      if (error.code === 'PGRST116') { // Not found
+        console.log('Product not found for slug:', slug);
+        return null;
+      }
+      console.error('Error fetching product by slug:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw error;
+    }
+
+    if (!data) {
+      console.warn('No product found for slug:', slug);
+      return null;
+    }
+
+    return {
+      ...data,
+      images: data.ProductImage || [],
+      category: data.category || null,
+      product_images: undefined
+    };
+  } catch (error) {
+    console.error('Error in getProductBySlug:', error);
+    throw error; // Re-throw to be handled by the caller
+  }
 };
 
 interface CategoryWithCount {
@@ -107,41 +178,91 @@ interface CategoryWithCount {
 }
 
 // Simple function to count products per category
-async function getProductCounts(): Promise<Array<{ category_id: number; count: number }>> {
+async function getProductCounts(): Promise<Array<{ categoryId: number; count: number }>> {
+  console.log('Getting product counts...');
+  
   try {
     // First try to get counts using the RPC function
-    const { data: rpcData, error: rpcError } = await supabase
+    console.log('Attempting to use RPC function...');
+    const { data: rpcData, error: rpcError, status: rpcStatus } = await supabase
       .rpc('get_products_count_by_category')
       .select()
       .limit(1000);
     
-    if (!rpcError && rpcData) return rpcData;
+    console.log('RPC function result:', { rpcData, rpcError, rpcStatus });
+    
+    if (!rpcError && rpcData) {
+      console.log('Using RPC function results');
+      return rpcData;
+    }
+    
+    console.log('Falling back to manual counting...');
     
     // Fallback to manual counting
-    const { data, error } = await supabase
-      .from('products')
-      .select('category_id')
-      .not('category_id', 'is', null);
+    console.log('Starting manual count of products by category...');
+    try {
+      const { data, error, status, statusText, count } = await supabase
+        .from('Product') // Make sure this matches your actual table name
+        .select('categoryId', { count: 'exact' })
+        .not('categoryId', 'is', null);
+        
+      console.log('Manual count query result:', { 
+        data: data?.length, 
+        error, 
+        status, 
+        statusText,
+        count 
+      });
       
-    if (error) throw error;
+      if (error) {
+        console.error('Error in manual count query:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
+      }
+      
+      if (!data) {
+        console.warn('No data returned from manual count query');
+        return [];
+      }
     
-    if (data) {
-      const counts = data.reduce((acc, { category_id }) => {
-        if (category_id) {
-          acc[category_id] = (acc[category_id] || 0) + 1;
+      const counts = data.reduce((acc, { categoryId }) => {
+        if (categoryId) {
+          acc[categoryId] = (acc[categoryId] || 0) + 1;
         }
         return acc;
       }, {} as Record<number, number>);
       
-      return Object.entries(counts).map(([category_id, count]) => ({
-        category_id: parseInt(category_id, 10),
+      const result = Object.entries(counts).map(([categoryId, count]) => ({
+        categoryId: parseInt(categoryId, 10),
         count
       }));
+      
+      console.log('Processed product counts:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in manual counting process:', error);
+      return [];
     }
     
+    console.warn('No product data available for counting');
     return [];
-  } catch (error) {
-    console.error('Error getting product counts:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error 
+      ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        }
+      : 'An unknown error occurred';
+      
+    console.error('Error in getProductCounts:', {
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    });
     return [];
   }
 }
@@ -151,14 +272,52 @@ async function getProductCounts(): Promise<Array<{ category_id: number; count: n
  */
 export const getCategories = async (): Promise<CategoryWithCount[]> => {
   try {
-    // Get all categories
-    const { data: categories, error: categoriesError } = await supabase
-      .from('categories')
-      .select('*')
+    console.log('Initializing Supabase categories fetch...');
+    
+    // Verify Supabase is initialized
+    if (!supabase) {
+      const error = new Error('Supabase client is not initialized');
+      console.error('Supabase client error:', error);
+      throw error;
+    }
+
+    // Log Supabase configuration for debugging
+    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    
+    // Get all categories with explicit column selection
+    const { data, error, status, statusText, count } = await supabase
+      .from('Category')
+      .select('*', { count: 'exact' })
       .order('name', { ascending: true });
       
-    if (categoriesError) throw categoriesError;
-    if (!categories?.length) return [];
+    console.log('Supabase query result:', {
+      data: data?.length,
+      error,
+      status,
+      statusText,
+      count
+    });
+    
+    if (error) {
+      console.error('Supabase categories query error:', {
+        status,
+        statusText,
+        error,
+        timestamp: new Date().toISOString(),
+        config: {
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          table: 'Category'
+        }
+      });
+      throw error;
+    }
+    
+    const categories = data || [];
+    console.log(`Fetched ${categories.length} categories`);
+    if (!categories.length) {
+      console.warn('No categories found in the database');
+      return [];
+    }
 
     // Get product counts
     const productCounts = await getProductCounts();
@@ -166,8 +325,8 @@ export const getCategories = async (): Promise<CategoryWithCount[]> => {
     // Create a map of category_id to product count
     const categoryProductCounts = new Map<number, number>();
     productCounts.forEach(item => {
-      if (item?.category_id) {
-        categoryProductCounts.set(item.category_id, item.count);
+if (item?.categoryId) {
+        categoryProductCounts.set(item.categoryId, item.count);
       }
     });
 
@@ -175,10 +334,16 @@ export const getCategories = async (): Promise<CategoryWithCount[]> => {
     const categoriesMap = new Map<number, CategoryWithCount>();
     const rootCategories: CategoryWithCount[] = [];
 
-    // First pass: create all category nodes
+    // First pass: create all category nodes with proper field mapping
     categories.forEach(category => {
       const categoryWithCount: CategoryWithCount = {
-        ...category,
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        parent_id: category.parentId, // Map parentId to parent_id
+        description: category.description || null,
+        created_at: category.createdAt, // Map createdAt to created_at
+        updated_at: category.updatedAt, // Map updatedAt to updated_at
         products_count: categoryProductCounts.get(category.id) || 0,
         children: []
       };
@@ -189,8 +354,8 @@ export const getCategories = async (): Promise<CategoryWithCount[]> => {
     categories.forEach(category => {
       const categoryNode = categoriesMap.get(category.id);
       if (categoryNode) {
-        if (category.parent_id) {
-          const parent = categoriesMap.get(category.parent_id);
+        if (category.parentId) { // Use parentId instead of parent_id
+          const parent = categoriesMap.get(category.parentId);
           if (parent) {
             parent.children.push(categoryNode);
           }

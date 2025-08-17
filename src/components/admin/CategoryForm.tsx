@@ -9,7 +9,15 @@ import { supabase } from '@/lib/supabase-client';
 import Button from '@/components/ui/Button';
 
 // Extend the form data type with the id for updates
-type CategoryFormData = CategoryFormSchema & { id?: number };
+interface CategoryFormData {
+  id?: number;
+  name: string;
+  slug: string;
+  description: string;
+  parentId?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 interface CategoryFormProps {
   initialData?: Partial<CategoryFormData> & { id?: number };
@@ -57,11 +65,11 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<Omit<CategoryFormData, 'id'>>({
+  const [formData, setFormData] = useState<Omit<CategoryFormData, 'id' | 'createdAt' | 'updatedAt'>>({
     name: initialData?.name || '',
     slug: initialData?.slug || '',
     description: initialData?.description || '',
-    parent_id: initialData?.parent_id ?? null,
+    parentId: initialData?.parentId ?? null,
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -79,10 +87,18 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data, error } = await supabase
-          .from('categories')
+        console.log('Fetching categories from Supabase...');
+        const { data, error, status, statusText } = await supabase
+          .from('Category')
           .select('*')
           .order('name', { ascending: true });
+          
+        console.log('Categories query result:', { 
+          data: data?.length, 
+          error, 
+          status, 
+          statusText 
+        });
           
         if (error) throw error;
         
@@ -174,35 +190,58 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         slug,
         name: formData.name.trim(),
         description: formData.description ? formData.description.trim() : null,
-        parent_id: formData.parent_id || null,
+        parentId: formData.parentId || null,
       };
 
       // Validate with zod schema
       const validatedData = categorySchema.parse(formDataWithSlug);
 
       // Prepare data for Supabase
+      // Note: Using double quotes for case-sensitive column names
       const categoryData = {
         name: validatedData.name,
         slug: validatedData.slug,
         description: validatedData.description,
-        parent_id: validatedData.parent_id,
+        "parentId": validatedData.parentId, // Case-sensitive column name
       };
 
-      if (initialData?.id) {
-        // Update existing category
-        const { error } = await supabase
-          .from('categories')
-          .update(categoryData)
-          .eq('id', initialData.id);
+      try {
+        let response;
+        if (initialData?.id) {
+          // Update existing category
+          response = await supabase
+            .from('Category')
+            .update(categoryData)
+            .eq('id', initialData.id)
+            .select()
+            .single();
+        } else {
+          // Create new category - try with direct SQL first
+          console.log('Attempting to create category with data:', categoryData);
           
-        if (error) throw error;
-      } else {
-        // Create new category
-        const { error } = await supabase
-          .from('categories')
-          .insert([categoryData]);
+          // First, try with the direct SQL approach
+          const { data, error } = await supabase.rpc('create_category', {
+            p_name: categoryData.name,
+            p_slug: categoryData.slug,
+            p_parent_id: categoryData.parentId || null
+          });
           
-        if (error) throw error;
+          if (error) throw error;
+          return; // Success, exit early
+        }
+        
+        if (response?.error) {
+          console.log('Raw error response:', JSON.stringify(response.error, null, 2));
+          throw new Error(response.error.message || 'Database error occurred');
+        }
+      } catch (error) {
+        console.error('Detailed error in category operation:');
+        console.error('Error object:', error);
+        if (error instanceof Error) {
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+        }
+        throw error;
       }
 
       setSuccess(initialData?.id 
@@ -214,6 +253,14 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         router.push('/admin/categories');
       }, 1500);
     } catch (err) {
+      console.error('Detailed error saving category:', {
+        error: err,
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        formData,
+        initialData
+      });
+      
       if (err instanceof z.ZodError) {
         // Handle validation errors
         const errors: Record<string, string> = {};
@@ -225,8 +272,10 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         });
         setFormErrors(errors);
       } else {
-        console.error('Error saving category:', err);
-        setError(err instanceof Error ? err.message : 'Something went wrong');
+        const errorMessage = err instanceof Error 
+          ? `Error: ${err.message}` 
+          : 'An unexpected error occurred while saving the category';
+        setError(errorMessage);
       }
     } finally {
       setIsSubmitting(false);
@@ -287,15 +336,15 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <label htmlFor="parent_id" className="block text-sm font-medium">Parent Category</label>
+          <label htmlFor="parentId" className="block text-sm font-medium">Parent Category</label>
           <select
-            id="parent_id"
-            value={formData.parent_id ?? ''}
+            id="parentId"
+            value={formData.parentId ?? ''}
             onChange={(e) => {
               const value = e.target.value;
               setFormData({
                 ...formData,
-                parent_id: value ? Number(value) : null,
+                parentId: value ? Number(value) : null,
               });
             }}
             className="w-full p-2 border rounded"

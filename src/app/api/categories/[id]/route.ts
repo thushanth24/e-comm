@@ -71,9 +71,9 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     
     // Get product count
     const { count: productsCount } = await supabase
-      .from('products')
+      .from('Product')
       .select('*', { count: 'exact', head: true })
-      .eq('category_id', categoryId);
+      .eq('categoryId', categoryId);
     
     return NextResponse.json({
       ...category,
@@ -209,9 +209,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     
     // Check if category has products
     const { count: productsCount } = await supabase
-      .from('products')
+      .from('Product')
       .select('*', { count: 'exact', head: true })
-      .eq('category_id', categoryId);
+      .eq('categoryId', categoryId);
     
     if ((productsCount || 0) > 0) {
       return NextResponse.json(

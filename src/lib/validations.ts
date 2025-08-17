@@ -5,7 +5,7 @@ export const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
   slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format'),
   description: z.string().optional(),
-  parent_id: z.number().int().positive().nullable().optional(),
+  parentId: z.number().int().positive().nullable().optional(),
 });
 
 export type CategoryFormData = z.infer<typeof categorySchema>;

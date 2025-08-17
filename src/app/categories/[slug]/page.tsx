@@ -89,6 +89,31 @@ async function getCategoryInfo(slug: string): Promise<CategoryInfo | null> {
   };
 }
 
+interface ProductImage {
+  id: number;
+  publicUrl: string;
+  productId: number;
+  isPrimary?: boolean;
+  position?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  price: number;
+  inventory: number;
+  categoryId: number;
+  description?: string;
+  isFeatured?: boolean;
+  isArchived?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  ProductImage: ProductImage[];
+}
+
 async function getProducts(categoryIds: number[], minPrice?: number, maxPrice?: number) {
   try {
     let query = supabase
@@ -107,11 +132,32 @@ async function getProducts(categoryIds: number[], minPrice?: number, maxPrice?: 
     const { data: products, error } = await query;
     if (error) throw error;
     
-    return products || [];
+    // Transform the data to match the expected format
+    return (products || []).map(product => ({
+      ...product,
+      // Map ProductImage array to the expected images format
+      images: (product.ProductImage || []).map((img: ProductImage) => ({
+        public_url: img.publicUrl,
+        // Include other necessary fields if needed
+        id: img.id,
+        is_primary: img.isPrimary,
+        position: img.position
+      }))
+    }));
   } catch (error) {
     console.error('Error fetching products:', error);
     return [];
   }
+}
+
+// Generate static params at build time
+export async function generateStaticParams() {
+  // Fetch all categories to pre-render at build time
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('slug');
+  
+  return categories?.map(({ slug }) => ({ slug })) || [];
 }
 
 // Main Category Page - Server Component
@@ -122,29 +168,54 @@ export default async function CategoryPage({
   params: { slug: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const minPrice = Array.isArray(searchParams?.minPrice) ? searchParams.minPrice[0] : searchParams?.minPrice;
-  const maxPrice = Array.isArray(searchParams?.maxPrice) ? searchParams.maxPrice[0] : searchParams?.maxPrice;
-  
-  if (!slug) notFound();
+  try {
+    // Ensure params and searchParams are properly awaited
+    const [resolvedParams, resolvedSearchParams] = await Promise.all([
+      Promise.resolve(params),
+      Promise.resolve(searchParams || {})
+    ]);
+    
+    // Destructure and validate params after awaiting
+    const { slug } = resolvedParams;
+    if (!slug) notFound();
+    
+    // Process searchParams safely
+    const priceFilters = {
+      minPrice: resolvedSearchParams.minPrice 
+        ? Number(Array.isArray(resolvedSearchParams.minPrice) ? resolvedSearchParams.minPrice[0] : resolvedSearchParams.minPrice)
+        : undefined,
+      maxPrice: resolvedSearchParams.maxPrice 
+        ? Number(Array.isArray(resolvedSearchParams.maxPrice) ? resolvedSearchParams.maxPrice[0] : resolvedSearchParams.maxPrice)
+        : undefined,
+    };
 
-  // Server-side data fetching
-  const categoryInfo = await getCategoryInfo(slug.toLowerCase());
-  if (!categoryInfo) notFound();
-  
-  const categoryIds = await getAllCategoryIds(slug.toLowerCase());
-  const products = await getProducts(
-    categoryIds,
-    minPrice ? parseFloat(minPrice) : undefined,
-    maxPrice ? parseFloat(maxPrice) : undefined
-  );
-  
-  return <ClientCategoryPage 
-    categoryInfo={categoryInfo} 
-    products={products} 
-    minPrice={minPrice}
-    maxPrice={maxPrice}
-  />;
+    // Server-side data fetching
+    const [categoryInfo, categoryIds] = await Promise.all([
+      getCategoryInfo(slug.toLowerCase()),
+      getAllCategoryIds(slug.toLowerCase())
+    ]);
+    
+    if (!categoryInfo) notFound();
+    
+    const products = await getProducts(
+      categoryIds,
+      priceFilters.minPrice,
+      priceFilters.maxPrice
+    );
+    
+    // Pass data to client component
+    return (
+      <ClientCategoryPage 
+        categoryInfo={categoryInfo} 
+        products={products} 
+        minPrice={priceFilters.minPrice?.toString()}
+        maxPrice={priceFilters.maxPrice?.toString()}
+      />
+    );
+  } catch (error) {
+    console.error('Error in CategoryPage:', error);
+    notFound();
+  }
 }
 
 // Client component is now in a separate file

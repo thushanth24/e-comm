@@ -27,28 +27,36 @@ interface ProductCardProps {
     name: string;
     slug: string;
     price: number;
-    images: { url: string }[];
+    images: { public_url: string }[];
     inventory: number;
   };
   priority?: boolean;
 }
 
 export default function ProductCard({ product, priority = false }: ProductCardProps) {
-  const fallbackImage = '/images/placeholder-product.jpg';
-  let imageUrl = product.images?.[0]?.url || fallbackImage;
+  // Use a simple SVG as fallback instead of a file
+  const fallbackImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2RjZGJkZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOC41IiBjeT0iOC41IiByPSIxLjUiLz48cGF0aCBkPSJNMjEgMTUhLTEyLjVhLjUuNSAwIDAgMC0uNS41djMuNWEyIDIgMCAwIDAgMiAyaDlhMiAyIDAgMCAwIDItMnYtNHoiLz48L3N2Zz4=';
   
-  // Ensure the image URL has a leading slash if it's a relative path
-  if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('blob:') && !imageUrl.startsWith('data:')) {
-    imageUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-  }
+  // Get the first available image or use fallback
+  const [currentImage, setCurrentImage] = useState(() => {
+    const img = product.images?.[0]?.public_url;
+    return img && (img.startsWith('http') || img.startsWith('blob:') || img.startsWith('data:')) 
+      ? img 
+      : (img ? `/${img.replace(/^\/+/, '')}` : fallbackImage);
+  });
+  
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  
+  const handleImageError = () => {
+    setCurrentImage(fallbackImage);
+  };
 
   useEffect(() => {
     setMounted(true);
     // Preload images for the first few products
-    if (priority && product.images?.[0]?.url) {
-      preloadImages([product.images[0].url]);
+    if (priority && product.images?.[0]?.public_url) {
+      preloadImages([product.images[0].public_url]);
     }
   }, [product.images, priority]);
 
@@ -66,16 +74,16 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         <div className={styles.imageWrapper}>
           <ProductLink href={`/products/${product.slug}`}>
             <Image
-              src={imageUrl}
+              src={currentImage}
               alt={product.name}
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className={`${styles.image} ${isImageLoading ? styles.loading : ''}`}
+              className={`object-cover transition-opacity duration-200 ${
+                isImageLoading ? 'opacity-0' : 'opacity-100'
+              }`}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              onLoad={() => setIsImageLoading(false)}
+              onError={handleImageError}
               priority={priority}
-              loading={priority ? 'eager' : 'lazy'}
-              quality={75}
-              onLoadingComplete={() => setIsImageLoading(false)}
-              placeholder="blur"
               blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg=="
             />
           </ProductLink>

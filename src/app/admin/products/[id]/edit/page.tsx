@@ -9,7 +9,7 @@ interface Product {
   description: string;
   price: number;
   category_id: number;
-  product_images: { url: string }[];
+  ProductImage: { url: string }[];
 }
 
 async function getCategories(): Promise<Category[]> {
@@ -67,10 +67,10 @@ type PageProps = {
 export default async function EditProductPage({ params }: PageProps) {
   const [{ data: product }, categories] = await Promise.all([
     supabase
-      .from('products')
+      .from('Product')
       .select(`
         *,
-        product_images(*)
+        ProductImage(*)
       `)
       .eq('id', params.id)
       .single(),
@@ -96,7 +96,7 @@ export default async function EditProductPage({ params }: PageProps) {
             initialData={{
               ...product,
               categoryId: product.category_id,
-              images: product.product_images?.map((img: any) => img.url) || [],
+              images: product.ProductImage?.map((img: { url: string }) => img.url) || [],
             }}
             categories={categories}
           />

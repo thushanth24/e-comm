@@ -29,10 +29,10 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     }
 
     const { data: product, error } = await supabase
-      .from('products')
+      .from('Product')
       .select(`
         *,
-        product_images(*),
+        ProductImage(*),
         categories!inner(id, name, slug)
       `)
       .eq('id', productId)
@@ -57,12 +57,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     const formattedProduct = {
       ...product,
       category: product.categories,
-      images: product.product_images || []
+      images: product.ProductImage || []
     };
 
     // Remove the categories property to avoid confusion
     delete formattedProduct.categories;
-    delete formattedProduct.product_images;
+    delete formattedProduct.ProductImage;
 
     return NextResponse.json(formattedProduct);
   } catch (error) {
@@ -88,7 +88,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Check if product exists
     const { data: existingProduct, error: fetchError } = await supabase
-      .from('products')
+      .from('Product')
       .select('*')
       .eq('id', productId)
       .single();
@@ -113,7 +113,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Check if slug is being changed and if new slug already exists
     if (validatedData.slug !== existingProduct.slug) {
       const { data: slugExists, error: slugError } = await supabase
-        .from('products')
+        .from('Product')
         .select('id')
         .eq('slug', validatedData.slug)
         .single();
@@ -136,7 +136,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         p_price: validatedData.price,
         p_inventory: validatedData.inventory,
         p_featured: validatedData.featured,
-        p_category_id: validatedData.categoryId,
+        categoryId: validatedData.categoryId,
         p_images: validatedData.images
       });
 
@@ -147,10 +147,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Fetch the updated product with its images and category
     const { data: fullProduct, error: fetchUpdatedError } = await supabase
-      .from('products')
+      .from('Product')
       .select(`
         *,
-        product_images(*),
+        ProductImage(*),
         categories!inner(*)
       `)
       .eq('id', productId)
@@ -165,11 +165,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const formattedProduct = {
       ...fullProduct,
       category: fullProduct.categories,
-      images: fullProduct.product_images || []
+images: fullProduct.ProductImage || []
     };
 
     delete formattedProduct.categories;
-    delete formattedProduct.product_images;
+    delete formattedProduct.ProductImage;
 
     return NextResponse.json(formattedProduct);
 
@@ -204,7 +204,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     
     // Check if product exists
     const { data: existingProduct, error: fetchError } = await supabase
-      .from('products')
+      .from('Product')
       .select('id')
       .eq('id', productId)
       .single();
@@ -218,7 +218,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     
     // Delete product (foreign key constraint will handle the images)
     const { error: deleteError } = await supabase
-      .from('products')
+      .from('Product')
       .delete()
       .eq('id', productId);
     

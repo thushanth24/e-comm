@@ -11,7 +11,7 @@ interface Product {
   name: string;
   slug: string;
   price: number;
-  images: { url: string }[];
+  images: { public_url: string }[];
   inventory: number;
 }
 

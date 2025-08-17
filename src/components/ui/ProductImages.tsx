@@ -5,7 +5,7 @@ import Image from 'next/image';
 import styles from '@/styles/ProductPage.module.scss';
 
 interface ProductImagesProps {
-  images: { url: string }[];
+  images: { public_url: string }[];
   name: string;
 }
 
@@ -31,13 +31,28 @@ export default function ProductImages({ images, name }: ProductImagesProps) {
     );
   }
 
+  // SVG placeholder as a base64 data URL
+  const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2RjZGJkZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOC41IiBjeT0iOC41IiByPSIxLjUiLz48cGF0aCBkPSJNMjEgMTVIM2EyIDIgMCAwIDAtMiAydjRhMiAyIDAgMCAwIDIgMmgxOGEyIDIgMCAwIDAgMi0ydi00YTIgMiAwIDAgMC0yLTJ6Ii8+PC9zdmc+';
+
   // Helper function to ensure image URLs are properly formatted
-  const getImageUrl = (url: string) => {
-    if (!url) return '/images/placeholder-product.jpg';
-    if (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:')) {
-      return url;
+  const getImageUrl = (image: { public_url: string } | string | undefined): string => {
+    try {
+      if (!image) return placeholderImage;
+      
+      const url = typeof image === 'string' ? image : image.public_url;
+      if (!url) return placeholderImage;
+      
+      // Return as is if it's a complete URL or data URL
+      if (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:')) {
+        return url;
+      }
+      
+      // Handle relative paths
+      return url.startsWith('/') ? url : `/${url}`;
+    } catch (error) {
+      console.error('Error processing image URL:', error);
+      return placeholderImage;
     }
-    return url.startsWith('/') ? url : `/${url}`;
   };
 
   return (
@@ -47,7 +62,7 @@ export default function ProductImages({ images, name }: ProductImagesProps) {
         onClick={toggleZoom}
       >
         <Image
-          src={getImageUrl(images[currentImageIndex]?.url)}
+          src={getImageUrl(images[currentImageIndex])}
           alt={`${name} - ${currentImageIndex + 1} of ${images.length}`}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
@@ -65,7 +80,7 @@ export default function ProductImages({ images, name }: ProductImagesProps) {
         <div className={styles.thumbnails}>
           {images.map((image, index) => (
             <button
-              key={image.url}
+              key={image.public_url}
               className={`${styles.thumbnail} ${
                 index === currentImageIndex ? styles.active : ''
               }`}
@@ -74,7 +89,7 @@ export default function ProductImages({ images, name }: ProductImagesProps) {
               type="button"
             >
               <Image
-                src={getImageUrl(image.url)}
+                src={getImageUrl(image)}
                 alt=""
                 width={80}
                 height={80}

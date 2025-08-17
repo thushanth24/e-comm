@@ -43,10 +43,10 @@ async function buildCategoryTree(parentId: string | null = null): Promise<Catego
   // Handle null parentId (top-level categories)
   if (parentId === null) {
     console.log('Fetching top-level categories');
-    query = query.is('parentId', null);
+    query = query.is('"parentId"', null);
   } else {
     console.log('Fetching child categories for parent:', parentId);
-    query = query.eq('parentId', parentId);
+    query = query.eq('"parentId"', parentId);
   }
 
   console.log('Executing query for parentId:', parentId);

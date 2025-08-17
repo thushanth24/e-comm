@@ -1,94 +1,62 @@
 {
-  "..\\node_modules\\@supabase\\auth-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch": {
-    "id": 2410,
-    "files": []
-  },
-  "..\\node_modules\\@supabase\\functions-js\\dist\\module\\helper.js -> @supabase/node-fetch": {
-    "id": 2410,
-    "files": []
-  },
-  "..\\node_modules\\@supabase\\realtime-js\\dist\\module\\RealtimeClient.js -> @supabase/node-fetch": {
-    "id": 2410,
-    "files": []
-  },
-  "..\\node_modules\\@supabase\\storage-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch": {
-    "id": 2410,
-    "files": []
-  },
-  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
-    "id": 472,
+  "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts": {
+    "id": "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts",
     "files": [
-      "static/chunks/472.a3826d29d6854395.js"
-    ]
-  },
-  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
-    "id": 9341,
-    "files": [
-      "static/chunks/9341.e21ab9b6d7c03978.js"
+      "static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js"
     ]
   },
   "app\\ClientLayout.tsx -> @/components/ui/Footer": {
-    "id": 243,
+    "id": "app\\ClientLayout.tsx -> @/components/ui/Footer",
     "files": [
-      "static/css/10281b3e01409932.css",
-      "static/chunks/6874-d27b54d0b28e3259.js",
-      "static/chunks/243.7746a1b8b89f1323.js"
+      "static/css/_app-pages-browser_src_components_ui_Footer_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_Footer_tsx.js"
     ]
   },
   "app\\ClientLayout.tsx -> @/components/ui/Header": {
-    "id": 3065,
+    "id": "app\\ClientLayout.tsx -> @/components/ui/Header",
     "files": [
-      "static/css/294299f9e5dad809.css",
-      "static/chunks/6874-d27b54d0b28e3259.js",
-      "static/chunks/3065.191a2a08ece28989.js"
+      "static/css/_app-pages-browser_src_components_ui_Header_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_Header_tsx.js"
     ]
   },
   "app\\ClientLayout.tsx -> @/components/ui/NavigationLoading": {
-    "id": 8665,
+    "id": "app\\ClientLayout.tsx -> @/components/ui/NavigationLoading",
     "files": [
-      "static/chunks/8274-28f37f4da33333c3.js",
-      "static/chunks/8665.1fb3e281919d2ed7.js"
+      "static/chunks/_app-pages-browser_src_components_ui_NavigationLoading_tsx.js"
     ]
   },
   "app\\categories\\[slug]\\ClientCategoryPage.tsx -> @/components/ui/PriceRangeFilter": {
-    "id": 3245,
+    "id": "app\\categories\\[slug]\\ClientCategoryPage.tsx -> @/components/ui/PriceRangeFilter",
     "files": [
-      "static/css/59eae8a8b73fa49a.css",
-      "static/chunks/3245.6275a1c5e324dfb9.js"
-    ]
-  },
-  "app\\new-arrivals\\page.tsx -> @/components/ui/Button": {
-    "id": 3741,
-    "files": [
-      "static/css/a2b0beaae4391ea2.css",
-      "static/chunks/3741.701fdf6265e1545a.js"
+      "static/css/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.js"
     ]
   },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid": {
-    "id": 8118,
+    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid",
     "files": [
-      "static/css/f9f8e002c098a3df.css",
-      "static/chunks/8118.cfba62a149d3ea6f.js"
+      "static/css/_app-pages-browser_src_components_ui_ShopForKid_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_ShopForKid_tsx.js"
     ]
   },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForMen": {
-    "id": 8082,
+    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForMen",
     "files": [
-      "static/css/37c2a1c4a8be3f2e.css",
-      "static/chunks/8082.8df34d83672938aa.js"
+      "static/css/_app-pages-browser_src_components_ui_ShopForMen_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_ShopForMen_tsx.js"
     ]
   },
   "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForWomen": {
-    "id": 2700,
+    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForWomen",
     "files": [
-      "static/css/504098d42f600a17.css",
-      "static/chunks/2700.13b897a0a9111a85.js"
+      "static/css/_app-pages-browser_src_components_ui_ShopForWomen_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_ui_ShopForWomen_tsx.js"
     ]
   },
   "components\\ui\\ProductCard.tsx -> @/components/ClientOnly": {
-    "id": 7367,
+    "id": "components\\ui\\ProductCard.tsx -> @/components/ClientOnly",
     "files": [
-      "static/chunks/7367.95899110c2a368f9.js"
+      "static/chunks/_app-pages-browser_src_components_ClientOnly_tsx.js"
     ]
   }
 }

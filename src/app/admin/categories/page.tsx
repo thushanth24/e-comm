@@ -82,11 +82,21 @@ export default function AdminCategories() {
 
   const loadCategories = async () => {
     try {
+      console.log('Loading categories...');
       const tree = await fetchCategories();
+      console.log('Categories loaded successfully:', tree);
       setCategories(flattenCategories(tree));
-    } catch (error) {
-      console.error('Failed to load categories:', error);
-      toast.error('Failed to load categories');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'An unknown error occurred';
+        
+      console.error('Failed to load categories:', {
+        error: errorMessage,
+        details: error
+      });
+      
+      toast.error(`Failed to load categories: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -115,9 +125,9 @@ export default function AdminCategories() {
 
       // Check if the category has any products
       const { count: productCount } = await supabase
-        .from('products')
+        .from('Product')
         .select('*', { count: 'exact', head: true })
-        .eq('category_id', id);
+        .eq('categoryId', id);
 
       if (productCount && productCount > 0) {
         throw new Error('Cannot delete a category that has products');
@@ -185,8 +195,11 @@ export default function AdminCategories() {
                     </td>
                   </tr>
                 ) : (
-                  categories.map((category) => (
-                    <tr key={category.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  categories.map((category, index) => (
+                    <tr 
+                      key={`${category.id}-${category.level}-${index}`} 
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="ml-0" style={{ marginLeft: `${category.level * 24}px` }}>

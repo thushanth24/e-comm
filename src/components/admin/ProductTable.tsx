@@ -35,16 +35,16 @@ export default function ProductTable() {
     try {
       // First, get the product with its images
       const { data: product, error: fetchError } = await supabase
-        .from('products')
-        .select('*, product_images(*)')
+        .from('Product')
+        .select('*, ProductImage(*)')
         .eq('id', id)
         .single();
 
       if (fetchError) throw fetchError;
 
       // Delete associated images from storage
-      if (product?.product_images?.length > 0) {
-        for (const image of product.product_images) {
+      if (product?.ProductImage?.length > 0) {
+        for (const image of product.ProductImage) {
           try {
             if (image.url) {
               const path = image.url.split('/').pop();
@@ -60,7 +60,7 @@ export default function ProductTable() {
 
       // Delete the product (this will cascade delete the images in the database)
       const { error: deleteError } = await supabase
-        .from('products')
+        .from('Product')
         .delete()
         .eq('id', id);
 
@@ -132,19 +132,16 @@ export default function ProductTable() {
                   <td>
                     <div className={styles.productCell}>
                       <div className={styles.imageWrapper}>
-                        {product.images?.[0]?.storagePath ? (
+                        {product.images?.[0]?.public_url ? (
                           <Image
-                            src={product.images[0].storagePath.startsWith('http') 
-                              ? product.images[0].storagePath 
-                              : `https://jegaqqjdtmspoxlrwwaz.supabase.co/storage/v1/object/public/product-images/${product.images[0].storagePath}`}
+                            src={product.images[0].public_url}
                             alt={product.name}
                             width={64}
                             height={64}
                             className="object-cover rounded-md"
-                            onError={(e) => {
-                              // Fallback to placeholder if image fails to load
+                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = '/images/placeholder-product.jpg';
+                              target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2RjZGJkZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOC41IiBjeT0iOC41IiByPSIxLjUiLz48cGF0aCBkPSJNMjEgMTVIM2EyIDIgMCAwIDAtMiAydjRhMiAyIDAgMCAwIDIgMmgxOGEyIDIgMCAwIDAgMi0ydi00YTIgMiAwIDAgMC0yLTJ6Ii8+PC9zdmc+';
                             }}
                           />
                         ) : (

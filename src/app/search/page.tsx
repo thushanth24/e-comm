@@ -14,7 +14,7 @@ interface Product {
   id: number;
   slug: string;
   name: string;
-  images: { url: string }[];
+  images: { public_url: string }[];
 }
 
 type SearchParams = {
@@ -42,10 +42,10 @@ async function searchProducts(params: SearchParams) {
   const { query, category, minPrice, maxPrice } = params;
 
   let queryBuilder = supabase
-    .from('products')
+    .from('Product')
     .select(`
       *,
-      product_images(*)
+      ProductImage(*)
     `);
 
   // Apply text search if query exists
@@ -55,7 +55,7 @@ async function searchProducts(params: SearchParams) {
 
   // Apply category filter
   if (category) {
-    queryBuilder = queryBuilder.eq('category_id', parseInt(category));
+    queryBuilder = queryBuilder.eq('categoryId', parseInt(category));
   }
 
   // Apply price range filters
@@ -75,7 +75,7 @@ async function searchProducts(params: SearchParams) {
   // Map the response to match the expected format
   return products?.map(product => ({
     ...product,
-    images: product.product_images || []
+    images: product.ProductImage || []
   })) || [];
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { cache, useEffect, useState, Suspense } from 'react';
+import { cache, useEffect, useState, Suspense, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -38,7 +38,7 @@ interface Category {
 interface ProductImage {
   id: string;
   url: string;
-  product_id: string;
+  productId: string;
 }
 
 interface Product {
@@ -63,7 +63,7 @@ interface NewArrivalsRow {
   category_id: string;
   category_name: string;
   category_slug: string;
-  product_id: string;
+  productId: string;
   product_name: string;
   product_slug: string;
   product_description: string | null;
@@ -71,10 +71,10 @@ interface NewArrivalsRow {
   product_inventory: number;
   product_featured: boolean;
   product_created_at: string;
-  product_images: Array<{
+  ProductImage: Array<{
     id: string;
     url: string;
-    product_id: string;
+    productId: string;
   }>;
 }
 
@@ -82,63 +82,115 @@ const getNewArrivalsByCategory = cache(async (): Promise<CategoryWithProducts[]>
   noStore();
   
   try {
+    console.log('Fetching new arrivals...');
+    
+    // First, verify Supabase is properly initialized
+    if (!supabase) {
+      console.error('Supabase client is not initialized');
+      throw new Error('Database connection error');
+    }
+    
+    // Check if the function exists
+    const { data: functionExists, error: checkError } = await supabase
+      .rpc('get_new_arrivals_by_category', { category_limit: 1, products_per_category: 1 })
+      .select('*')
+      .limit(1);
+
+    if (checkError) {
+      console.error('Error checking RPC function:', checkError);
+      throw new Error(`Database function error: ${checkError.message}`);
+    }
+    
+    console.log('RPC function exists, proceeding with full query...');
+    
     // Fetch categories with their products in a single query using Supabase
     const { data, error } = await supabase
       .rpc('get_new_arrivals_by_category', {
         category_limit: 6,
         products_per_category: 4
-      }) as { data: NewArrivalsRow[] | null; error: any };
+      });
 
-    if (error) throw error;
-    if (!data) return [];
+    if (error) {
+      console.error('Supabase RPC error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw error;
+    }
+    
+    if (!data) {
+      console.log('No data returned from new arrivals query');
+      return [];
+    }
+    
+    console.log('Received data from RPC:', data);
     
     // Transform the data to match our expected format
     const categoriesMap = new Map<string, CategoryWithProducts>();
     
-    data.forEach((row) => {
-      const categoryId = row.category_id;
-      
-      if (!categoriesMap.has(categoryId)) {
-        categoriesMap.set(categoryId, {
-          id: categoryId,
-          name: row.category_name,
-          slug: row.category_slug,
-          products: []
-        });
-      }
-      
-      const category = categoriesMap.get(categoryId)!;
-      
-      // Only add the product if it has images and we don't have enough products yet
-      const productImages = Array.isArray(row.product_images) ? row.product_images : [];
-      
-      if (productImages.length > 0 && category.products.length < 4) {
-        category.products.push({
-          id: row.product_id,
-          name: row.product_name,
-          slug: row.product_slug,
-          description: row.product_description,
-          price: Number(row.product_price),
-          inventory: row.product_inventory,
-          featured: row.product_featured,
-          category_id: categoryId,
-          created_at: row.product_created_at,
-          images: productImages.map((img) => ({
-            id: img.id,
-            url: img.url,
-            product_id: row.product_id
-          }))
-        });
+    data.forEach((row: any, index: number) => {
+      try {
+        if (!row.category_id) {
+          console.warn('Row missing category_id:', row);
+          return;
+        }
+        
+        const categoryId = row.category_id;
+        
+        if (!categoriesMap.has(categoryId)) {
+          categoriesMap.set(categoryId, {
+            id: categoryId,
+            name: row.category_name || `Category ${categoryId}`,
+            slug: row.category_slug || `category-${categoryId}`,
+            products: []
+          });
+        }
+        
+        const category = categoriesMap.get(categoryId)!;
+        
+        // Only add the product if we don't have enough products yet
+        if (category.products.length < 4 && row.productId) {
+          const productImages = Array.isArray(row.ProductImage) 
+            ? row.ProductImage.filter((img: any) => img && img.url)
+            : [];
+            
+          category.products.push({
+            id: row.productId,
+            name: row.product_name || 'Unnamed Product',
+            slug: row.product_slug || `product-${row.productId}`,
+            description: row.product_description,
+            price: Number(row.product_price) || 0,
+            inventory: Number(row.product_inventory) || 0,
+            featured: Boolean(row.product_featured),
+            category_id: categoryId,
+            created_at: row.product_created_at || new Date().toISOString(),
+            images: productImages.map((img: any) => ({
+              id: img.id || `img-${Math.random().toString(36).substr(2, 9)}`,
+              url: img.url,
+              productId: row.productId
+            }))
+          });
+        }
+      } catch (rowError) {
+        console.error(`Error processing row ${index}:`, rowError, 'Row data:', row);
       }
     });
     
-    // Convert map to array and filter out categories with no products
-    return Array.from(categoriesMap.values())
+    const result = Array.from(categoriesMap.values())
       .filter(category => category.products.length > 0);
       
+    console.log('Processed categories:', result);
+    return result;
+      
   } catch (error) {
-    console.error('Error fetching new arrivals:', error);
-    return [];
+    console.error('Error in getNewArrivalsByCategory:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    throw error; // Re-throw to be caught by the component
   }
 });
 
@@ -150,22 +202,36 @@ function NewArrivalsContent() {
   const [categories, setCategories] = useState<CategoryWithProducts[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      console.log('Fetching new arrivals data...');
+      const data = await getNewArrivalsByCategory();
+      console.log('Fetched data:', data);
+      setCategories(data);
+    } catch (err) {
+      console.error('Error in fetchData:', {
+        error: err,
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined
+      });
+      
+      setError(err instanceof Error ? err.message : 'Failed to load new arrivals. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getNewArrivalsByCategory();
-        setCategories(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to load new arrivals:', err);
-        setError('Failed to load new arrivals. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
+  }, [fetchData, retryCount]);
+  
+  const handleRetry = useCallback(() => {
+    setRetryCount(prev => prev + 1);
   }, []);
 
   if (isLoading) {
@@ -182,17 +248,30 @@ function NewArrivalsContent() {
 
   if (error) {
     return (
-      <div className="container py-12 text-center">
-        <div className="bg-red-50 text-red-700 p-4 rounded-lg inline-block">
-          <p className="font-medium">Error loading content</p>
-          <p className="text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
-            variant="outline" 
-            className="mt-2"
-          >
-            Retry
-          </Button>
+      <div className="container py-12 px-4 text-center">
+        <div className="max-w-md mx-auto bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-6 rounded-lg shadow">
+          <h2 className="text-xl font-bold mb-2">Oops! Something went wrong</h2>
+          <p className="mb-4">We couldn't load the new arrivals. {error}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button 
+              onClick={handleRetry}
+              variant="primary"
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Try Again
+            </Button>
+            <Button 
+              asChild
+              variant="outline"
+            >
+              <Link href="/">
+                Back to Home
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-4 text-xs text-red-600 dark:text-red-400">
+            <p>If the problem persists, please contact support.</p>
+          </div>
         </div>
       </div>
     );
