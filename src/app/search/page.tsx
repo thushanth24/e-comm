@@ -4,12 +4,6 @@ import ProductList from '@/components/ui/ProductList';
 import PriceRangeFilter from '@/components/ui/PriceRangeFilter';
 import styles from '@/styles/SearchPage.module.scss';
 
-interface Category {
-  id: number;
-  slug: string;
-  name: string;
-}
-
 interface Product {
   id: number;
   slug: string;
@@ -23,20 +17,6 @@ type SearchParams = {
   minPrice?: string;
   maxPrice?: string;
 };
-
-async function getCategories(): Promise<Category[]> {
-  const { data: categories, error } = await supabase
-    .from('categories')
-    .select('id, slug, name')
-    .order('name', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching categories:', error);
-    return [];
-  }
-
-  return categories || [];
-}
 
 async function searchProducts(params: SearchParams) {
   const { query, category, minPrice, maxPrice } = params;
@@ -94,7 +74,6 @@ export async function generateMetadata({
 
   let title = 'Search Products';
   if (query) title = `Search: ${query}`;
-  else if (category) title = `Category: ${category}`;
 
   return {
     title: `${title} - StyleStore`,
@@ -120,18 +99,9 @@ export default async function SearchPage({
   
   const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined;
   const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined;
-  const [products, categories] = await Promise.all([
-    searchProducts({ query, category: categorySlug, minPrice: minPriceStr, maxPrice: maxPriceStr }),
-    getCategories(),
-  ]);
-
-  let title = 'All Products';
-  if (query) {
-    title = `Search Results for "${query}"`;
-  } else if (categorySlug) {
-    const categoryName = categories.find((c: Category) => c.slug === categorySlug)?.name || categorySlug;
-    title = `${categoryName} Products`;
-  }
+  const products = await searchProducts({ query, category: categorySlug, minPrice: minPriceStr, maxPrice: maxPriceStr });
+  
+  let title = query ? `Search Results for "${query}"` : 'All Products';
 
   return (
     <div className={styles.container}>
@@ -140,27 +110,6 @@ export default async function SearchPage({
       <div className={styles.layout}>
         {/* Filters */}
         <div className={styles.filters}>
-          <div className={styles.filterSection}>
-            <h3 className={styles.filterTitle}>Categories</h3>
-            <div>
-              <a
-                href="/search"
-                className={`${styles.filterLink} ${!categorySlug ? styles.active : ''}`}
-              >
-                All Categories
-              </a>
-              {categories.map((cat: Category) => (
-                <a
-                  key={cat.id}
-                  href={`/search?category=${cat.slug}${query ? `&query=${query}` : ''}`}
-                  className={`${styles.filterLink} ${categorySlug === cat.slug ? styles.active : ''}`}
-                >
-                  {cat.name}
-                </a>
-              ))}
-            </div>
-          </div>
-
           <PriceRangeFilter />
         </div>
 
