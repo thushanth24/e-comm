@@ -102,6 +102,7 @@
   // Skeleton state
   &.skeleton {
     min-height: 150px;
+    position: relative !important;
     
     .image {
       display: none;

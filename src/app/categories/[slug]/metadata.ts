@@ -1,7 +1,7 @@
 import { getCategoryBySlug } from '@/lib/supabase';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   if (!slug) {
     return {

@@ -14,7 +14,8 @@ export async function generateMetadata() {
 }
 
 export default async function EditCategoryPage({ params }: Props) {
-  const id = parseInt(params.id);
+  const { id: idParam } = await params;
+  const id = parseInt(idParam);
 
   if (!Number.isInteger(id)) {
     notFound();

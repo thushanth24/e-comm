@@ -74,7 +74,7 @@ export default function ProductCard({ product, priority = false, isActive = fals
   if (!mounted) {
     return (
       <div className={styles.card}>
-        <div className={`${styles.imageWrapper} ${styles.skeleton}`} />
+        <div className={`${styles.imageWrapper} ${styles.skeleton}`} style={{ position: 'relative', width: '100%', paddingTop: '100%' }} />
       </div>
     );
   }
@@ -82,8 +82,8 @@ export default function ProductCard({ product, priority = false, isActive = fals
   return (
     <ClientOnly>
       <div className={`${styles.card} ${isActive ? styles.active : ''}`}>
-        <div className={styles.imageWrapper}>
-          <ProductLink href={`/products/${product.slug}`}>
+        <div className={styles.imageWrapper} style={{ position: 'relative' }}>
+          <ProductLink href={`/products/${product.slug}`} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
             <Image
               src={currentImage}
               alt={product.name}

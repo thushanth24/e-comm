@@ -31,7 +31,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }) {
-  const slug = params.slug;
+  const slug = (await params).slug;
   const product = await getProduct(slug);
   
   if (!product) {
@@ -54,7 +54,7 @@ export default async function ProductPage({
   params: { slug: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const slug = params.slug;
+  const slug = (await params).slug;
   const product = await getProduct(slug);
   
   if (!product) {

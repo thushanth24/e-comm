@@ -52,7 +52,7 @@ export default async function CategoryPage({
   params,
   searchParams,
 }: PageProps) {
-  const { slug } = params;
+  const { slug } = await params;
   if (!slug) {
     console.error('No slug provided in URL');
     notFound();

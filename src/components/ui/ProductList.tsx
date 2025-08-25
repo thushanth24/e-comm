@@ -43,13 +43,14 @@ export default function ProductList({
         </div>
       ) : (
         <div className={styles.grid}>
-          {products.map((product) => {
+          {products.map((product, index) => {
             const { isActive, ...productData } = product;
             return (
               <ProductCard 
                 key={productData.id} 
                 product={productData} 
                 isActive={isActive}
+                priority={index < 4} // Priority for first 4 products
               />
             );
           })}

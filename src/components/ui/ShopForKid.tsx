@@ -80,6 +80,7 @@ export default function ShopForKid() {
             width={400}
             height={375}
             className={styles.imageBox}
+            priority
           />
         </div>
 
@@ -90,11 +91,19 @@ export default function ShopForKid() {
 
           <div className={styles.carouselOuter}>
             <div ref={trackRef} className={styles.carouselWrapper} style={trackStyle}>
-              {extendedImages.map((src, idx) => (
-                <div key={idx} className={styles.card}>
-                  <Image src={src} alt={`Fashion ${idx}`} width={300} height={400} />
-                </div>
-              ))}
+                             {extendedImages.map((src, idx) => (
+                 <div key={idx} className={styles.card}>
+                   <Image 
+                     src={src} 
+                     alt={`Fashion ${idx}`} 
+                     width={0}
+                     height={0}
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
+                     priority={idx < 3} // Priority for first 3 visible images
+                     style={{ width: '100%', height: 'auto' }}
+                   />
+                 </div>
+               ))}
             </div>
           </div>
 

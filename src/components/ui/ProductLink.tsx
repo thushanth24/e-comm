@@ -9,6 +9,7 @@ interface ProductLinkProps {
   href: string;
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
@@ -16,6 +17,7 @@ export function ProductLink({
   href, 
   children, 
   className = '',
+  style,
   onClick
 }: ProductLinkProps) {
   const { startTransition } = usePageTransition();
@@ -49,15 +51,14 @@ export function ProductLink({
   };
 
   return (
-    <div className="relative">
-      <Link
-        href={href}
-        className={className}
-        onClick={handleClick}
-        aria-current={isActive ? 'page' : undefined}
-      >
-        {children}
-      </Link>
-    </div>
+    <Link
+      href={href}
+      className={className}
+      onClick={handleClick}
+      aria-current={isActive ? 'page' : undefined}
+      style={{ position: 'relative', display: 'block', ...style }}
+    >
+      {children}
+    </Link>
   );
 }

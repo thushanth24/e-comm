@@ -28,22 +28,22 @@ interface Category {
 }
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams: Record<string, string | string[] | undefined>;
+  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 // GET a single category by ID
 export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const categoryId = parseInt(params.id);
+    const categoryId = parseInt((await params).id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 // PATCH update a category
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const categoryId = parseInt(params.id);
+    const categoryId = parseInt((await params).id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(

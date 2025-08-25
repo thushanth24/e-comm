@@ -7,10 +7,11 @@ type Props = {
 };
 
 export default async function TestPage({ params }: Props) {
+  const { id } = await params;
   return (
     <div>
       <h1>Test Page</h1>
-      <p>ID: {params.id}</p>
+      <p>ID: {id}</p>
     </div>
   );
 }

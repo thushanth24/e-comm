@@ -62,6 +62,7 @@ type PageProps = {
 };
 
 export default async function EditProductPage({ params }: PageProps) {
+  const { id } = await params;
   const [{ data: product }, categories] = await Promise.all([
     supabase
       .from('Product')
@@ -69,7 +70,7 @@ export default async function EditProductPage({ params }: PageProps) {
         *,
         ProductImage(*)
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single(),
     getCategories(),
   ]);
