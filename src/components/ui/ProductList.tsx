@@ -5,15 +5,7 @@ import { PackageOpen, ArrowRight } from 'lucide-react';
 import styles from '@/styles/ProductList.module.scss';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  price: number;
-  images: { public_url: string }[];
-  inventory: number;
-}
+import { Product } from './ProductCard';
 
 interface ProductListProps {
   products: Product[];
@@ -51,9 +43,16 @@ export default function ProductList({
         </div>
       ) : (
         <div className={styles.grid}>
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {products.map((product) => {
+            const { isActive, ...productData } = product;
+            return (
+              <ProductCard 
+                key={productData.id} 
+                product={productData} 
+                isActive={isActive}
+              />
+            );
+          })}
         </div>
       )}
       

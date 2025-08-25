@@ -18,18 +18,6 @@
       "static/css/app/page.css",
       "static/chunks/app/page.js"
     ],
-    "/products/[slug]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/products/[slug]/page.css",
-      "static/chunks/app/products/[slug]/page.js"
-    ],
-    "/search/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/search/page.css",
-      "static/chunks/app/search/page.js"
-    ],
     "/categories/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

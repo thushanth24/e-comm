@@ -28,20 +28,22 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <Providers>
       <div className="min-h-screen flex flex-col">
-        <Suspense fallback={<div className="h-16 bg-background" />}>
-          <Header />
-        </Suspense>
+        <Header />
         
-        <main className="flex-1">
-          <Suspense fallback={<div className="h-64 flex items-center justify-center">Loading...</div>}>
+        <main className="flex-1 relative">
+          {/* Main content with loading state */}
+          <Suspense fallback={
+            <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          }>
             {children}
           </Suspense>
         </main>
         
-        <Suspense fallback={null}>
-          <Footer />
-        </Suspense>
+        <Footer />
         
+        {/* Navigation loading overlay */}
         <NavigationLoading />
       </div>
     </Providers>

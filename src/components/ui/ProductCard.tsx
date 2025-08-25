@@ -1,12 +1,19 @@
 'use client';
 
-import Image from 'next/image';
-import { formatPrice } from '@/lib/utils';
-import { Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import { Eye } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 import styles from '@/styles/ProductCard.module.scss';
 import { ProductLink } from './ProductLink';
-import dynamic from 'next/dynamic';
+
+// Helper function to safely convert price to number
+const toNumber = (price: string | number): number => {
+  if (typeof price === 'number') return price;
+  const num = parseFloat(price);
+  return isNaN(num) ? 0 : num;
+};
 
 // Dynamically import ClientOnly with no SSR
 const ClientOnly = dynamic(() => import('@/components/ClientOnly'), { ssr: false });
@@ -21,19 +28,23 @@ const preloadImages = (images: string[]) => {
   });
 };
 
-interface ProductCardProps {
-  product: {
-    id: number;
-    name: string;
-    slug: string;
-    price: number;
-    images: { public_url: string }[];
-    inventory: number;
-  };
-  priority?: boolean;
+export interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  price: number | string;
+  images: { public_url: string }[];
+  inventory: number;
+  isActive?: boolean;
 }
 
-export default function ProductCard({ product, priority = false }: ProductCardProps) {
+interface ProductCardProps {
+  product: Product;
+  priority?: boolean;
+  isActive?: boolean;
+}
+
+export default function ProductCard({ product, priority = false, isActive = false }: ProductCardProps) {
   // Use a simple SVG as fallback instead of a file
   const fallbackImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2RjZGJkZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOC41IiBjeT0iOC41IiByPSIxLjUiLz48cGF0aCBkPSJNMjEgMTUhLTEyLjVhLjUuNSAwIDAgMC0uNS41djMuNWEyIDIgMCAwIDAgMiAyaDlhMiAyIDAgMCAwIDItMnYtNHoiLz48L3N2Zz4=';
   
@@ -70,7 +81,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
 
   return (
     <ClientOnly>
-      <div className={styles.card}>
+      <div className={`${styles.card} ${isActive ? styles.active : ''}`}>
         <div className={styles.imageWrapper}>
           <ProductLink href={`/products/${product.slug}`}>
             <Image
@@ -110,7 +121,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             </h3>
           </ProductLink>
           <div className={styles.footer}>
-            <p className={styles.price}>{formatPrice(product.price)}</p>
+            <p className={styles.price}>{formatPrice(toNumber(product.price))}</p>
             {product.inventory <= 0 && (
               <span className={styles.outOfStock}>Out of Stock</span>
             )}

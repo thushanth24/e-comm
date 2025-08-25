@@ -3,6 +3,11 @@
   max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
+  overflow-x: hidden;
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
 
   .breadcrumbContainer {
     margin-bottom: 1.25rem;
@@ -14,6 +19,10 @@
     font-size: 1.25rem;
     color: #4b5563;
     font-weight: 500;
+
+    @media (max-width: 640px) {
+      font-size: 1rem;
+    }
     
     ol {
       display: flex;
@@ -61,6 +70,10 @@
       font-weight: 600;
       font-size: 1.25rem;
       padding: 0.25rem 0;
+
+      @media (max-width: 640px) {
+        font-size: 1.125rem;
+      }
     }
   }
 
@@ -70,6 +83,10 @@
     margin: 1rem 0 1.5rem;
     position: relative;
     display: inline-block;
+
+    @media (max-width: 640px) {
+      font-size: 1.5rem;
+    }
 
     &::after {
       content: '';
@@ -85,7 +102,7 @@
 
   .subcategories {
     margin: 0 0 1.5rem;
-    width: 105%;
+    width: 100%;
     position: relative;
     overflow-x: auto;
     border-radius: 0.75rem;
@@ -285,7 +302,7 @@ a.subcategoryLink.active,
     flex-direction: column;
     gap: 1.25rem;
     position: relative;
-    width: 80%;
+    width: 100%;
     order: 2; /* Move filters below products on mobile */
 
     @media (min-width: 720px) {
@@ -295,7 +312,7 @@ a.subcategoryLink.active,
 
   .products {
     order: 1; /* Show products first on mobile */
-    width: 80%;
+    width: 100%;
 
     @media (min-width: 720px) {
       order: 2; /* Reset to normal order on desktop */

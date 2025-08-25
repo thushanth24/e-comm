@@ -8,9 +8,9 @@ export default function NavigationLoading() {
   const [mounted, setMounted] = useState(false);
   const { isLoading } = usePageTransition();
 
-  // This ensures the component only renders on the client
   useEffect(() => {
     setMounted(true);
+    return () => setMounted(false);
   }, []);
 
   if (!mounted) return null;
@@ -19,33 +19,13 @@ export default function NavigationLoading() {
     <AnimatePresence mode="wait">
       {isLoading && (
         <motion.div
-          className="fixed inset-0 z-[9999] pointer-events-none"
-          initial={{ clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)' }}
-          animate={{
-            clipPath: [
-              'polygon(0 0, 100% 0, 100% 0, 0 0)',
-              'polygon(0 0, 100% 0, 100% 30%, 0 20%)',
-              'polygon(0 0, 100% 0, 100% 60%, 0 40%)',
-              'polygon(0 0, 100% 0, 100% 100%, 0 90%)',
-              'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-            ]
-          }}
-          exit={{
-            clipPath: [
-              'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-              'polygon(0 0, 100% 0, 100% 90%, 0 100%)',
-              'polygon(0 40%, 100% 60%, 100% 100%, 0 100%)',
-              'polygon(0 20%, 100% 30%, 100% 100%, 0 100%)',
-              'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-            ]
-          }}
-          transition={{
-            duration: 1.2,
-            ease: [0.4, 0, 0.2, 1],
-            times: [0, 0.3, 0.6, 0.9, 1]
-          }}
+          className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
         >
-          <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80" />
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
         </motion.div>
       )}
     </AnimatePresence>

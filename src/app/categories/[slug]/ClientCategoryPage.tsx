@@ -5,8 +5,20 @@ import { useState, useEffect, useMemo, useTransition, useCallback } from 'react'
 import dynamic from 'next/dynamic';
 import { InstantLink } from '@/components/ui/InstantLink';
 import { useCategoryData } from '@/hooks/useCategoryData';
+import { ProductListSkeleton } from '@/components/ui/ProductSkeleton';
 import styles from '@/styles/CategoryPage.module.scss';
 import { useRouter } from 'next/router';
+
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  price: number | string;
+  images: { public_url: string }[];
+  inventory: number;
+  categoryId?: number;
+  isActive?: boolean;
+}
 
 // Dynamically import heavy components
 const ProductList = dynamic(
@@ -65,28 +77,26 @@ export default function ClientCategoryPage({
   const { categoryInfo, products } = useMemo(() => {
     if (categoryData) {
       return {
-        categoryInfo: {
-          ...categoryData,
-          children: categoryData.childCategories || [],
-          parent: categoryData.parentCategory
-        },
-        products: categoryData.products || []
+        categoryInfo: categoryData.categoryInfo,
+        products: categoryData.products
       };
     }
-    return initialData || { categoryInfo: {} as CategoryInfo, products: [] };
+    return initialData || { categoryInfo: null, products: [] };
   }, [categoryData, initialData]);
-  
-  // Show loading state only if we don't have initial data and are loading
+
+  // Handle category not found
+  useEffect(() => {
+    if (!isLoading && !categoryInfo) {
+      router.replace('/404');
+    }
+  }, [categoryInfo, isLoading, router]);
+
+  // Show loading state
   if (isLoading && !initialData) {
     return (
       <div className="container mx-auto p-4">
-        <div className="h-8 w-64 bg-gray-200 rounded mb-6" />
-        <div className="h-10 w-1/3 bg-gray-200 rounded mb-8" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-gray-100 rounded-lg h-80" />
-          ))}
-        </div>
+        <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-6"></div>
+        <ProductListSkeleton count={8} />
       </div>
     );
   }
@@ -179,21 +189,26 @@ export default function ClientCategoryPage({
     return items;
   }, [categoryInfo.parentHierarchy, categoryInfo.name, categoryInfo.slug]);
 
-  // Memoize filtered products
+  // Memoize filtered products with active state
   const filteredProducts = useMemo(() => {
     if (!products?.length) return [];
     
     const minPriceFilter = searchParams?.get('minPrice');
     const maxPriceFilter = searchParams?.get('maxPrice');
     
-    return products.filter((product: {price: string | number}) => {
-      const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
-      const minPrice = minPriceFilter ? parseFloat(minPriceFilter) : -Infinity;
-      const maxPrice = maxPriceFilter ? parseFloat(maxPriceFilter) : Infinity;
-      
-      return price >= minPrice && price <= maxPrice;
-    });
-  }, [products, searchParams]);
+    return (products as Product[])
+      .filter((product) => {
+        const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+        const minPrice = minPriceFilter ? parseFloat(minPriceFilter) : -Infinity;
+        const maxPrice = maxPriceFilter ? parseFloat(maxPriceFilter) : Infinity;
+        
+        return price >= minPrice && price <= maxPrice;
+      })
+      .map((product) => ({
+        ...product,
+        isActive: product.categoryId === categoryInfo?.id
+      }));
+  }, [products, searchParams, categoryInfo?.id]);
 
   return (
     <div className={`${styles.container} ${isPending ? styles.pageTransition : ''}`}>
@@ -217,7 +232,10 @@ export default function ClientCategoryPage({
         </div>
         <div className={styles.products}>
           <ProductList 
-            products={filteredProducts}
+            products={filteredProducts.map(({ isActive, ...product }) => ({
+              ...product,
+              isActive: isActive ?? false
+            }))} 
             emptyMessage="No products found in this category"
           />
         </div>
