@@ -24,6 +24,7 @@ export default function Header() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
   const categories = [
+    { href: '/', label: 'HOME' },
     { href: '/new-arrivals', label: 'NEW ARRIVALS' },
     { href: '/best-sellers', label: 'BEST SELLERS' },
     { href: '/categories/women', label: 'WOMEN' },

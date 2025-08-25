@@ -12,12 +12,6 @@
       "static/css/app/loading.css",
       "static/chunks/app/loading.js"
     ],
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/page.css",
-      "static/chunks/app/page.js"
-    ],
     "/categories/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -34,6 +28,17 @@
       "static/chunks/main-app.js",
       "static/css/app/categories/[slug]/page.css",
       "static/chunks/app/categories/[slug]/page.js"
+    ],
+    "/api/test-db/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/test-db/route.js"
+    ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/page.css",
+      "static/chunks/app/page.js"
     ]
   }
 }

@@ -6,6 +6,10 @@
     margin: 5rem 0;
     padding: 0;
   }
+
+  @media (max-width: 480px) {
+    margin: 2rem 0;
+  }
 }
 
 .topText {
@@ -19,6 +23,15 @@
     padding: 0;
   }
 
+  @media (max-width: 768px) {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 15px;
+  }
+
   h2 {
     font-size: 1.8rem;
     margin-bottom: 1rem;
@@ -26,12 +39,27 @@
     @media (min-width: 768px) {
       font-size: 2.5rem;
     }
+
+    @media (max-width: 480px) {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
   }
 
   p {
     font-size: 1rem;
     margin-bottom: 1.5rem;
     color: #555;
+
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
   }
 
   a {
@@ -42,6 +70,16 @@
     border-radius: 6px;
     text-decoration: none;
     transition: background-color 0.3s ease;
+
+    @media (max-width: 768px) {
+      padding: 0.625rem 1.25rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
 
     &:hover {
       background-color: #e61a1a;
@@ -62,6 +100,14 @@
     flex-direction: row;
     margin-left: 60px;
   }
+
+  @media (max-width: 768px) {
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    gap: 1rem;
+  }
 }
 
 .leftImage {
@@ -74,6 +120,14 @@
     padding: 0;
     min-width: 400px;
     margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 350px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 300px;
   }
 }
 
@@ -94,6 +148,14 @@
     min-width: calc(100% - 460px);
     margin-top: 0;
   }
+
+  @media (max-width: 768px) {
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    margin-top: 1rem;
+  }
 }
 
 .carouselOuter {
@@ -104,6 +166,10 @@
   @media (min-width: 768px) {
     padding: 0 3rem;
   }
+
+  @media (max-width: 480px) {
+    padding: 0 1.5rem;
+  }
 }
 
 .carouselWrapper {
@@ -111,6 +177,14 @@
   gap: 16px;
   transition: transform 0.5s ease-in-out;
   width: max-content;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 }
 
 .card {
@@ -125,6 +199,10 @@
 
   @media (min-width: 1024px) {
     flex: 0 0 300px;
+  }
+
+  @media (max-width: 480px) {
+    flex: 0 0 calc(100vw - 3rem);
   }
 }
 
@@ -158,6 +236,12 @@
     width: 50px;
     height: 50px;
   }
+
+  @media (max-width: 480px) {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
 }
 
 .leftBtn {
@@ -166,6 +250,10 @@
   @media (min-width: 1024px) {
     left: -2rem;
   }
+
+  @media (max-width: 480px) {
+    left: -0.5rem;
+  }
 }
 
 .rightBtn {
@@ -173,5 +261,9 @@
 
   @media (min-width: 1024px) {
     right: -2rem;
+  }
+
+  @media (max-width: 480px) {
+    right: -0.5rem;
   }
 }
