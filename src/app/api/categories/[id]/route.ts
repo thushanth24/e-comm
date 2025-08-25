@@ -181,7 +181,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE a category
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const categoryId = parseInt(params.id);
+    const categoryId = parseInt((await params).id);
     
     if (isNaN(categoryId)) {
       return NextResponse.json(
