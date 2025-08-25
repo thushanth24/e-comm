@@ -4,7 +4,6 @@ export async function fetchProducts(filters = {}) {
   try {
     return await getProducts(filters);
   } catch (error) {
-    console.error('Error fetching products:', error);
     return [];
   }
 }
@@ -13,7 +12,6 @@ export async function fetchProductBySlug(slug: string) {
   try {
     return await getProductBySlug(slug);
   } catch (error) {
-    console.error('Error fetching product:', error);
     return null;
   }
 }
@@ -22,7 +20,6 @@ export async function fetchCategories() {
   try {
     return await getCategories();
   } catch (error) {
-    console.error('Error fetching categories:', error);
     return [];
   }
 }

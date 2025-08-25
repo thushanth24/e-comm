@@ -4,13 +4,25 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import styles from '@/styles/PriceRangeFilter.module.scss';
 
-export default function PriceRangeFilter() {
+interface PriceRangeFilterProps {
+  initialMinPrice?: number;
+  initialMaxPrice?: number;
+}
+
+export default function PriceRangeFilter({ 
+  initialMinPrice,
+  initialMaxPrice 
+}: PriceRangeFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+  const [minPrice, setMinPrice] = useState(
+    initialMinPrice !== undefined ? String(initialMinPrice) : (searchParams.get('minPrice') || '')
+  );
+  const [maxPrice, setMaxPrice] = useState(
+    initialMaxPrice !== undefined ? String(initialMaxPrice) : (searchParams.get('maxPrice') || '')
+  );
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {

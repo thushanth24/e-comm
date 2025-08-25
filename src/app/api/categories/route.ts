@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
     const { data: category, error: insertError } = await supabaseAdmin.rpc('create_category', {
       p_name: validatedData.name,
       p_slug: validatedData.slug,
-      p_parent_id: body.parentId ? parseInt(body.parentId, 10) : null
+      p_parentId: body.parentId ? parseInt(body.parentId, 10) : null
     });
 
     if (insertError) {

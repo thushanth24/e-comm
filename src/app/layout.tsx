@@ -17,9 +17,18 @@ export const metadata: Metadata = {
   },
   description: 'Discover trendy clothing and accessories for men, women, and kids at StyleStore.',
   keywords: 'fashion, clothing, accessories, mens clothing, womens clothing, kids clothing',
-  icons: {
-    icon: '/favicon.ico',
-  },
+  icons: [
+    {
+      rel: 'icon',
+      type: 'image/x-icon',
+      url: '/favicon.ico',
+    },
+    {
+      rel: 'icon',
+      type: 'image/svg+xml',
+      url: '/favicon.ico', // Fallback to .ico if .svg is not available
+    },
+  ],
 };
 
 export const viewport: Viewport = {

@@ -8,10 +8,18 @@ type FileUploadOptions = {
   cacheControl?: string;
 };
 
+// Validate environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing required Supabase environment variables. Please check your .env.local file.');
+}
+
 // Initialize Supabase client with auto-refresh and persistence
 export const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       persistSession: true,
@@ -22,6 +30,20 @@ export const supabase = createClient<Database>(
     },
   }
 );
+
+// Test the connection when the module loads
+(async () => {
+  try {
+    const { data, error } = await supabase.from('Category').select('*').limit(1);
+    if (error) {
+      console.error('Supabase connection test failed:', error);
+    } else {
+      console.log('Supabase connected successfully');
+    }
+  } catch (error) {
+    console.error('Error testing Supabase connection:', error);
+  }
+})();
 
 // Storage functions
 export const uploadFile = async (file: File, options: FileUploadOptions = {}) => {
@@ -214,7 +236,9 @@ export interface Category {
   id: number;
   name: string;
   slug: string;
-  parentId: string | null;
+  parentId: number | null;
+  parent?: Category;
+  children?: Category[];
   createdAt: string;
   updatedAt: string;
 }
@@ -230,12 +254,43 @@ export const getCategories = async (): Promise<Category[]> => {
     return [];
   }
 
-  // Ensure consistent typing with parentId as string | null
-  return (data || []).map(category => ({
-    ...category,
-    parentId: category.parent_id?.toString() || null,
-    children: []
-  }));
+  if (!data) return [];
+
+  // Create a map of categories by ID for easy lookup
+  const categoryMap = new Map<number, Category>();
+  const rootCategories: Category[] = [];
+  
+  // First pass: create all category objects
+  data.forEach(cat => {
+    const category: Category = {
+      ...cat,
+      parentId: cat.parentId ? Number(cat.parentId) : null,
+      children: []
+    };
+    categoryMap.set(cat.id, category);
+  });
+
+  // Second pass: build the hierarchy and set parent references
+  data.forEach(cat => {
+    const category = categoryMap.get(cat.id);
+    if (!category) return;
+    
+    if (category.parentId) {
+      const parent = categoryMap.get(category.parentId);
+      if (parent) {
+        // Set up the parent reference
+        category.parent = parent;
+        // Add to parent's children
+        parent.children = parent.children || [];
+        parent.children.push(category);
+      }
+    } else {
+      rootCategories.push(category);
+    }
+  });
+
+  // Return the root categories with their children
+  return rootCategories;
 };
 
 export const getCategoryBySlug = async (slug: string): Promise<Category | null> => {
@@ -275,3 +330,177 @@ export const formatProductForForm = (product: any) => {
 
 // Re-export storage functions for backward compatibility
 export { uploadFile as uploadImage };
+
+export interface CategoryWithProducts extends Category {
+  products: Array<{
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    price: number;
+    inventory: number;
+    isFeatured: boolean;
+    isArchived: boolean;
+    categoryId: number;
+    createdAt: string;
+    updatedAt: string;
+    ProductImage: Array<{
+      id: number;
+      publicUrl: string;
+      isPrimary: boolean;
+      position: number;
+    }>;
+  }>;
+  parentCategory: Category | null;
+  childCategories: Category[];
+}
+
+/**
+ * Fetches a category with its products, parent, and children in a single query
+ */
+export const getCategoryWithProducts = async (slug: string): Promise<CategoryWithProducts | null> => {
+  console.log(`[getCategoryWithProducts] Fetching category with slug: ${slug}`);
+  
+  try {
+    // First, get the category
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('Category')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (categoryError) {
+      console.error('Error fetching category:', categoryError);
+      throw categoryError;
+    }
+
+    if (!categoryData) {
+      console.error('No category found with slug:', slug);
+      return null;
+    }
+
+    console.log(`[getCategoryWithProducts] Found category: ${categoryData.name} (ID: ${categoryData.id})`);
+
+    // Get all category IDs to fetch products from (current + children)
+    const getAllCategoryIds = async (parentId: number): Promise<number[]> => {
+      const { data: childCategories, error } = await supabase
+        .from('Category')
+        .select('id')
+        .eq('parentId', parentId);
+
+      if (error) {
+        console.error('Error fetching child categories:', error);
+        throw error;
+      }
+
+      if (!childCategories || childCategories.length === 0) {
+        return [parentId];
+      }
+
+      // Recursively get all child category IDs
+      const childIds = await Promise.all(
+        childCategories.map(child => getAllCategoryIds(child.id))
+      );
+      
+      return [parentId, ...childIds.flat()];
+    };
+
+    // Get all category IDs including children
+    const categoryIds = await getAllCategoryIds(categoryData.id);
+    console.log(`[getCategoryWithProducts] Fetching products from category IDs:`, categoryIds);
+
+    // Get products from all relevant categories
+    const { data: products, error: productsError } = await supabase
+      .from('Product')
+      .select(`
+        *,
+        ProductImage(*)
+      `)
+      .in('categoryId', categoryIds);  // Match products in any of the category IDs
+
+    if (productsError) {
+      console.error('Error fetching products:', productsError);
+      throw productsError;
+    }
+
+    console.log(`[getCategoryWithProducts] Found ${products?.length || 0} products`);
+
+    // Get child categories for the current category
+    const { data: childCategories, error: childCategoriesError } = await supabase
+      .from('Category')
+      .select('*')
+      .eq('parentId', categoryData.id);
+
+    if (childCategoriesError) {
+      console.error('Error fetching child categories:', childCategoriesError);
+      throw childCategoriesError;
+    }
+
+    const safeChildCategories = childCategories || [];
+    console.log(`[getCategoryWithProducts] Found ${safeChildCategories.length} child categories`);
+
+    // Get parent category if exists
+    let parentCategory = null;
+    if (categoryData.parentId) {
+      const { data: parentData, error: parentError } = await supabase
+        .from('Category')
+        .select('*')
+        .eq('id', categoryData.parentId)
+        .single();
+
+      if (parentError) {
+        console.error('Error fetching parent category:', parentError);
+        throw parentError;
+      }
+
+      parentCategory = parentData;
+    }
+
+    // Transform the data to match our types
+    const formattedCategory: CategoryWithProducts = {
+      ...categoryData,
+      parentId: categoryData.parentId || null,
+      children: [],
+      products: (products || []).map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        description: product.description || null,
+        price: product.price,
+        inventory: product.inventory || 0,
+        isFeatured: product.isFeatured || product.featured || false,
+        isArchived: false, // Archived status not supported in current schema
+        categoryId: product.categoryId || product.category_id,
+        createdAt: product.created_at,
+        updatedAt: product.updated_at || new Date().toISOString(),
+        ProductImage: (product.ProductImage || []).map((img: any) => ({
+          id: img.id,
+          publicUrl: img.public_url,
+          isPrimary: img.is_primary || false,
+          position: 0
+        }))
+      })),
+      parentCategory: parentCategory ? {
+        id: parentCategory.id,
+        name: parentCategory.name,
+        slug: parentCategory.slug,
+        parentId: parentCategory.parentId || null,
+        createdAt: parentCategory.createdAt,
+        updatedAt: parentCategory.updatedAt
+      } : null,
+      childCategories: safeChildCategories.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        parentId: cat.parentId || null,
+        createdAt: cat.createdAt,
+        updatedAt: cat.updatedAt
+      }))
+    };
+
+    return formattedCategory;
+  } catch (error) {
+    console.error('Error in getCategoryWithProducts:', error);
+    return null;
+  }
+};

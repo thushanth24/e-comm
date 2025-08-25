@@ -13,8 +13,7 @@ interface CategoryFormData {
   id?: number;
   name: string;
   slug: string;
-  description: string;
-  parentId?: number | null;
+  parentId: number | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -27,7 +26,7 @@ interface CategoryItem {
   id: number;
   name: string;
   slug: string;
-  parent_id?: number | null;
+  parentId?: number | null;
   children?: CategoryItem[];
   products_count?: number;
 }
@@ -37,20 +36,23 @@ interface FlattenedCategory {
   name: string;
   slug: string;
   level: number;
+  path: string[];
 }
 
-// Flatten categories for the dropdown
-function flattenCategories(categories: CategoryItem[] = [], level: number = 0): FlattenedCategory[] {
+// Flatten categories for the dropdown with hierarchical paths
+function flattenCategories(categories: CategoryItem[] = [], level: number = 0, path: string[] = []): FlattenedCategory[] {
   return categories.flatMap(category => {
+    const currentPath = [...path, category.name];
     const current: FlattenedCategory = { 
       id: category.id, 
-      name: '— '.repeat(level) + category.name,
+      name: category.name,
       slug: category.slug,
-      level: level
+      level: level,
+      path: currentPath
     };
     
     const children = category.children ? 
-      flattenCategories(category.children, level + 1) : [];
+      flattenCategories(category.children, level + 1, currentPath) : [];
       
     return [current, ...children];
   });
@@ -60,6 +62,7 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [flattenedCategories, setFlattenedCategories] = useState<FlattenedCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +71,6 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
   const [formData, setFormData] = useState<Omit<CategoryFormData, 'id' | 'createdAt' | 'updatedAt'>>({
     name: initialData?.name || '',
     slug: initialData?.slug || '',
-    description: initialData?.description || '',
     parentId: initialData?.parentId ?? null,
   });
 
@@ -115,8 +117,8 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         data?.forEach(category => {
           const node = categoriesMap.get(category.id);
           if (node) {
-            if (category.parent_id) {
-              const parent = categoriesMap.get(category.parent_id);
+            if (category.parentId) {
+              const parent = categoriesMap.get(category.parentId);
               if (parent) {
                 parent.children = parent.children || [];
                 parent.children.push(node);
@@ -128,6 +130,9 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         });
         
         setCategories(rootCategories);
+        // Generate flattened categories with paths for the dropdown
+        const flattened = flattenCategories(rootCategories);
+        setFlattenedCategories(flattened);
       } catch (err) {
         setError('Failed to load categories. Please try again later.');
         console.error('Error fetching categories:', err);
@@ -144,7 +149,7 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
 
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'parent_id' ? (value ? parseInt(value) : null) : value,
+      [name]: name === 'parentId' ? (value ? parseInt(value) : null) : value,
     }));
 
     if (formErrors[name]) {
@@ -181,67 +186,82 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
     setSuccess(null);
     setIsSubmitting(true);
 
-    try {
-      const slug = formData.slug || generateSlug(formData.name);
-      
-      // Prepare data for validation
-      const formDataWithSlug = {
-        ...formData,
-        slug,
-        name: formData.name.trim(),
-        description: formData.description ? formData.description.trim() : null,
-        parentId: formData.parentId || null,
-      };
+    const slug = formData.slug || generateSlug(formData.name);
+    
+    // Prepare data for validation
+    const formDataWithSlug = {
+      ...formData,
+      slug: slug.trim(),
+      name: formData.name.trim(),
+      parentId: formData.parentId,
+    };
 
+    try {
       // Validate with zod schema
       const validatedData = categorySchema.parse(formDataWithSlug);
 
-      // Prepare data for Supabase
-      // Note: Using double quotes for case-sensitive column names
+      // Check for slug uniqueness
+      if (!initialData?.id || validatedData.slug !== initialData.slug) {
+        const { count } = await supabase
+          .from('Category')
+          .select('*', { count: 'exact', head: true })
+          .eq('slug', validatedData.slug);
+          
+        if (count && count > 0) {
+          throw new Error('A category with this slug already exists');
+        }
+      }
+
+      // Prepare data for Supabase - match exact column names
       const categoryData = {
         name: validatedData.name,
         slug: validatedData.slug,
-        description: validatedData.description,
         "parentId": validatedData.parentId, // Case-sensitive column name
+        "updatedAt": new Date().toISOString()
       };
 
-      try {
-        let response;
-        if (initialData?.id) {
-          // Update existing category
-          response = await supabase
-            .from('Category')
-            .update(categoryData)
-            .eq('id', initialData.id)
-            .select()
-            .single();
-        } else {
-          // Create new category - try with direct SQL first
-          console.log('Attempting to create category with data:', categoryData);
+      if (initialData?.id) {
+        // Update existing category
+        const { error } = await supabase
+          .from('Category')
+          .update(categoryData)
+          .eq('id', initialData.id);
           
-          // First, try with the direct SQL approach
-          const { data, error } = await supabase.rpc('create_category', {
-            p_name: categoryData.name,
-            p_slug: categoryData.slug,
-            p_parent_id: categoryData.parentId || null
-          });
-          
-          if (error) throw error;
-          return; // Success, exit early
+        if (error) {
+          console.error('Update error:', error);
+          throw new Error(error.message || 'Failed to update category');
         }
+      } else {
+        // For new category, explicitly exclude the ID to let the database auto-generate it
+        const { id, ...newCategoryData } = categoryData as any;
+        newCategoryData["createdAt"] = new Date().toISOString();
         
-        if (response?.error) {
-          console.log('Raw error response:', JSON.stringify(response.error, null, 2));
-          throw new Error(response.error.message || 'Database error occurred');
+        const { data, error } = await supabase
+          .from('Category')
+          .insert(newCategoryData)
+          .select()
+          .single();
+          
+        if (error) {
+          console.error('Create error:', error);
+          
+          // Handle specific error for duplicate ID
+          if (error.code === '23505' && error.message.includes('Category_pkey')) {
+            // Retry without ID if there was a conflict
+            const { data: retryData, error: retryError } = await supabase
+              .from('Category')
+              .insert({ ...newCategoryData, id: undefined })
+              .select()
+              .single();
+              
+            if (retryError) {
+              throw new Error('Failed to create category. Please try again.');
+            }
+            return;
+          }
+          
+          throw new Error(error.message || 'Failed to create category');
         }
-      } catch (error) {
-        console.error('Detailed error in category operation:');
-        console.error('Error object:', error);
-        if (error instanceof Error) {
-          console.error('Error message:', error.message);
-          console.error('Error stack:', error.stack);
-        }
-        throw error;
       }
 
       setSuccess(initialData?.id 
@@ -253,13 +273,7 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         router.push('/admin/categories');
       }, 1500);
     } catch (err) {
-      console.error('Detailed error saving category:', {
-        error: err,
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined,
-        formData,
-        initialData
-      });
+      console.error('Error saving category:', err);
       
       if (err instanceof z.ZodError) {
         // Handle validation errors
@@ -272,8 +286,9 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
         });
         setFormErrors(errors);
       } else {
+        // Handle other errors
         const errorMessage = err instanceof Error 
-          ? `Error: ${err.message}` 
+          ? err.message 
           : 'An unexpected error occurred while saving the category';
         setError(errorMessage);
       }
@@ -323,17 +338,7 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
           {formErrors.slug && <p className="text-red-500 text-sm">{formErrors.slug}</p>}
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="description" className="block text-sm font-medium">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-md ${formErrors.description ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {formErrors.description && <p className="text-red-500 text-sm">{formErrors.description}</p>}
-        </div>
+
 
         <div className="space-y-2 md:col-span-2">
           <label htmlFor="parentId" className="block text-sm font-medium">Parent Category</label>
@@ -347,18 +352,60 @@ export default function CategoryForm({ initialData }: CategoryFormProps) {
                 parentId: value ? Number(value) : null,
               });
             }}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-white"
             disabled={isLoading}
           >
             <option value="">None (Top-level)</option>
-            {categories
-              .filter((cat) => cat.id !== initialData?.id)
-              .map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
+            {flattenedCategories
+              .filter(cat => !initialData?.id || cat.id !== initialData.id) // Don't allow selecting self as parent
+              .map((cat) => {
+                const indent = '— '.repeat(cat.level);
+                const path = cat.path.slice(0, -1).join(' > '); // Exclude the current category name
+                const displayName = path ? `${indent}${cat.name} (${path})` : `${indent}${cat.name}`;
+                
+                return (
+                  <option 
+                    key={cat.id} 
+                    value={cat.id}
+                    className={cat.level > 0 ? 'pl-4' : ''}
+                    style={{ paddingLeft: `${cat.level * 20 + 8}px` }}
+                  >
+                    {displayName}
+                  </option>
+                );
+              })}
           </select>
+          <style jsx>{`
+            select option {
+              padding: 8px 12px;
+            }
+            
+            /* Add indentation for nested categories */
+            select option[style*="padding-left"] {
+              padding-left: 24px !important;
+            }
+            
+            select option[style*="padding-left="][style*="40"] {
+              padding-left: 32px !important;
+            }
+            
+            select option[style*="padding-left="][style*="60"] {
+              padding-left: 40px !important;
+            }
+            
+            /* Improve dropdown appearance */
+            select {
+              background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+              background-position: right 0.5rem center;
+              background-repeat: no-repeat;
+              background-size: 1.5em 1.5em;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              -webkit-appearance: none;
+              -moz-appearance: none;
+              appearance: none;
+            }
+          `}</style>
         </div>
       </div>
 

@@ -43,10 +43,7 @@ type ProductWithRelations = Database['public']['Tables']['Product']['Row'] & {
 
 export const getProducts = async (filters: ProductFilters = {}) => {
   try {
-    console.log('Fetching products with filters:', filters);
-    
     // Start building the query
-    console.log('Creating Supabase query...');
     let query = supabase
       .from('Product')
       .select(`
@@ -57,27 +54,20 @@ export const getProducts = async (filters: ProductFilters = {}) => {
 
     // Apply filters if any
     if (filters.categoryId) {
-      console.log('Applying category filter:', filters.categoryId);
       query = query.eq('categoryId', filters.categoryId);
     }
     if (filters.featured) {
-      console.log('Filtering featured products');
       query = query.eq('featured', true);
     }
     if (filters.limit) {
-      console.log('Applying limit:', filters.limit);
       query = query.limit(filters.limit);
     }
     if (filters.excludeId) {
-      console.log('Excluding product ID:', filters.excludeId);
       query = query.neq('id', filters.excludeId);
     }
 
     // Execute the query
-    console.log('Executing query...');
     const result = await query.order('createdAt', { ascending: false });
-    
-    console.log('Query executed. Status:', result.status, 'Status Text:', result.statusText);
     
     if (result.error) {
       console.error('Full error object:', JSON.stringify(result.error, null, 2));
@@ -115,7 +105,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
 
 export const getProductBySlug = async (slug: string) => {
   try {
-    console.log('Fetching product by slug:', slug);
+
     
     const { data, error, status, statusText } = await supabase
       .from('Product')
@@ -127,29 +117,20 @@ export const getProductBySlug = async (slug: string) => {
       .eq('slug', slug)
       .single();
 
-    console.log('Product by slug query result:', { 
-      data: !!data, 
-      error, 
-      status, 
-      statusText 
-    });
-
     if (error) {
       if (error.code === 'PGRST116') { // Not found
-        console.log('Product not found for slug:', slug);
         return null;
       }
       console.error('Error fetching product by slug:', {
         message: error.message,
+        code: error.code,
         details: error.details,
         hint: error.hint,
-        code: error.code
       });
       throw error;
     }
 
     if (!data) {
-      console.warn('No product found for slug:', slug);
       return null;
     }
 
@@ -169,7 +150,7 @@ interface CategoryWithCount {
   id: number;
   name: string;
   slug: string;
-  parent_id: number | null;
+  parentId: number | null;
   description: string | null;
   created_at: string;
   updated_at: string;
@@ -179,40 +160,30 @@ interface CategoryWithCount {
 
 // Simple function to count products per category
 async function getProductCounts(): Promise<Array<{ categoryId: number; count: number }>> {
-  console.log('Getting product counts...');
+
   
   try {
     // First try to get counts using the RPC function
-    console.log('Attempting to use RPC function...');
+
     const { data: rpcData, error: rpcError, status: rpcStatus } = await supabase
       .rpc('get_products_count_by_category')
       .select()
       .limit(1000);
     
-    console.log('RPC function result:', { rpcData, rpcError, rpcStatus });
+
     
     if (!rpcError && rpcData) {
-      console.log('Using RPC function results');
       return rpcData;
     }
     
-    console.log('Falling back to manual counting...');
-    
     // Fallback to manual counting
-    console.log('Starting manual count of products by category...');
     try {
       const { data, error, status, statusText, count } = await supabase
         .from('Product') // Make sure this matches your actual table name
         .select('categoryId', { count: 'exact' })
         .not('categoryId', 'is', null);
         
-      console.log('Manual count query result:', { 
-        data: data?.length, 
-        error, 
-        status, 
-        statusText,
-        count 
-      });
+
       
       if (error) {
         console.error('Error in manual count query:', {
@@ -241,7 +212,7 @@ async function getProductCounts(): Promise<Array<{ categoryId: number; count: nu
         count
       }));
       
-      console.log('Processed product counts:', result);
+
       return result;
     } catch (error) {
       console.error('Error in manual counting process:', error);
@@ -272,7 +243,7 @@ async function getProductCounts(): Promise<Array<{ categoryId: number; count: nu
  */
 export const getCategories = async (): Promise<CategoryWithCount[]> => {
   try {
-    console.log('Initializing Supabase categories fetch...');
+
     
     // Verify Supabase is initialized
     if (!supabase) {
@@ -281,41 +252,25 @@ export const getCategories = async (): Promise<CategoryWithCount[]> => {
       throw error;
     }
 
-    // Log Supabase configuration for debugging
-    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-    
     // Get all categories with explicit column selection
     const { data, error, status, statusText, count } = await supabase
       .from('Category')
       .select('*', { count: 'exact' })
       .order('name', { ascending: true });
       
-    console.log('Supabase query result:', {
-      data: data?.length,
-      error,
-      status,
-      statusText,
-      count
-    });
-    
     if (error) {
       console.error('Supabase categories query error:', {
-        status,
-        statusText,
-        error,
-        timestamp: new Date().toISOString(),
-        config: {
-          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-          table: 'Category'
-        }
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
       });
       throw error;
     }
-    
+
     const categories = data || [];
-    console.log(`Fetched ${categories.length} categories`);
-    if (!categories.length) {
-      console.warn('No categories found in the database');
+
+    if (categories.length === 0) {
       return [];
     }
 
@@ -340,7 +295,7 @@ if (item?.categoryId) {
         id: category.id,
         name: category.name,
         slug: category.slug,
-        parent_id: category.parentId, // Map parentId to parent_id
+        parentId: category.parentId,
         description: category.description || null,
         created_at: category.createdAt, // Map createdAt to created_at
         updated_at: category.updatedAt, // Map updatedAt to updated_at
@@ -354,7 +309,7 @@ if (item?.categoryId) {
     categories.forEach(category => {
       const categoryNode = categoriesMap.get(category.id);
       if (categoryNode) {
-        if (category.parentId) { // Use parentId instead of parent_id
+        if (category.parentId) {
           const parent = categoriesMap.get(category.parentId);
           if (parent) {
             parent.children.push(categoryNode);

@@ -67,7 +67,7 @@ export interface Database {
           id: number;
           name: string;
           slug: string;
-          parentId: string | null;
+          parentId: number | null;
           createdAt: string;
           updatedAt: string;
         };
@@ -75,7 +75,7 @@ export interface Database {
           id?: number;
           name: string;
           slug: string;
-          parentId?: string | null;
+          parentId?: number | null;
           createdAt?: string;
           updatedAt?: string;
         };
@@ -83,7 +83,7 @@ export interface Database {
           id?: number;
           name?: string;
           slug?: string;
-          parentId?: string | null;
+          parentId?: number | null;
           createdAt?: string;
           updatedAt?: string;
         };

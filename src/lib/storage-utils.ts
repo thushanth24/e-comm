@@ -57,7 +57,6 @@ export const serverUploadFile = async (
       });
 
     if (error) {
-      console.error('Storage upload error:', error);
       return { path: '', url: '', error };
     }
 
@@ -71,7 +70,6 @@ export const serverUploadFile = async (
       url: publicUrl,
     };
   } catch (error) {
-    console.error('Error in serverUploadFile:', error);
     return {
       path: '',
       url: '',
@@ -110,7 +108,6 @@ export const clientUploadFile = async (
 
     return await response.json();
   } catch (error) {
-    console.error('Error in clientUploadFile:', error);
     return {
       path: '',
       url: '',
@@ -144,17 +141,12 @@ export const deleteFile = async (
       .remove([path]);
 
     if (error) {
-      console.error('Storage delete error:', error);
       return { success: false, error };
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Error in deleteFile:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error : new Error(String(error)),
-    };
+    return { success: false, error: error instanceof Error ? error : new Error(String(error)) };
   }
 };
 
@@ -183,16 +175,11 @@ export const getSignedUrl = async (
       .createSignedUrl(path, expiresIn);
 
     if (error) {
-      console.error('Error creating signed URL:', error);
       return { signedUrl: null, error };
     }
 
     return { signedUrl: data.signedUrl, error: null };
   } catch (error) {
-    console.error('Error in getSignedUrl:', error);
-    return {
-      signedUrl: null,
-      error: error instanceof Error ? error : new Error(String(error)),
-    };
+    return { signedUrl: null, error: error instanceof Error ? error : new Error(String(error)) };
   }
 };

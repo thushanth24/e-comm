@@ -28,7 +28,7 @@ async function getCategories(): Promise<Category[]> {
   // Map database fields to our TypeScript interface
   const mappedCategories: Category[] = categories.map(category => ({
     ...category,
-    parentId: category.parent_id?.toString() || null, // Ensure parentId is string | null
+    parentId: category.parentId ? Number(category.parentId) : null,
     children: []
   }));
 
@@ -44,13 +44,10 @@ async function getCategories(): Promise<Category[]> {
   // Second pass: build tree structure
   mappedCategories.forEach(category => {
     if (category.parentId) {
-      const parentId = parseInt(category.parentId);
-      if (!isNaN(parentId)) {
-        const parent = categoryMap.get(parentId);
-        if (parent) {
-          parent.children = parent.children || [];
-          parent.children.push(category);
-        }
+      const parent = categoryMap.get(category.parentId);
+      if (parent) {
+        parent.children = parent.children || [];
+        parent.children.push(category);
       }
     } else {
       rootCategories.push(category);

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { getCategoryPath } from '@/lib/categoryPath';
+import { getCategoryPath as getCategoryPathHelper } from '@/lib/categoryPath';
 import { productSchema } from '@/lib/validations';
 import { generateSlug } from '@/lib/utils';
 import { supabase } from '@/lib/supabase-client';
@@ -17,7 +17,7 @@ export interface Category {
   id: number;
   name: string;
   slug: string;
-  parentId: string | null;
+  parentId: number | null;
   children?: Category[];
   createdAt?: string;
   updatedAt?: string;
@@ -192,11 +192,17 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
 
       // At this point, we know validation was successful
       const validatedData = validationResult.data;
-      const slug = validatedData.slug || generateSlug(validatedData.name);
+      // Ensure we have a valid slug
+      const slug = (validatedData.slug || generateSlug(validatedData.name)).toLowerCase().trim();
+      
+      if (!slug) {
+        throw new Error('Could not generate a valid slug');
+      }
 
+      // Prepare product data for new product
       const productData = {
         name: validatedData.name,
-        slug,
+        slug: slug,
         price: validatedData.price,
         description: validatedData.description,
         inventory: validatedData.inventory,
@@ -234,16 +240,25 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
           throw updateError;
         }
       } else {
-        // Create new product
+        // Create new product - don't include id field to let database handle it
         const { data, error: createError } = await supabase
           .from('Product')
-          .insert([productData])
+          .insert([{
+            ...productData,
+            // Ensure we're not sending any undefined values
+            name: productData.name.trim(),
+            description: productData.description.trim()
+          }])
           .select()
           .single();
 
         if (createError) {
           console.error('Error creating product:', createError);
-          throw createError;
+          console.error('Error details:', createError.details);
+          console.error('Error code:', createError.code);
+          console.error('Error message:', createError.message);
+          console.error('Form data being sent:', productData);
+          throw new Error(`Failed to create product: ${createError.message}`);
         }
         productId = data.id;
       }
@@ -419,45 +434,37 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
     }
   };
 
-  function getParentName(catId: number, cats: Category[]): string {
-    const cat = cats.find(c => c.id === catId);
-    if (!cat) return '';
-    return cat.name;
-  }
-
-  function getCategoryPath(catId: number, cats: Category[]): string {
-    const cat = cats.find(c => c.id === catId);
-    if (!cat) return '';
-    
-    let path = cat.name;
-    let current = cat;
-    
-    while (current.parentId) {
-      // Convert parentId to number for comparison since id is a number
-      const parent = cats.find(c => c.id.toString() === current.parentId);
-      if (!parent) break;
-      path = `${parent.name} > ${path}`;
-      current = parent;
-    }
-    
-    return path;
-  }
-
-  const renderCategoryOptions = (cats: Category[]): React.ReactNode[] => {
-    const flat: Category[] = [];
-    function flatten(categories: Category[]) {
-      for (const cat of categories) {
-        flat.push(cat);
-        if (cat.children) flatten(cat.children);
-      }
-    }
-    flatten(cats);
-    return flat.map(cat => (
-      <option key={cat.id} value={cat.id}>
-        {getCategoryPath(cat.id, flat)}
-      </option>
-    ));
+  // Function to render categories with hierarchy and indentation
+  const renderCategoryOptions = (categoryList: Category[], level = 0): JSX.Element[] => {
+    return categoryList.flatMap(category => {
+      const indent = '— '.repeat(level);
+      const option = (
+        <option key={category.id} value={category.id}>
+          {indent} {category.name}
+        </option>
+      );
+      
+      // Recursively render children if they exist
+      const childOptions = category.children?.length 
+        ? renderCategoryOptions(category.children, level + 1)
+        : [];
+      
+      return [option, ...childOptions];
+    });
   };
+  
+  // Flatten categories for sorting by name
+  const flattenCategories = (categoryList: Category[]): Category[] => {
+    return categoryList.flatMap(category => [
+      category,
+      ...(category.children ? flattenCategories(category.children) : [])
+    ]);
+  };
+  
+  // Sort categories by name
+  const sortedCategories = [...categories].sort((a, b) => 
+    a.name.localeCompare(b.name)
+  );
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
@@ -521,8 +528,9 @@ export default function ProductForm({ initialData, categories, onSuccess }: Prod
             name="categoryId" 
             value={formData.categoryId || ''} 
             onChange={handleInputChange}
+            className="w-full p-2 border rounded"
           >
-            {renderCategoryOptions(categories)}
+            {renderCategoryOptions(sortedCategories)}
           </select>
           {formErrors.categoryId && <p className={styles.error}>{formErrors.categoryId}</p>}
         </div>

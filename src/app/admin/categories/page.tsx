@@ -12,10 +12,11 @@ interface CategoryItem {
   id: number;
   name: string;
   slug: string;
-  parent_id: number | null;
+  parentId: number | null;
   children?: CategoryItem[];
   products_count: number;
   level: number;
+  path?: string;
   description?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -61,15 +62,18 @@ async function fetchCategories(): Promise<CategoryItem[]> {
   }
 }
 
-// Flatten categories into a displayable list with indentation
-function flattenCategories(categories: CategoryItem[], level = 0): CategoryItem[] {
+// Flatten categories into a displayable list with full paths
+function flattenCategories(categories: CategoryItem[], level = 0, path: string[] = []): CategoryItem[] {
   return categories.flatMap((category) => {
+    const currentPath = [...path, category.name];
     const current: CategoryItem = { 
       ...category, 
       level,
+      path: currentPath.join(' > '),
       children: undefined // Remove children from the flattened items
     };
-    const children = category.children ? flattenCategories(category.children, level + 1) : [];
+    const children = category.children ? 
+      flattenCategories(category.children, level + 1, currentPath) : [];
     return [current, ...children];
   });
 }
@@ -117,7 +121,7 @@ export default function AdminCategories() {
       const { count: subcategoryCount } = await supabase
         .from('categories')
         .select('*', { count: 'exact', head: true })
-        .eq('parent_id', id);
+        .eq('parentId', id);
 
       if (subcategoryCount && subcategoryCount > 0) {
         throw new Error('Cannot delete a category that has subcategories');
@@ -158,89 +162,116 @@ export default function AdminCategories() {
       <div className={styles.header}>
         <div>
           <h1>Categories</h1>
-          <p>Manage product categories</p>
+          <p>Manage product categories and their hierarchy</p>
         </div>
-        <Link href="/admin/categories/new" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+        <Link 
+          href="/admin/categories/new" 
+          className={styles.addButton}
+        >
           <Plus size={16} />
           Add New Category
         </Link>
       </div>
+      
       {loading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="p-8 text-center">
-            <div className="inline-flex items-center justify-center space-x-3">
-              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-gray-700 font-medium">Loading categories...</span>
-            </div>
-            <p className="mt-2 text-sm text-gray-500">Please wait while we fetch your categories</p>
-          </div>
+        <div className={styles.loadingState}>
+          <div className={styles.spinner}></div>
+          <p>Loading categories...</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        <div className={styles.tableWrapper}>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Products</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.length === 0 ? (
+                <tr className={styles.emptyRow}>
+                  <td colSpan={4}>
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                      </div>
+                      <h3>No categories found</h3>
+                      <p>Get started by creating your first category</p>
+                      <Link href="/admin/categories/new" className={styles.addButton}>
+                        <Plus size={16} />
+                        Add New Category
+                      </Link>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                {categories.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                      No categories found. <Link href="/admin/categories/new" className="text-blue-600 hover:underline">Create one</Link> to get started.
-                    </td>
-                  </tr>
-                ) : (
-                  categories.map((category, index) => (
-                    <tr 
-                      key={`${category.id}-${category.level}-${index}`} 
-                      className="hover:bg-gray-50 dark:hover:bg-gray-800"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="ml-0" style={{ marginLeft: `${category.level * 24}px` }}>
-                            {category.level > 0 && '— '}
-                            {category.name}
-                          </div>
+              ) : (
+                categories.map((category, index) => (
+                  <tr key={`${category.id}-${category.level}-${index}`}>
+                    <td data-label="Name" data-level={category.level}>
+                      <div className={`${styles.categoryName} ${styles[`level-${category.level}`]}`}>
+                        <svg 
+                          className={`${styles.folderIcon} ${category.level === 0 ? styles.folderIconMain : ''}`} 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          width="20" 
+                          height="20" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth={category.level === 0 ? '2' : '1.5'}
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                        >
+                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <div className={styles.categoryPathContainer}>
+                          <span className={styles.categoryPath}>
+                            {category.path}
+                          </span>
+                          {category.level === 0 && <span className={styles.mainCategoryBadge}>Main Category</span>}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {category.slug}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      </div>
+                    </td>
+                    <td data-label="Slug">
+                      <code>{category.slug}</code>
+                    </td>
+                    <td data-label="Products">
+                      <span className={styles.productCount}>
                         {category.products_count || 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      </span>
+                    </td>
+                    <td data-label="Actions">
+                      <div className={styles.actions}>
                         <Link 
                           href={`/admin/categories/${category.id}/edit`}
-                          className="inline-flex items-center text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                          className="edit"
                           title="Edit category"
                         >
                           <Edit size={16} />
                         </Link>
                         <button
                           onClick={() => handleDelete(category.id)}
-                          className="inline-flex items-center text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                          className="delete"
                           disabled={deletingId === category.id}
                           title="Delete category"
                         >
                           {deletingId === category.id ? (
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent"></span>
+                            <span className={styles.spinner}></span>
                           ) : (
                             <Trash2 size={16} />
                           )}
                         </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

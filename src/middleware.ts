@@ -27,9 +27,7 @@ try {
     prefix: 'ratelimit:middleware',
   });
 } catch (error) {
-  console.warn('Failed to initialize Upstash Redis, falling back to in-memory rate limiting');
-  
-  // Fallback in-memory rate limiter
+  // Fallback to in-memory rate limiter
   ratelimit = {
     async limit(identifier: string) {
       const now = Date.now();

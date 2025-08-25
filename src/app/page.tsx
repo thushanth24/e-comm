@@ -6,6 +6,7 @@ import ProductList from '@/components/ui/ProductList';
 import { ShoppingBag, Package, Award, CreditCard, Tag, ChevronRight } from 'lucide-react';
 import styles from '@/styles/Home.module.scss';
 import ShopSectionsWrapper from '@/components/ShopSectionsWrapper';
+import HeroImage from '@/components/HeroImage';
 
 // Revalidate this page every 60 seconds
 export const revalidate = 60;
@@ -55,14 +56,7 @@ export default async function Home() {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroImageWrapper}>
-          <Image
-            src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1600&auto=format&fit=crop"
-            alt="Fashion Collection"
-            fill
-            priority
-            sizes="(max-width: 1200px) 100vw, 90vw"
-            className={styles.heroImage}
-          />
+          <HeroImage />
           <div className={styles.heroContent}>
             <div className={styles.heroTextWrapper}>
               <h1 className={styles.heroTitle}>
