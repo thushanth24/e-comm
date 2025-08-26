@@ -12,7 +12,8 @@ import {
   Github,
   Linkedin,
   Mail,
-  Globe
+  Globe,
+  ChevronDown
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
@@ -49,11 +50,13 @@ const developerSocials: SocialLink[] = [
     color: 'hover:text-green-500',
   },
 ];
+
 import styles from '@/styles/Footer.module.scss';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [year, setYear] = useState<number | null>(null);
+  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     setYear(new Date().getFullYear());
@@ -67,56 +70,71 @@ export default function Footer() {
     }
   };
 
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
-         
-        {/* Footer Links */}
-        <div className={styles.footerLinks}>
-          <div>
+        {/* Main Footer Content */}
+        <div className={styles.footerContent}>
+          {/* Brand Section */}
+          <div className={styles.brandSection}>
             <Link href="/" className={styles.logo}>
               SRI RAM SELECTION
             </Link>
-            <p>
+            <p className={styles.brandDescription}>
               Providing quality clothing and accessories for men, women, and
               kids since 2023.
             </p>
             <div className={styles.socials}>
-              <a href="#" aria-label="Facebook">
+              <a href="#" aria-label="Facebook" className={styles.socialLink}>
                 <Facebook size={18} />
               </a>
-              <a href="#" aria-label="Instagram">
+              <a href="#" aria-label="Instagram" className={styles.socialLink}>
                 <Instagram size={18} />
               </a>
-              <a href="#" aria-label="Twitter">
+              <a href="#" aria-label="Twitter" className={styles.socialLink}>
                 <Twitter size={18} />
               </a>
             </div>
           </div>
 
-          <div>
-            <h3>Shop</h3>
-            <ul>
+          {/* Shop Section */}
+          <div className={styles.footerSection}>
+            <button 
+              className={styles.sectionHeader}
+              onClick={() => toggleSection('shop')}
+              aria-expanded={expandedSections.shop}
+            >
+              <h3>Shop</h3>
+              <ChevronDown className={`${styles.chevron} ${expandedSections.shop ? styles.expanded : ''}`} />
+            </button>
+            <ul className={`${styles.sectionList} ${expandedSections.shop ? styles.expanded : ''}`}>
               <li>
-                <Link href="/categories/men">
+                <Link href="/categories/men" className={styles.footerLink}>
                   <ArrowRight size={14} />
                   <span>Men's Clothing</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/women">
+                <Link href="/categories/women" className={styles.footerLink}>
                   <ArrowRight size={14} />
                   <span>Women's Clothing</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/kid">
+                <Link href="/categories/kid" className={styles.footerLink}>
                   <ArrowRight size={14} />
                   <span>Kids' Clothing</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/accessories">
+                <Link href="/categories/accessories" className={styles.footerLink}>
                   <ArrowRight size={14} />
                   <span>Accessories</span>
                 </Link>
@@ -124,19 +142,35 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h3>Company</h3>
-            <ul>
-              <li><Link href="#">About Us</Link></li>
-              <li><Link href="#">Contact</Link></li>
-              <li><Link href="#">Careers</Link></li>
-              <li><Link href="#">Terms & Conditions</Link></li>
+          {/* Company Section */}
+          <div className={styles.footerSection}>
+            <button 
+              className={styles.sectionHeader}
+              onClick={() => toggleSection('company')}
+              aria-expanded={expandedSections.company}
+            >
+              <h3>Company</h3>
+              <ChevronDown className={`${styles.chevron} ${expandedSections.company ? styles.expanded : ''}`} />
+            </button>
+            <ul className={`${styles.sectionList} ${expandedSections.company ? styles.expanded : ''}`}>
+              <li><Link href="#" className={styles.footerLink}>About Us</Link></li>
+              <li><Link href="#" className={styles.footerLink}>Contact</Link></li>
+              <li><Link href="#" className={styles.footerLink}>Careers</Link></li>
+              <li><Link href="#" className={styles.footerLink}>Terms & Conditions</Link></li>
             </ul>
           </div>
 
-          <div className={styles.developerSection}>
-            <h3>Developed By</h3>
-            <div className={styles.developerContent}>
+          {/* Developer Section */}
+          <div className={`${styles.footerSection} ${styles.developerSection}`}>
+            <button 
+              className={styles.sectionHeader}
+              onClick={() => toggleSection('developer')}
+              aria-expanded={expandedSections.developer}
+            >
+              <h3>Developed By</h3>
+              <ChevronDown className={`${styles.chevron} ${expandedSections.developer ? styles.expanded : ''}`} />
+            </button>
+            <div className={`${styles.developerContent} ${expandedSections.developer ? styles.expanded : ''}`}>
               {/* Logo */}
               <img 
                 src="/images/logo2.PNG" 
@@ -144,19 +178,18 @@ export default function Footer() {
                 className={styles.developerLogo} 
               />
 
-              {/* Name and Contact */}
-              <div className={styles.contactRow}>
-                <div className={styles.contactInfo}>
-                  <span className={styles.developerName}>axzell innovations</span>
-                  <span className={styles.phoneNumber}>
+              {/* Contact Info */}
+              <div className={styles.contactInfo}>
+                <span className={styles.developerName}>axzell innovations</span>
+                <div className={styles.contactDetails}>
+                  <span className={styles.contactItem}>
                     <Phone className={styles.contactIcon} size={14} />
                     +94 (768) 180-977
                   </span>
-                  <span className={styles.phoneNumber}>
+                  <span className={styles.contactItem}>
                     <Mail className={styles.contactIcon} size={14} />
                     social@axzellin.com
                   </span>
-
                   <a 
                     href="https://www.axzellin.com" 
                     target="_blank" 
@@ -184,6 +217,11 @@ export default function Footer() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className={styles.bottomBar}>
+          <p>&copy; {year} SRI RAM SELECTION. All rights reserved.</p>
         </div>
       </div>
     </footer>
