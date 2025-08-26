@@ -219,10 +219,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className={styles.bottomBar}>
-          <p>&copy; {year} SRI RAM SELECTION. All rights reserved.</p>
-        </div>
+       
       </div>
     </footer>
   );

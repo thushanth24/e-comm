@@ -62,55 +62,45 @@ export default function ShopForWomen() {
 
   return (
     <section className={styles.shopForWomen}>
-      <div className={styles.topText}>
-        <h2>SHOP FOR WOMEN</h2>
-        <p>
-          Discover the latest in women's fashion with our exclusive collection. From chic dresses
-          to stylish accessories, find everything you need to elevate your wardrobe.
-        </p>
-        <Link href="/categories/women" className={styles.primaryBtn}>
-          Shop Now
-        </Link>
-      </div>
-
-      <div className={styles.bottomSection}>
-        <div className={styles.leftImage}>
-          <Image
-            src="https://axzell-saas.s3.eu-north-1.amazonaws.com/home/r1.avif"
-            alt="Women's Fashion"
-            width={400}
-            height={375}
-            className={styles.imageBox}
-            priority
-          />
+      <div className={styles.container}>
+        <div className={styles.topText}>
+          <h2>SHOP FOR WOMEN</h2>
+          <p>
+            Discover the latest in women's fashion with our exclusive collection. From chic dresses
+            to stylish accessories, find everything you need to elevate your wardrobe.
+          </p>
+          <Link href="/categories/women">
+            Shop Now
+          </Link>
         </div>
 
-        <div className={styles.shopRight}>
-          <button className={`${styles.navBtn} ${styles.leftBtn}`} onClick={handlePrev}>
-            &#8592;
-          </button>
+        <div className={styles.bottomSection}>
+          <div className={styles.shopRight}>
+            <button className={`${styles.navBtn} ${styles.leftBtn}`} onClick={handlePrev}>
+              &#8592;
+            </button>
 
-          <div className={styles.carouselOuter}>
-            <div ref={trackRef} className={styles.carouselWrapper} style={trackStyle}>
-                             {extendedImages.map((src, idx) => (
-                 <div key={idx} className={styles.card}>
-                   <Image 
-                     src={src} 
-                     alt={`Fashion ${idx}`} 
-                     width={0}
-                     height={0}
-                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
-                     priority={idx < 3} // Priority for first 3 visible images
-                     style={{ width: '100%', height: 'auto' }}
-                   />
-                 </div>
-               ))}
+            <div className={styles.carouselOuter}>
+              <div ref={trackRef} className={styles.carouselWrapper} style={trackStyle}>
+                {extendedImages.map((src, idx) => (
+                  <div key={idx} className={styles.card}>
+                                         <Image 
+                       src={src} 
+                       alt={`Fashion ${idx}`} 
+                       width={280}
+                       height={280}
+                       sizes="(max-width: 768px) 240px, (max-width: 480px) 200px, 280px"
+                       priority={idx < 3}
+                     />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <button className={`${styles.navBtn} ${styles.rightBtn}`} onClick={handleNext}>
-            &#8594;
-          </button>
+            <button className={`${styles.navBtn} ${styles.rightBtn}`} onClick={handleNext}>
+              &#8594;
+            </button>
+          </div>
         </div>
       </div>
     </section>
