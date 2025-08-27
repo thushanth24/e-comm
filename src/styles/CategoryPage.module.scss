@@ -303,19 +303,19 @@ a.subcategoryLink.active,
     gap: 1.25rem;
     position: relative;
     width: 100%;
-    order: 2; /* Move filters below products on mobile */
+    order: 1; /* Show filters first on mobile */
 
     @media (min-width: 720px) {
-      order: 1; /* Reset to normal order on desktop */
+      order: 1; /* Keep filters first on desktop */
     }
   }
 
   .products {
-    order: 1; /* Show products first on mobile */
+    order: 2; /* Show products after filters on mobile */
     width: 100%;
 
     @media (min-width: 720px) {
-      order: 2; /* Reset to normal order on desktop */
+      order: 2; /* Keep products after filters on desktop */
     }
   }
 }

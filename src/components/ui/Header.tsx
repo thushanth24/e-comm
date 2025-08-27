@@ -41,6 +41,86 @@ export default function Header() {
     setIsMenuOpen(false);
   };
 
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    if (isMenuOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      
+      // Prevent scroll on both html and body
+      document.documentElement.classList.add('menu-open');
+      document.body.classList.add('menu-open');
+      
+      // Set body styles for scroll prevention
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      
+      // Store scroll position for restoration
+      document.body.dataset.scrollY = scrollY.toString();
+      
+      // Add event listeners to prevent scroll
+      document.addEventListener('touchmove', preventScroll, { passive: false });
+      document.addEventListener('wheel', preventScroll, { passive: false });
+      document.addEventListener('scroll', preventScroll, { passive: false });
+    } else {
+      // Restore scroll on both html and body
+      const scrollY = document.body.dataset.scrollY;
+      
+      document.documentElement.classList.remove('menu-open');
+      document.body.classList.remove('menu-open');
+      
+      // Restore body styles
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      
+      // Remove event listeners
+      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('wheel', preventScroll);
+      document.removeEventListener('scroll', preventScroll);
+      
+      // Restore scroll position
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY));
+      }
+      
+      // Clean up
+      delete document.body.dataset.scrollY;
+    }
+
+    return () => {
+      // Cleanup on unmount
+      document.documentElement.classList.remove('menu-open');
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('wheel', preventScroll);
+      document.removeEventListener('scroll', preventScroll);
+      delete document.body.dataset.scrollY;
+    };
+  }, [isMenuOpen]);
+
   // Close menu when pressing Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -110,10 +190,14 @@ export default function Header() {
           role="button"
           tabIndex={-1}
           aria-label="Close menu"
+          onTouchMove={(e) => e.preventDefault()}
         />
 
         {/* Mobile Menu */}
-        <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
+        <div 
+          className={`${styles.mobileMenu} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}
+          onTouchMove={(e) => e.stopPropagation()}
+        >
           <div className={styles.mobileMenuHeader}>
             <h2>Menu</h2>
             <button 

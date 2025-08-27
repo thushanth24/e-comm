@@ -9,6 +9,26 @@
   background-color: rgba(255, 255, 255, 0.85);
 }
 
+/* Global body scroll prevention */
+body.menu-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* Additional scroll prevention for mobile */
+html.menu-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* Announcement Bar */
 .announcementBar {
   background: linear-gradient(90deg, #000000, #2c3e50);
@@ -43,10 +63,23 @@
 
   .mobileMenuButton {
     display: none;
-    background: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     cursor: pointer;
-    color: #000;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
   }
 
   .logo {
@@ -193,23 +226,39 @@
   100% { background-position: 200% 50%; }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
 /* Mobile Menu */
 .mobileMenu {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  max-width: 100vw;
+  width: 320px;
+  max-width: 85vw;
   height: 100vh;
-  background-color: #fff;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   z-index: 9999;
-  transition: transform 0.3s ease-in-out;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   padding: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   transform: translateX(-100%);
+  border-radius: 0 16px 16px 0;
+  -webkit-overflow-scrolling: touch;
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
   
   &.mobileMenuOpen {
     transform: translateX(0);
@@ -219,21 +268,23 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #f0f0f0;
-    background-color: #fff;
+    padding: 1.5rem 1.25rem 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
     position: sticky;
     top: 0;
     z-index: 1;
+    border-radius: 0 16px 0 0;
     
     h2 {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 600;
+      letter-spacing: 0.5px;
     }
     
     .mobileMenuClose {
-      background: none;
+      background: rgba(255, 255, 255, 0.2);
       border: none;
       cursor: pointer;
       padding: 0.5rem;
@@ -241,10 +292,12 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      transition: background-color 0.2s;
+      transition: all 0.2s ease;
+      color: white;
       
       &:hover {
-        background-color: #f5f5f5;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
       }
     }
   }
@@ -252,7 +305,7 @@
   .mobileNav {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem 0;
+    padding: 1.5rem 0;
     
     ul {
       list-style: none;
@@ -260,26 +313,48 @@
       margin: 0;
       display: flex;
       flex-direction: column;
+      gap: 0.25rem;
     }
     
     .mobileNavLink {
-      display: block;
+      display: flex;
+      align-items: center;
       padding: 1rem 1.5rem;
-      color: #333;
+      color: #374151;
       text-decoration: none;
       font-weight: 500;
-      border-bottom: 1px solid #f5f5f5;
-      transition: all 0.2s ease;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      border-left: 3px solid transparent;
+      margin: 0 0.5rem;
+      border-radius: 8px;
       
-      &:hover, &.activeCategory {
-        color: #3b82f6;
-        background-color: #f8f9fa;
+      &:hover {
+        color: #667eea;
+        background: linear-gradient(90deg, rgba(102, 126, 234, 0.08) 0%, rgba(102, 126, 234, 0.03) 100%);
+        border-left-color: #667eea;
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
       }
       
       &.activeCategory {
-        background-color: #f0f7ff;
-        border-left: 3px solid #3b82f6;
+        color: #667eea;
+        background: linear-gradient(90deg, rgba(102, 126, 234, 0.12) 0%, rgba(102, 126, 234, 0.06) 100%);
+        border-left-color: #667eea;
+        font-weight: 600;
+        box-shadow: 0 2px 12px rgba(102, 126, 234, 0.15);
+        
+        &::before {
+          content: '';
+          position: absolute;
+          right: 1rem;
+          width: 6px;
+          height: 6px;
+          background: #667eea;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
       }
     }
   }
@@ -293,11 +368,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
   z-index: 1001;
   opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-  backdrop-filter: blur(2px);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
+  touch-action: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   
   &.mobileMenuOpen {
     display: block;

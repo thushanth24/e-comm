@@ -11,12 +11,11 @@
   }
   
   .layout {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  
-  
-  
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    width: 100%;
+
     @media (min-width: 768px) {
       grid-template-columns: 1fr 3fr;
     }
@@ -26,7 +25,23 @@
   .filters {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.25rem;
+    position: relative;
+    width: 100%;
+    order: 1; /* Show filters first on mobile */
+
+    @media (min-width: 768px) {
+      order: 1; /* Keep filters first on desktop */
+    }
+  }
+
+  .productList {
+    order: 2; /* Show products after filters on mobile */
+    width: 100%;
+
+    @media (min-width: 768px) {
+      order: 2; /* Keep products after filters on desktop */
+    }
   }
   
   .filterSection {
