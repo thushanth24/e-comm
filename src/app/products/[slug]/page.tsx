@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { formatPrice } from '@/lib/utils';
 import ProductList from '@/components/ui/ProductList';
 import ProductImages from '@/components/ui/ProductImages';
+import CollectionButton from '@/components/ui/CollectionButton';
 import styles from '@/styles/ProductPage.module.scss';
 import { Suspense } from 'react';
 import ProductCardSkeleton from '@/components/ui/ProductCardSkeleton';
@@ -88,7 +89,10 @@ export default async function ProductPage({
             </Link>
           </div>
 
-          <p className={styles.price}>{formatPrice(Number(product.price))}</p>
+          <div className={styles.priceSection}>
+            <p className={styles.price}>{formatPrice(Number(product.price))}</p>
+            <CollectionButton product={product} variant="page" showText={true} />
+          </div>
 
           <div className={styles.description}>
             <h3>Description</h3>

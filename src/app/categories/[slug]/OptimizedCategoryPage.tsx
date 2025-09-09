@@ -7,10 +7,9 @@ import { CategoryLink } from '@/components/ui/CategoryLink';
 import ProductList from '@/components/ui/ProductList';
 import styles from '@/styles/CategoryPage.module.scss';
 
-// Dynamically import PriceRangeFilter with SSR disabled to avoid hydration issues
+// Dynamically import PriceRangeFilter
 const PriceRangeFilter = dynamic(
-  () => import('@/components/ui/PriceRangeFilter'),
-  { ssr: false }
+  () => import('@/components/ui/PriceRangeFilter')
 );
 
 interface OptimizedCategoryPageProps {

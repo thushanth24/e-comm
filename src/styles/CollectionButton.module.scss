@@ -1,0 +1,128 @@
+// More specific selector to override any inherited styles
+button.collectionButton,
+.collectionButton {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #666 !important;
+  border-radius: 50% !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  text-decoration: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  position: relative !important;
+  z-index: 1 !important;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    color: #333 !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &.card {
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    
+    // Make more visible on mobile
+    @media (max-width: 768px) {
+      width: 40px;
+      height: 40px;
+      top: 6px;
+      right: 6px;
+      background: rgba(255, 255, 255, 0.95) !important;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+  }
+
+  &.page {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    margin-left: 1rem;
+  }
+
+  &.active {
+    background: #ff4757 !important;
+    color: white !important;
+    
+    &:hover {
+      background: #ff3742 !important;
+      color: white !important;
+    }
+  }
+
+  &.animating {
+    animation: pulse 0.3s ease-in-out;
+  }
+
+  .icon {
+    width: 18px !important;
+    height: 18px !important;
+    transition: transform 0.2s ease;
+    display: block !important;
+    position: relative !important;
+    z-index: 2 !important;
+    
+    @media (max-width: 768px) {
+      width: 20px !important;
+      height: 20px !important;
+    }
+  }
+
+  .text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .collectionButton {
+   
+
+    &.page {
+      width: 44px;
+      height: 44px;
+      margin-left: 0.75rem;
+    }
+
+    .text {
+      font-size: 0.8rem;
+    }
+  }
+}

@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { Eye } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import styles from '@/styles/ProductCard.module.scss';
 import { ProductLink } from './ProductLink';
+import CollectionButton from './CollectionButton';
 
 // Helper function to safely convert price to number
 const toNumber = (price: string | number): number => {
@@ -15,8 +15,8 @@ const toNumber = (price: string | number): number => {
   return isNaN(num) ? 0 : num;
 };
 
-// Dynamically import ClientOnly with no SSR
-const ClientOnly = dynamic(() => import('@/components/ClientOnly'), { ssr: false });
+// Dynamically import ClientOnly
+const ClientOnly = dynamic(() => import('@/components/ClientOnly'));
 
 // Preload the first few product images
 const preloadImages = (images: string[]) => {
@@ -100,17 +100,7 @@ export default function ProductCard({ product, priority = false, isActive = fals
           </ProductLink>
 
           <div className={styles.quickActions}>
-            <button 
-              className={styles.actionButton} 
-              aria-label="Quick view"
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                // Handle quick view
-              }}
-            >
-              <Eye className={styles.icon} />
-            </button>
+            <CollectionButton product={product} variant="card" />
           </div>
         </div>
 

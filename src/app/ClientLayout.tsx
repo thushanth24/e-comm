@@ -4,20 +4,17 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { Providers } from './Providers';
 
-// Import client components with SSR disabled
+// Import client components with SSR enabled
 const Header = dynamic(() => import('@/components/ui/Header'), { 
-  ssr: false,
   loading: () => <div className="h-16 bg-background" />
 });
 
 const Footer = dynamic(() => import('@/components/ui/Footer'), { 
-  ssr: false,
   loading: () => <div className="h-24 bg-background" />
 });
 
 const NavigationLoading = dynamic(
-  () => import('@/components/ui/NavigationLoading'), 
-  { ssr: false }
+  () => import('@/components/ui/NavigationLoading')
 );
 
 interface ClientLayoutProps {

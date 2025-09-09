@@ -21,6 +21,18 @@
       "static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js"
     ]
   },
+  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
+    "id": "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app",
+    "files": [
+      "static/chunks/_pages-dir-browser_node_modules_next_dist_pages__app_js.js"
+    ]
+  },
+  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
+    "id": "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error",
+    "files": [
+      "static/chunks/_pages-dir-browser_node_modules_next_dist_pages__error_js.js"
+    ]
+  },
   "app\\ClientLayout.tsx -> @/components/ui/Footer": {
     "id": "app\\ClientLayout.tsx -> @/components/ui/Footer",
     "files": [
@@ -46,34 +58,6 @@
     "files": [
       "static/css/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.css",
       "static/chunks/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.js"
-    ]
-  },
-  "app\\new-arrivals\\page.tsx -> @/components/ui/Button": {
-    "id": "app\\new-arrivals\\page.tsx -> @/components/ui/Button",
-    "files": [
-      "static/css/_app-pages-browser_src_components_ui_Button_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_ui_Button_tsx.js"
-    ]
-  },
-  "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid": {
-    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForKid",
-    "files": [
-      "static/css/_app-pages-browser_src_components_ui_ShopForKid_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_ui_ShopForKid_tsx.js"
-    ]
-  },
-  "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForMen": {
-    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForMen",
-    "files": [
-      "static/css/_app-pages-browser_src_components_ui_ShopForMen_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_ui_ShopForMen_tsx.js"
-    ]
-  },
-  "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForWomen": {
-    "id": "components\\ShopSectionsWrapper.tsx -> ./ui/ShopForWomen",
-    "files": [
-      "static/css/_app-pages-browser_src_components_ui_ShopForWomen_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_ui_ShopForWomen_tsx.js"
     ]
   },
   "components\\ui\\ProductCard.tsx -> @/components/ClientOnly": {

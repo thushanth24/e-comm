@@ -7,8 +7,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { ArrowRight } from 'lucide-react';
 
 // Import Button component with default import
-import dynamic from 'next/dynamic';
-const Button = dynamic(() => import('@/components/ui/Button'), { ssr: false });
+import Button from '@/components/ui/Button';
 
 // Import site config
 import { siteConfig } from '@/config/site';

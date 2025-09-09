@@ -30,8 +30,7 @@ const ProductList = dynamic(
           <div key={i} className="animate-pulse bg-gray-100 rounded-lg h-80" />
         ))}
       </div>
-    ),
-    ssr: false 
+    )
   }
 );
 
@@ -49,10 +48,9 @@ export interface CategoryInfo {
   parentHierarchy?: Array<{ id: number; name: string; slug: string }>;
 }
 
-// Dynamically import PriceRangeFilter with SSR disabled to avoid hydration issues
+// Dynamically import PriceRangeFilter
 const PriceRangeFilter = dynamic(
-  () => import('@/components/ui/PriceRangeFilter'),
-  { ssr: false }
+  () => import('@/components/ui/PriceRangeFilter')
 );
 
 export default function ClientCategoryPage({ 

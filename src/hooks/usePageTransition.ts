@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState, useEffect, useRef } from 'react';
-import { usePathname, useRouter, usePathname as useCurrentPath } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 // Simple in-memory cache for page transitions
 const transitionCache = new Map();
@@ -36,7 +36,7 @@ export function usePageTransition() {
     router.push(url);
   }, [router]);
 
-  const currentPath = useCurrentPath();
+  const currentPath = usePathname();
 
   // Handle page load completion
   useEffect(() => {

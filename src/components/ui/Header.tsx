@@ -8,18 +8,20 @@ import SearchBar from './SearchBar';
 import {
   ShoppingBag,
   User,
-  Heart,
+  Plus,
   Menu,
   X,
   Phone,
   Clock,
   MapPin,
 } from 'lucide-react';
+import { useCollections } from '@/hooks/useCollections';
 import styles from '@/styles/Header.module.scss';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { getCollectionCount } = useCollections();
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
@@ -163,7 +165,16 @@ export default function Header() {
           </div>
 
           <div className={styles.actions}>
-            {/* Wishlist removed */}
+            <Link 
+              href="/collections" 
+              className={`${styles.actionButton} ${isActive('/collections') ? styles.active : ''}`}
+              title="My Collections"
+            >
+              <Plus className={styles.actionIcon} />
+              {getCollectionCount() > 0 && (
+                <span className={styles.badge}>{getCollectionCount()}</span>
+              )}
+            </Link>
           </div>
         </div>
 
@@ -221,6 +232,19 @@ export default function Header() {
                   </CategoryLink>
                 </li>
               ))}
+              <li>
+                <Link 
+                  href="/collections"
+                  className={`${styles.mobileNavLink} ${isActive('/collections') ? styles.activeCategory : ''}`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Plus className={styles.mobileNavIcon} />
+                  MY COLLECTIONS
+                  {getCollectionCount() > 0 && (
+                    <span className={styles.mobileBadge}>{getCollectionCount()}</span>
+                  )}
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

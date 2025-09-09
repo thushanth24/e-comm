@@ -108,10 +108,18 @@
     }
   }
   
+  .priceSection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
   .price {
     font-size: 1.75rem;
     font-weight: 700;
     color: #1f2937;
+    margin: 0;
   }
   
   .description {

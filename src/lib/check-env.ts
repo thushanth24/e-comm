@@ -19,5 +19,11 @@ export function checkEnvVars() {
   return true;
 }
 
-// Run the check when this module is imported
-checkEnvVars();
+// Only run the check in development or when explicitly called
+if (process.env.NODE_ENV === 'development') {
+  try {
+    checkEnvVars();
+  } catch (error) {
+    console.warn('Environment check failed:', error);
+  }
+}

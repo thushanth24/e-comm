@@ -42,6 +42,7 @@
     "/new-arrivals/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
+      "static/css/app/new-arrivals/page.css",
       "static/chunks/app/new-arrivals/page.js"
     ],
     "/page": [
@@ -55,6 +56,17 @@
       "static/chunks/main-app.js",
       "static/css/app/search/page.css",
       "static/chunks/app/search/page.js"
+    ],
+    "/collections/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/collections/page.css",
+      "static/chunks/app/collections/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }
