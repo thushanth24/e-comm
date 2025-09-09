@@ -424,7 +424,7 @@ export const getCategoryWithProducts = async (
         createdAt: parentCategory.createdAt,
         updatedAt: parentCategory.updatedAt
       } : null,
-      childCategories: childCategories.map(cat => ({
+      childCategories: childCategories.map((cat: any) => ({
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
@@ -490,7 +490,7 @@ const getCategoryWithProductsFallback = async (
 
       // Recursively get all child category IDs
       const childIds = await Promise.all(
-        childCategories.map(child => getAllCategoryIds(child.id))
+        childCategories.map((child: any) => getAllCategoryIds(child.id))
       );
       
       return [parentId, ...childIds.flat()];
@@ -592,7 +592,7 @@ const getCategoryWithProductsFallback = async (
         createdAt: parentCategory.createdAt,
         updatedAt: parentCategory.updatedAt
       } : null,
-      childCategories: safeChildCategories.map(cat => ({
+      childCategories: safeChildCategories.map((cat: any) => ({
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
