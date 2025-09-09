@@ -91,6 +91,16 @@ export default function Footer() {
               Providing quality clothing and accessories for men, women, and
               kids since 2023.
             </p>
+            <div className={styles.contactDetails}>
+              <div className={styles.contactItem}>
+                <Phone className={styles.contactIcon} size={16} />
+                <span>+94 77 217 0402</span>
+              </div>
+              <div className={styles.contactItem}>
+                <MapPin className={styles.contactIcon} size={16} />
+                <span>Market Road kaluwanchikudy, paddiruppu, Batticaloa</span>
+              </div>
+            </div>
             <div className={styles.socials}>
               <a href="#" aria-label="Facebook" className={styles.socialLink}>
                 <Facebook size={18} />

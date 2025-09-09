@@ -5,20 +5,19 @@ button.collectionButton,
   align-items: center !important;
   justify-content: center !important;
   gap: 0.5rem;
-  border: none !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-  color: #666 !important;
-  border-radius: 50% !important;
+  border: 1px solid #dee2e6 !important;
+  background: #f8f9fa !important;
+  color: #495057 !important;
+  border-radius: 6px !important;
   cursor: pointer;
   transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-  padding: 0 !important;
+  padding: 0.5rem 1rem !important;
   margin: 0 !important;
   outline: none !important;
   font-family: inherit !important;
-  font-size: inherit !important;
-  line-height: inherit !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
   text-decoration: none !important;
   appearance: none !important;
   -webkit-appearance: none !important;
@@ -27,10 +26,9 @@ button.collectionButton,
   z-index: 1 !important;
   
   &:hover {
-    background: rgba(255, 255, 255, 1) !important;
-    color: #333 !important;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    background: #e9ecef !important;
+    color: #212529 !important;
+    border-color: #adb5bd !important;
   }
 
   &:active {
@@ -38,38 +36,66 @@ button.collectionButton,
   }
 
   &.card {
-    width: 36px;
+    width: auto;
+    min-width: 36px;
     height: 36px;
     position: absolute;
     top: 8px;
     right: 8px;
     z-index: 10;
+    padding: 0.25rem 0.5rem !important;
     
     // Make more visible on mobile
     @media (max-width: 768px) {
-      width: 40px;
+      min-width: 40px;
       height: 40px;
       top: 6px;
       right: 6px;
-      background: rgba(255, 255, 255, 0.95) !important;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15) !important;
+      padding: 0.375rem 0.75rem !important;
     }
   }
 
   &.page {
-    width: 48px;
+    min-width: 48px;
     height: 48px;
-    border-radius: 8px;
-    margin-left: 1rem;
+    padding: 0.75rem 1.25rem !important;
+    
+    .icon {
+      width: 18px !important;
+      height: 18px !important;
+    }
+    
+    .text {
+      white-space: nowrap;
+    }
+    
+    @media (max-width: 640px) {
+      width: 100%;
+      justify-content: center;
+      margin-left: 0;
+      margin-top: 0.5rem;
+    }
   }
 
   &.active {
-    background: #ff4757 !important;
+    background: #dc3545 !important;
     color: white !important;
+    border-color: #dc3545 !important;
     
     &:hover {
-      background: #ff3742 !important;
+      background: #c82333 !important;
+      border-color: #c82333 !important;
+    }
+    
+    &.page {
+      background: #dc3545 !important;
       color: white !important;
+      border-color: #dc3545 !important;
+      
+      &:hover {
+        background: #c82333 !important;
+        border-color: #c82333 !important;
+      }
     }
   }
 

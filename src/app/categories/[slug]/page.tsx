@@ -61,8 +61,12 @@ export default async function CategoryPage({
   console.log(`[CategoryPage] Loading category: ${slug}`);
   
   try {
-    // Fetch all category data in a single optimized query
-    const categoryData = await getCategoryWithProducts(slug.toLowerCase());
+    // Get pagination parameters from search params
+    const page = searchParams?.page ? parseInt(searchParams.page as string) : 1;
+    const pageSize = searchParams?.pageSize ? parseInt(searchParams.pageSize as string) : 24;
+    
+    // Fetch all category data in a single optimized query with pagination
+    const categoryData = await getCategoryWithProducts(slug.toLowerCase(), page, pageSize);
     
     if (!categoryData) {
       console.error(`[CategoryPage] Category not found: ${slug}`);

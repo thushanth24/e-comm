@@ -8,7 +8,6 @@ import SearchBar from './SearchBar';
 import {
   ShoppingBag,
   User,
-  Plus,
   Menu,
   X,
   Phone,
@@ -28,7 +27,6 @@ export default function Header() {
   const categories = [
     { href: '/', label: 'HOME' },
     { href: '/new-arrivals', label: 'NEW ARRIVALS' },
-    { href: '/best-sellers', label: 'BEST SELLERS' },
     { href: '/categories/women', label: 'WOMEN' },
     { href: '/categories/men', label: 'MEN' },
     { href: '/categories/kid', label: 'KIDS' },
@@ -140,7 +138,7 @@ export default function Header() {
       <header className={styles.header}>
         {/* Top Announcement Bar */}
         <div className={styles.announcementBar}>
-          <p>SPECIAL DISCOUNTS ON ALL ORDERS | USE CODE: FUTURE10</p>
+          <p>SRI RAM SELECTION - MOST AFFORDABLE PRICES ON THE MARKET</p>
         </div>
 
         <div className={styles.mainHeader}>
@@ -170,7 +168,7 @@ export default function Header() {
               className={`${styles.actionButton} ${isActive('/collections') ? styles.active : ''}`}
               title="My Collections"
             >
-              <Plus className={styles.actionIcon} />
+              <ShoppingBag className={styles.actionIcon} />
               {getCollectionCount() > 0 && (
                 <span className={styles.badge}>{getCollectionCount()}</span>
               )}
@@ -238,7 +236,7 @@ export default function Header() {
                   className={`${styles.mobileNavLink} ${isActive('/collections') ? styles.activeCategory : ''}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <Plus className={styles.mobileNavIcon} />
+                  <ShoppingBag className={styles.mobileNavIcon} />
                   MY COLLECTIONS
                   {getCollectionCount() > 0 && (
                     <span className={styles.mobileBadge}>{getCollectionCount()}</span>

@@ -12,6 +12,9 @@ import Button from '@/components/ui/Button';
 // Import site config
 import { siteConfig } from '@/config/site';
 
+// Import styles
+import styles from '@/styles/NewArrivals.module.scss';
+
 // Initialize Supabase client
 import { createClient } from '@supabase/supabase-js';
 
@@ -62,7 +65,7 @@ interface NewArrivalsRow {
   category_id: string;
   category_name: string;
   category_slug: string;
-  productId: string;
+  product_id: string;
   product_name: string;
   product_slug: string;
   product_description: string | null;
@@ -70,9 +73,10 @@ interface NewArrivalsRow {
   product_inventory: number;
   product_featured: boolean;
   product_created_at: string;
-  ProductImage: Array<{
+  product_images: Array<{
     id: string;
     url: string;
+    public_url: string;
     productId: string;
   }>;
 }
@@ -150,15 +154,15 @@ const getNewArrivalsByCategory = cache(async (): Promise<CategoryWithProducts[]>
         const category = categoriesMap.get(categoryId)!;
         
         // Only add the product if we don't have enough products yet
-        if (category.products.length < 4 && row.productId) {
-          const productImages = Array.isArray(row.ProductImage) 
-            ? row.ProductImage.filter((img: any) => img && img.url)
+        if (category.products.length < 4 && row.product_id) {
+          const productImages = Array.isArray(row.product_images) 
+            ? row.product_images.filter((img: any) => img && (img.url || img.public_url))
             : [];
             
           category.products.push({
-            id: row.productId,
+            id: row.product_id,
             name: row.product_name || 'Unnamed Product',
-            slug: row.product_slug || `product-${row.productId}`,
+            slug: row.product_slug || `product-${row.product_id}`,
             description: row.product_description,
             price: Number(row.product_price) || 0,
             inventory: Number(row.product_inventory) || 0,
@@ -167,8 +171,8 @@ const getNewArrivalsByCategory = cache(async (): Promise<CategoryWithProducts[]>
             created_at: row.product_created_at || new Date().toISOString(),
             images: productImages.map((img: any) => ({
               id: img.id || `img-${Math.random().toString(36).substr(2, 9)}`,
-              url: img.url,
-              productId: row.productId
+              url: img.public_url || img.url,
+              productId: row.product_id
             }))
           });
         }
@@ -235,11 +239,13 @@ function NewArrivalsContent() {
 
   if (isLoading) {
     return (
-      <div className="container py-8 px-4 md:px-6">
-        <div className="space-y-16">
-          {[1, 2, 3].map((i) => (
-            <CategorySectionSkeleton key={i} />
-          ))}
+      <div className={styles.container}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.skeletonGrid}>
+            {[1, 2, 3].map((i) => (
+              <CategorySectionSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -247,28 +253,22 @@ function NewArrivalsContent() {
 
   if (error) {
     return (
-      <div className="container py-12 px-4 text-center">
-        <div className="max-w-md mx-auto bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-2">Oops! Something went wrong</h2>
-          <p className="mb-4">We couldn't load the new arrivals. {error}</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button 
+      <div className={styles.container}>
+        <div className={styles.errorState}>
+          <h2>Oops! Something went wrong</h2>
+          <p>We couldn't load the new arrivals. {error}</p>
+          <div className={styles.errorActions}>
+            <button 
               onClick={handleRetry}
-              variant="primary"
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className={styles.retryButton}
             >
               Try Again
-            </Button>
-            <Button 
-              asChild
-              variant="outline"
-            >
-              <Link href="/">
-                Back to Home
-              </Link>
-            </Button>
+            </button>
+            <Link href="/" className={styles.homeButton}>
+              Back to Home
+            </Link>
           </div>
-          <div className="mt-4 text-xs text-red-600 dark:text-red-400">
+          <div className={styles.errorDetails}>
             <p>If the problem persists, please contact support.</p>
           </div>
         </div>
@@ -277,40 +277,34 @@ function NewArrivalsContent() {
   }
 
   return (
-    <main className="container py-8 px-4 md:px-6">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-          New Arrivals
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Discover our latest products, carefully selected and organized by category
-        </p>
+    <main className={styles.container}>
+      <div className={styles.header}>
+        <h1>New Arrivals</h1>
+        <p>Discover our latest products, carefully selected and organized by category</p>
       </div>
       
       {categories.length === 0 ? (
-        <div className="text-center py-16 border rounded-lg">
-          <div className="text-5xl mb-4">📦</div>
-          <h2 className="text-xl font-semibold mb-2">No new arrivals at the moment</h2>
-          <p className="text-muted-foreground mb-6">Check back soon for our latest products!</p>
-          <Button asChild>
-            <Link href="/products">Browse All Products</Link>
-          </Button>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>📦</div>
+          <h2>No new arrivals at the moment</h2>
+          <p>Check back soon for our latest products!</p>
+          <Link href="/products" className={styles.browseButton}>
+            Browse All Products
+          </Link>
         </div>
       ) : (
         <Suspense fallback={[1, 2, 3].map((i) => <CategorySectionSkeleton key={i} />)}>
-          <div className="space-y-16">
+          <div className={styles.categoriesContainer}>
             {categories.map((category) => (
-              <section key={category.id} className="mb-12">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold">{category.name}</h2>
-                  <Button variant="ghost" asChild>
-                    <Link href={`/categories/${category.slug}`} className="flex items-center gap-1">
-                      View all <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
+              <section key={category.id} className={styles.categorySection}>
+                <div className={styles.categoryHeader}>
+                  <h2>{category.name}</h2>
+                  <Link href={`/categories/${category.slug}`} className={styles.viewAllButton}>
+                    View all <ArrowRight className={styles.arrowIcon} />
+                  </Link>
                 </div>
                 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className={styles.productsGrid}>
                   {category.products.map((product) => {
                     // Calculate discount for demo purposes
                     const hasDiscount = Math.random() > 0.7;
@@ -323,34 +317,34 @@ function NewArrivalsContent() {
                       <Link
                         key={product.id}
                         href={`/products/${product.slug}`}
-                        className="group block overflow-hidden rounded-lg transition-transform hover:scale-[1.02]"
+                        className={styles.productCard}
                       >
-                        <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+                        <div className={styles.imageContainer}>
                           <Image
-                            src={product.images[0]?.url || '/placeholder.svg'}
+                            src={product.images[0]?.url || '/images/placeholder-product.jpg'}
                             alt={product.name}
                             width={400}
                             height={400}
-                            className="h-full w-full object-cover object-center transition-opacity group-hover:opacity-90"
+                            className={styles.productImage}
                             priority={false}
                           />
                           {hasDiscount && (
-                            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            <div className={styles.discountBadge}>
                               -{discountPercent}%
                             </div>
                           )}
                         </div>
-                        <div className="mt-3">
-                          <h3 className="font-medium text-gray-900 line-clamp-2 h-12">
+                        <div className={styles.productInfo}>
+                          <h3 className={styles.productName}>
                             {product.name}
                           </h3>
-                          <div className="mt-1 flex items-center gap-2">
+                          <div className={styles.priceContainer}>
                             {hasDiscount && (
-                              <span className="text-sm text-gray-500 line-through">
+                              <span className={styles.originalPrice}>
                                 LKR {originalPrice.toLocaleString('en-LK')}
                               </span>
                             )}
-                            <span className="font-semibold">
+                            <span className={styles.currentPrice}>
                               LKR {product.price.toLocaleString('en-LK')}
                             </span>
                           </div>

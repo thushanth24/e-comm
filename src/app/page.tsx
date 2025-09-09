@@ -84,8 +84,8 @@ export default async function Home() {
         <div className={styles.container}>
           <div className={styles.valueGrid}>
             {[
-              { icon: <Package />, title: 'Free Shipping', description: 'On orders over Rs. 10,000' },
-              { icon: <CreditCard />, title: 'Secure Payment', description: '100% protected' },
+              { icon: <Package />, title: 'Quality Fabrics', description: 'Premium materials & textiles' },
+              { icon: <CreditCard />, title: 'Expert Service', description: 'Professional assistance' },
               { icon: <Award />, title: 'Quality Guarantee', description: 'Premium materials' },
               { icon: <Tag />, title: 'Daily Offers', description: 'Discounts up to 50%' },
             ].map((item, index) => (

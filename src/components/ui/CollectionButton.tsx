@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Minus } from 'lucide-react';
+import { ShoppingBag, Minus } from 'lucide-react';
 import { useCollections } from '@/hooks/useCollections';
 import { Product } from '@/types';
 import styles from '@/styles/CollectionButton.module.scss';
@@ -53,7 +53,7 @@ export default function CollectionButton({
       {inCollection ? (
         <Minus className={styles.icon} />
       ) : (
-        <Plus className={styles.icon} />
+        <ShoppingBag className={styles.icon} />
       )}
       {showText && (
         <span className={styles.text}>

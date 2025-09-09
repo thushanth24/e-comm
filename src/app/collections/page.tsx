@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCollections } from '@/hooks/useCollections';
 import { formatPrice } from '@/lib/utils';
-import { Trash2, Plus, Printer } from 'lucide-react';
+import { Trash2, ShoppingBag, Printer } from 'lucide-react';
 import styles from './collections.module.scss';
 
 export default function CollectionsPage() {
@@ -41,9 +41,9 @@ export default function CollectionsPage() {
           <h1>My Collections</h1>
         </div>
         <div className={styles.empty}>
-          <Plus className={styles.emptyIcon} />
+          <ShoppingBag className={styles.emptyIcon} />
           <h2>Your collection is empty</h2>
-          <p>Start adding products to your collection by clicking the plus icon on any product.</p>
+          <p>Start adding products to your collection by clicking the basket icon on any product.</p>
           <Link href="/" className={styles.shopButton}>
             Start Shopping
           </Link>
@@ -93,7 +93,7 @@ export default function CollectionsPage() {
                   />
                 ) : (
                   <div className={styles.placeholder}>
-                    <Plus className={styles.placeholderIcon} />
+                    <ShoppingBag className={styles.placeholderIcon} />
                   </div>
                 )}
               </div>

@@ -30,6 +30,12 @@ interface OptimizedCategoryPageProps {
     }>;
     products: Product[];
     parentHierarchy?: Array<{ id: number; name: string; slug: string }>;
+    pagination?: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
   };
   searchParams?: { [key: string]: string | string[] | undefined };
 }
@@ -157,6 +163,38 @@ export default function OptimizedCategoryPage({
             products={filteredProducts} 
             emptyMessage="No products found in this category"
           />
+          
+          {/* Pagination */}
+          {categoryData.pagination && categoryData.pagination.totalPages > 1 && (
+            <div className={styles.pagination}>
+              <div className={styles.paginationInfo}>
+                Showing {((categoryData.pagination.page - 1) * categoryData.pagination.pageSize) + 1} to{' '}
+                {Math.min(categoryData.pagination.page * categoryData.pagination.pageSize, categoryData.pagination.total)} of{' '}
+                {categoryData.pagination.total} products
+              </div>
+              <div className={styles.paginationControls}>
+                {categoryData.pagination.page > 1 && (
+                  <a 
+                    href={`/categories/${categoryData.slug}?page=${categoryData.pagination.page - 1}`}
+                    className={styles.paginationButton}
+                  >
+                    Previous
+                  </a>
+                )}
+                <span className={styles.paginationPage}>
+                  Page {categoryData.pagination.page} of {categoryData.pagination.totalPages}
+                </span>
+                {categoryData.pagination.page < categoryData.pagination.totalPages && (
+                  <a 
+                    href={`/categories/${categoryData.slug}?page=${categoryData.pagination.page + 1}`}
+                    className={styles.paginationButton}
+                  >
+                    Next
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

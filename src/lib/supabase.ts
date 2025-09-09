@@ -336,13 +336,121 @@ export interface CategoryWithProducts extends Category {
   products: Product[];
   parentCategory: Category | null;
   childCategories: Category[];
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 /**
- * Fetches a category with its products, parent, and children in a single query
+ * Fetches a category with its products, parent, and children using optimized RPC function
  */
-export const getCategoryWithProducts = async (slug: string): Promise<CategoryWithProducts | null> => {
-  console.log(`[getCategoryWithProducts] Fetching category with slug: ${slug}`);
+export const getCategoryWithProducts = async (
+  slug: string, 
+  page: number = 1, 
+  pageSize: number = 24
+): Promise<CategoryWithProducts | null> => {
+  console.log(`[getCategoryWithProducts] Fetching category with slug: ${slug}, page: ${page}, pageSize: ${pageSize}`);
+  
+  try {
+    // First, try the optimized RPC function with pagination
+    const { data, error } = await supabase.rpc('get_category_with_products', {
+      category_slug: slug,
+      page: page,
+      page_size: pageSize
+    });
+    
+    if (error) {
+      console.warn('RPC function failed, falling back to original method:', error);
+      // Fallback to the original method if RPC fails
+      return await getCategoryWithProductsFallback(slug, page, pageSize);
+    }
+
+    if (!data) {
+      console.warn('No data returned from RPC function, falling back to original method');
+      return await getCategoryWithProductsFallback(slug, page, pageSize);
+    }
+
+    console.log(`[getCategoryWithProducts] Successfully fetched category data via RPC`);
+
+    // Transform the RPC response to match our expected format
+    const categoryData = data.category;
+    const products = data.products || [];
+    const childCategories = data.childCategories || [];
+    const parentCategory = data.parentCategory;
+    const pagination = data.pagination;
+
+    if (!categoryData) {
+      console.warn('No category found in RPC response, falling back to original method');
+      return await getCategoryWithProductsFallback(slug, page, pageSize);
+    }
+
+    console.log(`[getCategoryWithProducts] Found category: ${categoryData.name} (ID: ${categoryData.id})`);
+    console.log(`[getCategoryWithProducts] Found ${products.length} products (page ${pagination.page} of ${pagination.totalPages})`);
+    console.log(`[getCategoryWithProducts] Found ${childCategories.length} child categories`);
+
+    // Transform the data to match our types
+    const formattedCategory: CategoryWithProducts = {
+      ...categoryData,
+      parentId: categoryData.parentId || null,
+      children: [],
+      products: products.map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        description: product.description || null,
+        price: product.price,
+        inventory: product.inventory || 0,
+        isFeatured: product.isFeatured || false,
+        isArchived: false, // Archived status not supported in current schema
+        categoryId: product.categoryId,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt || new Date().toISOString(),
+        images: (product.images || []).map((img: any) => ({
+          id: img.id,
+          public_url: img.public_url,
+          is_primary: img.is_primary || false,
+          position: img.position || 0,
+          productId: product.id
+        }))
+      })),
+      parentCategory: parentCategory ? {
+        id: parentCategory.id,
+        name: parentCategory.name,
+        slug: parentCategory.slug,
+        parentId: parentCategory.parentId || null,
+        createdAt: parentCategory.createdAt,
+        updatedAt: parentCategory.updatedAt
+      } : null,
+      childCategories: childCategories.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        parentId: cat.parentId || null,
+        createdAt: cat.createdAt,
+        updatedAt: cat.updatedAt
+      })),
+      // Add pagination info to the response
+      pagination: pagination
+    };
+
+    return formattedCategory;
+  } catch (error) {
+    console.error('Error in getCategoryWithProducts:', error);
+    // Fallback to original method on any error
+    return await getCategoryWithProductsFallback(slug, page, pageSize);
+  }
+};
+
+// Fallback function using the original method
+const getCategoryWithProductsFallback = async (
+  slug: string, 
+  page: number = 1, 
+  pageSize: number = 24
+): Promise<CategoryWithProducts | null> => {
+  console.log(`[getCategoryWithProductsFallback] Using fallback method for slug: ${slug}`);
   
   try {
     // First, get the category
@@ -362,7 +470,7 @@ export const getCategoryWithProducts = async (slug: string): Promise<CategoryWit
       return null;
     }
 
-    console.log(`[getCategoryWithProducts] Found category: ${categoryData.name} (ID: ${categoryData.id})`);
+    console.log(`[getCategoryWithProductsFallback] Found category: ${categoryData.name} (ID: ${categoryData.id})`);
 
     // Get all category IDs to fetch products from (current + children)
     const getAllCategoryIds = async (parentId: number): Promise<number[]> => {
@@ -390,23 +498,32 @@ export const getCategoryWithProducts = async (slug: string): Promise<CategoryWit
 
     // Get all category IDs including children
     const categoryIds = await getAllCategoryIds(categoryData.id);
-    console.log(`[getCategoryWithProducts] Fetching products from category IDs:`, categoryIds);
+    console.log(`[getCategoryWithProductsFallback] Fetching products from category IDs:`, categoryIds);
 
-    // Get products from all relevant categories
+    // Get total count for pagination
+    const { count: totalProducts } = await supabase
+      .from('Product')
+      .select('*', { count: 'exact', head: true })
+      .in('categoryId', categoryIds);
+
+    // Get products from all relevant categories with pagination
+    const offset = (page - 1) * pageSize;
     const { data: products, error: productsError } = await supabase
       .from('Product')
       .select(`
         *,
         ProductImage(*)
       `)
-      .in('categoryId', categoryIds);  // Match products in any of the category IDs
+      .in('categoryId', categoryIds)
+      .order('createdAt', { ascending: false })
+      .range(offset, offset + pageSize - 1);
 
     if (productsError) {
       console.error('Error fetching products:', productsError);
       throw productsError;
     }
 
-    console.log(`[getCategoryWithProducts] Found ${products?.length || 0} products`);
+    console.log(`[getCategoryWithProductsFallback] Found ${products?.length || 0} products`);
 
     // Get child categories for the current category
     const { data: childCategories, error: childCategoriesError } = await supabase
@@ -420,7 +537,7 @@ export const getCategoryWithProducts = async (slug: string): Promise<CategoryWit
     }
 
     const safeChildCategories = childCategories || [];
-    console.log(`[getCategoryWithProducts] Found ${safeChildCategories.length} child categories`);
+    console.log(`[getCategoryWithProductsFallback] Found ${safeChildCategories.length} child categories`);
 
     // Get parent category if exists
     let parentCategory = null;
@@ -438,6 +555,9 @@ export const getCategoryWithProducts = async (slug: string): Promise<CategoryWit
 
       parentCategory = parentData;
     }
+
+    // Calculate pagination info
+    const totalPages = Math.ceil((totalProducts || 0) / pageSize);
 
     // Transform the data to match our types
     const formattedCategory: CategoryWithProducts = {
@@ -479,12 +599,19 @@ export const getCategoryWithProducts = async (slug: string): Promise<CategoryWit
         parentId: cat.parentId || null,
         createdAt: cat.createdAt,
         updatedAt: cat.updatedAt
-      }))
+      })),
+      // Add pagination info
+      pagination: {
+        page,
+        pageSize,
+        total: totalProducts || 0,
+        totalPages
+      }
     };
 
     return formattedCategory;
   } catch (error) {
-    console.error('Error in getCategoryWithProducts:', error);
+    console.error('Error in getCategoryWithProductsFallback:', error);
     return null;
   }
 };
