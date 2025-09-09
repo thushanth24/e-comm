@@ -1,69 +1,66 @@
 {
   "..\\node_modules\\@supabase\\auth-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch": {
-    "id": "..\\node_modules\\@supabase\\auth-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch",
+    "id": 2410,
     "files": []
   },
   "..\\node_modules\\@supabase\\functions-js\\dist\\module\\helper.js -> @supabase/node-fetch": {
-    "id": "..\\node_modules\\@supabase\\functions-js\\dist\\module\\helper.js -> @supabase/node-fetch",
+    "id": 2410,
     "files": []
   },
   "..\\node_modules\\@supabase\\realtime-js\\dist\\module\\RealtimeClient.js -> @supabase/node-fetch": {
-    "id": "..\\node_modules\\@supabase\\realtime-js\\dist\\module\\RealtimeClient.js -> @supabase/node-fetch",
+    "id": 2410,
     "files": []
   },
   "..\\node_modules\\@supabase\\storage-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch": {
-    "id": "..\\node_modules\\@supabase\\storage-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch",
+    "id": 2410,
     "files": []
   },
-  "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts": {
-    "id": "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts",
-    "files": [
-      "static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js"
-    ]
-  },
   "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
-    "id": "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app",
+    "id": 472,
     "files": [
-      "static/chunks/_pages-dir-browser_node_modules_next_dist_pages__app_js.js"
+      "static/chunks/472.a3826d29d6854395.js"
     ]
   },
   "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
-    "id": "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error",
+    "id": 9341,
     "files": [
-      "static/chunks/_pages-dir-browser_node_modules_next_dist_pages__error_js.js"
+      "static/chunks/9341.e21ab9b6d7c03978.js"
     ]
   },
   "app\\ClientLayout.tsx -> @/components/ui/Footer": {
-    "id": "app\\ClientLayout.tsx -> @/components/ui/Footer",
+    "id": 4284,
     "files": [
-      "static/css/_app-pages-browser_src_components_ui_Footer_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_ui_Footer_tsx.js"
+      "static/css/db5440c3852e4ba0.css",
+      "static/chunks/6874-d27b54d0b28e3259.js",
+      "static/chunks/4284.20cdf48ff69bd5a5.js"
     ]
   },
   "app\\ClientLayout.tsx -> @/components/ui/Header": {
-    "id": "app\\ClientLayout.tsx -> @/components/ui/Header",
+    "id": 3065,
     "files": [
-      "static/css/_app-pages-browser_src_components_ui_Header_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_ui_Header_tsx.js"
+      "static/css/ed064cc724b2b88e.css",
+      "static/chunks/6874-d27b54d0b28e3259.js",
+      "static/chunks/3065.0c5880066102fab8.js"
     ]
   },
   "app\\ClientLayout.tsx -> @/components/ui/NavigationLoading": {
-    "id": "app\\ClientLayout.tsx -> @/components/ui/NavigationLoading",
+    "id": 8665,
     "files": [
-      "static/chunks/_app-pages-browser_src_components_ui_NavigationLoading_tsx.js"
+      "static/chunks/8274-28f37f4da33333c3.js",
+      "static/chunks/8665.b5f4cde795c976f7.js"
     ]
   },
   "app\\categories\\[slug]\\OptimizedCategoryPage.tsx -> @/components/ui/PriceRangeFilter": {
-    "id": "app\\categories\\[slug]\\OptimizedCategoryPage.tsx -> @/components/ui/PriceRangeFilter",
+    "id": 3245,
     "files": [
-      "static/css/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_ui_PriceRangeFilter_tsx.js"
+      "static/css/43ec40350385b17b.css",
+      "static/chunks/3245.dcb894f0271be4c3.js"
     ]
   },
   "components\\ui\\ProductCard.tsx -> @/components/ClientOnly": {
-    "id": "components\\ui\\ProductCard.tsx -> @/components/ClientOnly",
+    "id": 7367,
     "files": [
-      "static/chunks/_app-pages-browser_src_components_ClientOnly_tsx.js"
+      "static/chunks/7367.95899110c2a368f9.js"
     ]
   }
 }

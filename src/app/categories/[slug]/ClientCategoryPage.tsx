@@ -8,17 +8,7 @@ import { useCategoryData } from '@/hooks/useCategoryData';
 import { ProductListSkeleton } from '@/components/ui/ProductSkeleton';
 import styles from '@/styles/CategoryPage.module.scss';
 import { useRouter } from 'next/router';
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  price: number | string;
-  images: { public_url: string }[];
-  inventory: number;
-  categoryId?: number;
-  isActive?: boolean;
-}
+import { Product } from '@/types';
 
 // Dynamically import heavy components
 const ProductList = dynamic(
@@ -196,7 +186,7 @@ export default function ClientCategoryPage({
     
     return (products as Product[])
       .filter((product) => {
-        const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+        const price = product.price;
         const minPrice = minPriceFilter ? parseFloat(minPriceFilter) : -Infinity;
         const maxPrice = maxPriceFilter ? parseFloat(maxPriceFilter) : Infinity;
         
@@ -230,9 +220,9 @@ export default function ClientCategoryPage({
         </div>
         <div className={styles.products}>
           <ProductList 
-            products={filteredProducts.map(({ isActive, ...product }) => ({
+            products={filteredProducts.map((product) => ({
               ...product,
-              isActive: isActive ?? false
+              isActive: (product as any).isActive ?? false
             }))} 
             emptyMessage="No products found in this category"
           />

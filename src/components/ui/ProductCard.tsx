@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/utils';
 import styles from '@/styles/ProductCard.module.scss';
 import { ProductLink } from './ProductLink';
 import CollectionButton from './CollectionButton';
+import { Product } from '@/types';
 
 // Helper function to safely convert price to number
 const toNumber = (price: string | number): number => {
@@ -27,16 +28,6 @@ const preloadImages = (images: string[]) => {
     img.src = src;
   });
 };
-
-export interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  price: number | string;
-  images: { public_url: string }[];
-  inventory: number;
-  isActive?: boolean;
-}
 
 interface ProductCardProps {
   product: Product;
@@ -111,7 +102,7 @@ export default function ProductCard({ product, priority = false, isActive = fals
             </h3>
           </ProductLink>
           <div className={styles.footer}>
-            <p className={styles.price}>{formatPrice(toNumber(product.price))}</p>
+            <p className={styles.price}>{formatPrice(product.price)}</p>
             {product.inventory <= 0 && (
               <span className={styles.outOfStock}>Out of Stock</span>
             )}

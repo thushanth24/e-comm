@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
+import { Product } from '@/types';
 
 type FileUploadOptions = {
   bucket?: string;
@@ -332,25 +333,7 @@ export const formatProductForForm = (product: any) => {
 export { uploadFile as uploadImage };
 
 export interface CategoryWithProducts extends Category {
-  products: Array<{
-    id: number;
-    name: string;
-    slug: string;
-    description: string | null;
-    price: number;
-    inventory: number;
-    isFeatured: boolean;
-    isArchived: boolean;
-    categoryId: number;
-    createdAt: string;
-    updatedAt: string;
-    ProductImage: Array<{
-      id: number;
-      publicUrl: string;
-      isPrimary: boolean;
-      position: number;
-    }>;
-  }>;
+  products: Product[];
   parentCategory: Category | null;
   childCategories: Category[];
 }
@@ -473,11 +456,12 @@ export const getCategoryWithProducts = async (slug: string): Promise<CategoryWit
         categoryId: product.categoryId || product.category_id,
         createdAt: product.created_at,
         updatedAt: product.updated_at || new Date().toISOString(),
-        ProductImage: (product.ProductImage || []).map((img: any) => ({
+        images: (product.ProductImage || []).map((img: any) => ({
           id: img.id,
-          publicUrl: img.public_url,
-          isPrimary: img.is_primary || false,
-          position: 0
+          public_url: img.public_url,
+          is_primary: img.is_primary || false,
+          position: img.position || 0,
+          productId: product.id
         }))
       })),
       parentCategory: parentCategory ? {

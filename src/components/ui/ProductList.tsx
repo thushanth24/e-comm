@@ -5,7 +5,7 @@ import { PackageOpen, ArrowRight } from 'lucide-react';
 import styles from '@/styles/ProductList.module.scss';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Product } from './ProductCard';
+import { Product } from '@/types';
 
 interface ProductListProps {
   products: Product[];
@@ -44,11 +44,11 @@ export default function ProductList({
       ) : (
         <div className={styles.grid}>
           {products.map((product, index) => {
-            const { isActive, ...productData } = product;
+            const isActive = (product as any).isActive;
             return (
               <ProductCard 
-                key={productData.id} 
-                product={productData} 
+                key={product.id} 
+                product={product} 
                 isActive={isActive}
                 priority={index < 4} // Priority for first 4 products
               />

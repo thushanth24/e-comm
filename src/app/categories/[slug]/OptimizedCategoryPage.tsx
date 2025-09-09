@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { CategoryLink } from '@/components/ui/CategoryLink';
 import ProductList from '@/components/ui/ProductList';
 import styles from '@/styles/CategoryPage.module.scss';
+import { Product } from '@/types';
 
 // Dynamically import PriceRangeFilter
 const PriceRangeFilter = dynamic(
@@ -27,25 +28,7 @@ interface OptimizedCategoryPageProps {
       name: string;
       slug: string;
     }>;
-    products: Array<{
-      id: number;
-      name: string;
-      slug: string;
-      description: string | null;
-      price: number;
-      inventory: number;
-      isFeatured: boolean;
-      isArchived: boolean;
-      categoryId: number;
-      createdAt: string;
-      updatedAt: string;
-      ProductImage: Array<{
-        id: number;
-        publicUrl: string;
-        isPrimary: boolean;
-        position: number;
-      }>;
-    }>;
+    products: Product[];
     parentHierarchy?: Array<{ id: number; name: string; slug: string }>;
   };
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -75,12 +58,7 @@ export default function OptimizedCategoryPage({
     })
     .map(product => ({
       ...product,
-      images: product.ProductImage.map(img => ({
-        id: img.id,
-        public_url: img.publicUrl,
-        is_primary: img.isPrimary,
-        position: img.position
-      }))
+      images: product.images || []
     }));
 
   // Prepare breadcrumb items with proper hierarchy
