@@ -14,13 +14,14 @@ import {
   Clock,
   MapPin,
 } from 'lucide-react';
-import { useCollections } from '@/hooks/useCollections';
+import { useCollections } from '@/contexts/CollectionsContext';
 import styles from '@/styles/Header.module.scss';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isBasketBouncing, setIsBasketBouncing] = useState(false);
   const pathname = usePathname();
-  const { getCollectionCount } = useCollections();
+  const { getCollectionCount, collections } = useCollections();
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
@@ -133,6 +134,15 @@ export default function Header() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
 
+  // Listen for collection changes to trigger basket bounce
+  useEffect(() => {
+    if (collections.length > 0) {
+      setIsBasketBouncing(true);
+      const timer = setTimeout(() => setIsBasketBouncing(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [collections.length]);
+
   return (
     <>
       <header className={styles.header}>
@@ -165,7 +175,7 @@ export default function Header() {
           <div className={styles.actions}>
             <Link 
               href="/collections" 
-              className={`${styles.actionButton} ${isActive('/collections') ? styles.active : ''}`}
+              className={`${styles.actionButton} ${isActive('/collections') ? styles.active : ''} ${isBasketBouncing ? styles.bouncing : ''}`}
               title="My Collections"
             >
               <ShoppingBag className={styles.actionIcon} />

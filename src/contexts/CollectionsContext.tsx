@@ -1,15 +1,27 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Product } from '@/types';
 
 interface CollectionItem extends Product {
   addedAt: string;
 }
 
+interface CollectionsContextType {
+  collections: CollectionItem[];
+  isLoading: boolean;
+  addToCollection: (product: Product) => void;
+  removeFromCollection: (productId: number) => void;
+  isInCollection: (productId: number) => boolean;
+  clearCollections: () => void;
+  getCollectionCount: () => number;
+}
+
+const CollectionsContext = createContext<CollectionsContextType | undefined>(undefined);
+
 const COLLECTIONS_KEY = 'user_collections';
 
-export function useCollections() {
+export function CollectionsProvider({ children }: { children: ReactNode }) {
   const [collections, setCollections] = useState<CollectionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -72,7 +84,7 @@ export function useCollections() {
     return collections.length;
   }, [collections]);
 
-  return {
+  const value: CollectionsContextType = {
     collections,
     isLoading,
     addToCollection,
@@ -81,4 +93,18 @@ export function useCollections() {
     clearCollections,
     getCollectionCount
   };
+
+  return (
+    <CollectionsContext.Provider value={value}>
+      {children}
+    </CollectionsContext.Provider>
+  );
+}
+
+export function useCollections() {
+  const context = useContext(CollectionsContext);
+  if (context === undefined) {
+    throw new Error('useCollections must be used within a CollectionsProvider');
+  }
+  return context;
 }

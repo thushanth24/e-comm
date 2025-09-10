@@ -3,6 +3,7 @@
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
 import { useEffect, useState } from 'react';
+import { CollectionsProvider } from '@/contexts/CollectionsContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -17,14 +18,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeProvider 
-      attribute="class" 
-      defaultTheme="system" 
-      enableSystem 
-      disableTransitionOnChange
-    >
-      {children}
-      <Toaster position="top-right" richColors closeButton />
-    </ThemeProvider>
+    <CollectionsProvider>
+      <ThemeProvider 
+        attribute="class" 
+        defaultTheme="system" 
+        enableSystem 
+        disableTransitionOnChange
+      >
+        {children}
+        <Toaster position="top-right" richColors closeButton />
+      </ThemeProvider>
+    </CollectionsProvider>
   );
 }

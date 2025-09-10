@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useCollections } from '@/hooks/useCollections';
+import { useCollections } from '@/contexts/CollectionsContext';
 import { formatPrice } from '@/lib/utils';
 import { Trash2, ShoppingBag, Printer } from 'lucide-react';
 import styles from './collections.module.scss';
