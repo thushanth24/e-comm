@@ -13,10 +13,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <CollectionsProvider>
       <ThemeProvider 

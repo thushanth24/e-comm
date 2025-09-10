@@ -24,9 +24,17 @@ const COLLECTIONS_KEY = 'user_collections';
 export function CollectionsProvider({ children }: { children: ReactNode }) {
   const [collections, setCollections] = useState<CollectionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Handle SSR by checking if we're on the client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load collections from localStorage on mount
   useEffect(() => {
+    if (!mounted) return;
+    
     try {
       const stored = localStorage.getItem(COLLECTIONS_KEY);
       if (stored) {
@@ -38,18 +46,18 @@ export function CollectionsProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [mounted]);
 
   // Save collections to localStorage whenever collections change
   useEffect(() => {
-    if (!isLoading) {
-      try {
-        localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(collections));
-      } catch (error) {
-        console.error('Error saving collections to localStorage:', error);
-      }
+    if (!mounted || isLoading) return;
+    
+    try {
+      localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(collections));
+    } catch (error) {
+      console.error('Error saving collections to localStorage:', error);
     }
-  }, [collections, isLoading]);
+  }, [collections, isLoading, mounted]);
 
   const addToCollection = useCallback((product: Product) => {
     setCollections(prev => {
