@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { CategoryLink } from './CategoryLink';
 import SearchBar from './SearchBar';
@@ -20,8 +20,11 @@ import styles from '@/styles/Header.module.scss';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBasketBouncing, setIsBasketBouncing] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
   const pathname = usePathname();
   const { getCollectionCount, collections } = useCollections();
+
+  const DEBUG = process.env.NODE_ENV !== 'production';
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
@@ -143,13 +146,84 @@ export default function Header() {
     }
   }, [collections.length]);
 
+  // Measure header height and expose as CSS var for layout offset
+  useEffect(() => {
+    const updateHeaderOffset = () => {
+      const el = headerRef.current;
+      if (el) {
+        const height = el.offsetHeight;
+        document.documentElement.style.setProperty('--header-offset', `${height}px`);
+        if (DEBUG) {
+          const cssVal = getComputedStyle(document.documentElement).getPropertyValue('--header-offset');
+          const cs = getComputedStyle(el);
+          // eslint-disable-next-line no-console
+          console.log('[Header][measure]', { height, cssVal: cssVal.trim(), position: cs.position, top: cs.top, zIndex: cs.zIndex });
+        }
+      }
+    };
+
+    updateHeaderOffset();
+    window.addEventListener('resize', updateHeaderOffset);
+    return () => window.removeEventListener('resize', updateHeaderOffset);
+  }, []);
+
+  // Debug: on mount log computed styles and environment
+  useEffect(() => {
+    if (!DEBUG) return;
+    const el = headerRef.current;
+    const bodyCS = getComputedStyle(document.body);
+    const htmlCS = getComputedStyle(document.documentElement);
+    // eslint-disable-next-line no-console
+    console.log('[Header][mount]', {
+      NODE_ENV: process.env.NODE_ENV,
+      hasRef: !!el,
+      className: el?.className,
+      bodyClass: document.body.className,
+      htmlClass: (document.documentElement as HTMLElement).className,
+      bodyTransform: bodyCS.transform,
+      htmlTransform: htmlCS.transform,
+    });
+    if (el) {
+      const cs = getComputedStyle(el);
+      // eslint-disable-next-line no-console
+      console.log('[Header][computed]', {
+        position: cs.position,
+        top: cs.top,
+        zIndex: cs.zIndex,
+        left: cs.left,
+        right: cs.right,
+      });
+    }
+  }, []);
+
+  // Debug: track scroll position vs header position
+  useEffect(() => {
+    if (!DEBUG) return;
+    const el = headerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const rect = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      // eslint-disable-next-line no-console
+      console.log('[Header][scroll]', { scrollY: window.scrollY, headerTop: rect.top, position: cs.position });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [DEBUG]);
+
+  // Debug: log menu state changes which affect body styles
+  useEffect(() => {
+    if (!DEBUG) return;
+    const bodyCS = getComputedStyle(document.body);
+    // eslint-disable-next-line no-console
+    console.log('[Header][menu]', { isMenuOpen, bodyOverflow: bodyCS.overflow, bodyPosition: bodyCS.position });
+  }, [isMenuOpen]);
+
   return (
     <>
-      <header className={styles.header}>
-        {/* Top Announcement Bar */}
-        <div className={styles.announcementBar}>
-          <p>SRI RAM SELECTION - MOST AFFORDABLE PRICES ON THE MARKET</p>
-        </div>
+      <header ref={headerRef} className={styles.header}>
+        
 
         <div className={styles.mainHeader}>
           <button 

@@ -27,7 +27,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       <div className="min-h-screen flex flex-col">
         <Header />
         
-        <main className="flex-1 relative">
+        <main className="flex-1 relative" style={{ paddingTop: 'var(--header-offset, 128px)' }}>
           {/* Main content with loading state */}
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center bg-background/50">
