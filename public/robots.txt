@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://your-netlify-site-url.netlify.app
+Host: sriramselection.site
 
 # Sitemaps
-Sitemap: https://your-netlify-site-url.netlify.app/sitemap.xml
+Sitemap: https://sriramselection.site/sitemap.xml
