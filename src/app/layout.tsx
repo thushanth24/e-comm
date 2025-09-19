@@ -98,6 +98,39 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Structured Data: Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'SRI RAM SELECTION',
+              url: siteUrl,
+              logo: `${siteUrl}/apple-touch-icon.png`,
+              sameAs: [
+                // Add your social profiles here
+              ],
+            }),
+          }}
+        />
+        {/* Structured Data: WebSite with potentialAction */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'SRI RAM SELECTION',
+              url: siteUrl,
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${siteUrl}/search?q={search_term_string}`,
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ClientLayout>
