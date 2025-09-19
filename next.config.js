@@ -1,22 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static exports for Netlify
-  output: 'export',
-  
-  // Base path for production
-  basePath: process.env.NODE_ENV === 'production' ? '' : undefined,
-  
-  // Asset prefix for CDN support
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : undefined,
-  
-  // Set trailing slash for better compatibility with static exports
-  trailingSlash: true,
-  
-  // Disable React's strict mode during development to prevent double rendering
-  reactStrictMode: process.env.NODE_ENV !== 'development',
-  
-  // Enable production source maps for better debugging
-  productionBrowserSourceMaps: true,
   // Configure experimental features
   experimental: {
     // Enable server actions

@@ -10,13 +10,51 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+// Site base URL for metadata and canonical URLs
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://your-netlify-site-url.netlify.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'SRI RAM SELECTION',
     template: '%s | SRI RAM SELECTION',
   },
   description: 'Discover trendy clothing and accessories for men, women, and kids at StyleStore.',
   keywords: 'fashion, clothing, accessories, mens clothing, womens clothing, kids clothing',
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    // Use string form for advanced Googlebot directives
+    googleBot: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+  },
+  openGraph: {
+    type: 'website',
+    url: siteUrl,
+    title: 'SRI RAM SELECTION',
+    siteName: 'SRI RAM SELECTION',
+    description: 'Discover trendy clothing and accessories for men, women, and kids at StyleStore.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'SRI RAM SELECTION',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SRI RAM SELECTION',
+    description: 'Discover trendy clothing and accessories for men, women, and kids at StyleStore.',
+    images: ['/og-image.jpg'],
+  },
+  // Replace with your real code after you add the property in Search Console
+  verification: {
+    google: 'YOUR_GOOGLE_VERIFICATION_CODE',
+  },
   icons: [
     {
       rel: 'icon',

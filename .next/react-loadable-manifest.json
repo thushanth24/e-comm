@@ -1,1 +1,54 @@
-{}
+{
+  "../node_modules/@supabase/auth-js/dist/module/lib/helpers.js -> @supabase/node-fetch": {
+    "id": 2410,
+    "files": []
+  },
+  "../node_modules/@supabase/functions-js/dist/module/helper.js -> @supabase/node-fetch": {
+    "id": 2410,
+    "files": []
+  },
+  "../node_modules/@supabase/realtime-js/dist/module/RealtimeClient.js -> @supabase/node-fetch": {
+    "id": 2410,
+    "files": []
+  },
+  "../node_modules/@supabase/storage-js/dist/module/lib/helpers.js -> @supabase/node-fetch": {
+    "id": 2410,
+    "files": []
+  },
+  "app/ClientLayout.tsx -> @/components/ui/Footer": {
+    "id": 4284,
+    "files": [
+      "static/css/b3f669d3122f29f3.css",
+      "static/chunks/6874-d27b54d0b28e3259.js",
+      "static/chunks/4284.9b04e06ce6381085.js"
+    ]
+  },
+  "app/ClientLayout.tsx -> @/components/ui/Header": {
+    "id": 3065,
+    "files": [
+      "static/css/35320e3a9a2fe3af.css",
+      "static/chunks/6874-d27b54d0b28e3259.js",
+      "static/chunks/3065.42d8079b53d036b3.js"
+    ]
+  },
+  "app/ClientLayout.tsx -> @/components/ui/NavigationLoading": {
+    "id": 8665,
+    "files": [
+      "static/chunks/8274-28f37f4da33333c3.js",
+      "static/chunks/8665.b5f4cde795c976f7.js"
+    ]
+  },
+  "app/categories/[slug]/OptimizedCategoryPage.tsx -> @/components/ui/PriceRangeFilter": {
+    "id": 3245,
+    "files": [
+      "static/css/6689634f8d9e7e97.css",
+      "static/chunks/3245.dcb894f0271be4c3.js"
+    ]
+  },
+  "components/ui/ProductCard.tsx -> @/components/ClientOnly": {
+    "id": 7367,
+    "files": [
+      "static/chunks/7367.95899110c2a368f9.js"
+    ]
+  }
+}

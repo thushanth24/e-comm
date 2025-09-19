@@ -1,6 +1,9 @@
-# https://www.robotstxt.org/robotstxt.html
+# *
 User-agent: *
 Allow: /
 
-# Sitemap location (will be updated during build)
-Sitemap: /sitemap.xml
+# Host
+Host: https://your-netlify-site-url.netlify.app
+
+# Sitemaps
+Sitemap: https://your-netlify-site-url.netlify.app/sitemap.xml
