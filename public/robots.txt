@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: sriramselection.site
+
+# Sitemaps
+Sitemap: https://sriramselection.site/sitemap.xml
