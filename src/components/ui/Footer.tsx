@@ -171,62 +171,9 @@ export default function Footer() {
           </div>
 
           {/* Developer Section */}
-          <div className={`${styles.footerSection} ${styles.developerSection}`}>
-            <button 
-              className={styles.sectionHeader}
-              onClick={() => toggleSection('developer')}
-              aria-expanded={expandedSections.developer}
-            >
-              <h3>Developed By</h3>
-              <ChevronDown className={`${styles.chevron} ${expandedSections.developer ? styles.expanded : ''}`} />
-            </button>
-            <div className={`${styles.developerContent} ${expandedSections.developer ? styles.expanded : ''}`}>
-              {/* Logo */}
-              <img 
-                src="/images/logo2.PNG" 
-                alt="Axzell Innovations Logo" 
-                className={styles.developerLogo} 
-              />
-
-              {/* Contact Info */}
-              <div className={styles.contactInfo}>
-                <span className={styles.developerName}>axzell innovations</span>
-                <div className={styles.contactDetails}>
-                  <span className={styles.contactItem}>
-                    <Phone className={styles.contactIcon} size={14} />
-                    +94 (768) 180-977
-                  </span>
-                  <span className={styles.contactItem}>
-                    <Mail className={styles.contactIcon} size={14} />
-                    social@axzellin.com
-                  </span>
-                  <a 
-                    href="https://www.axzellin.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className={styles.websiteLink}
-                  >
-                    <MapPin className={styles.contactIcon} />
-                    <span>www.axzellin.com</span>
-                  </a>
-                </div>
-                <div className={styles.socialIcons}>
-                  {developerSocials.map((social) => (
-                    <a
-                      key={social.label}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Visit Axzell ${social.label}`}
-                      className={`${styles.socialIcon} ${social.color}`}
-                    >
-                      <social.icon className={styles.socialIconSvg} />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+       
+        
+          
         </div>
 
        
